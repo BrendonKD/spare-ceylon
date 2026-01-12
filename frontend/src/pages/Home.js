@@ -1,10 +1,11 @@
-// src/pages/Home.js
 import React from "react";
 import "./Home.css";
+import Header from "../components/header.js";
 
 const Home = () => {
-  return (
+  return ( 
     <div className="home-page">
+      <Header />
       {/* Hero / Search section */}
       <section className="hero-section">
         <div className="container">

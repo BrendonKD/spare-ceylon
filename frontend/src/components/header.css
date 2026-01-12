@@ -1,0 +1,56 @@
+/* Ensure your logo stays the right size */
+.sc-logo-img {
+  height: 40px;
+  width: auto;
+}
+
+/* Custom Nav Link Colors */
+.sc-nav-links .nav-link {
+  font-size: 0.95rem;
+  margin: 0 0.5rem;
+  color: #444 !important; /* Force override of Bootstrap default */
+  font-weight: 500;
+}
+
+.sc-nav-links .nav-link:hover {
+  color: #00695c !important;
+}
+
+.sc-nav-links .nav-link.active {
+  color: #8D183A !important;
+  font-weight: 600;
+}
+
+/* Your custom Sign-in button */
+.sc-signin-btn {
+  border-radius: 999px;
+  border: 2px solid #00695c !important;
+  color: #00695c !important;
+  background-color: #ffffff;
+  padding: 0.35rem 1.4rem;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.sc-signin-btn:hover {
+  background-color: #00695c !important;
+  color: #ffffff !important;
+}
+
+/* Responsive Overrides */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    padding: 1.5rem 0;
+    text-align: center;
+  }
+  
+  .sc-nav-links .nav-link {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .w-100-mobile {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
