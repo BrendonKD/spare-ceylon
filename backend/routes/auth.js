@@ -4,8 +4,10 @@ const User = require("../models/User");
 const CustomerProfile = require("../models/CustomerProfile");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const auth = require("../middleware/authMiddleware");
 
-// POST /api/auth/register
+
+// POST register
 router.post("/register", async (req, res) => {
   try {
     const { role, firstName, lastName, email, phone, location, password } = req.body;
@@ -83,6 +85,26 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);            // <- this prints in terminal
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /api/auth/profile  (protected – like user.js)
+router.get("/profile", auth, async (req, res) => {
+  try {
+    // auth middleware already loaded req.user, but we can re‑fetch if needed
+    const user = await User.findById(req.user._id).select("full_name email role");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role
+    });
+  } catch (err) {
+    console.error("Profile error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 });

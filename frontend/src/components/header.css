@@ -54,3 +54,41 @@
     margin-top: 1rem;
   }
 }
+
+/* Style for the Google Symbol */
+.user-icon-btn {
+    background: none;
+    border: none;
+    color: #0f766e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    transition: transform 0.2s ease;
+}
+
+.user-icon-btn:hover {
+    transform: scale(1.1);
+    color: #0b5f57;
+}
+
+/* Style for Back to Home Button */
+.sc-home-btn {
+    background-color: #64748b;
+    color: white;
+    border-radius: 999px;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.sc-home-btn:hover {
+    background-color: #475569;
+    color: white;
+}
+
+.material-symbols-outlined {
+    font-size: 31px !important;
+}
