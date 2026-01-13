@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const CustomerProfile = require("../models/CustomerProfile");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
@@ -48,33 +49,29 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    console.log("Login body:", req.body);          // debug
+
     const { email, password, role } = req.body;
 
-    if (!email || !password || !role) {
-      return res.status(400).json({ message: "Email, password and role are required" });
-    }
-
-    // 1) find user by email + role
     const user = await User.findOne({ email, role });
+    console.log("Found user:", user);              // debug
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 2) compare password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 3) generate JWT
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET || "dev_secret",
       { expiresIn: "7d" }
     );
 
-    // 4) send JSON response
-    res.json({
+    return res.json({
       message: "Login successful",
       token,
       user: {
@@ -85,10 +82,9 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", err);            // <- this prints in terminal
+    return res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;
