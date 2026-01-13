@@ -1,8 +1,10 @@
 import React from "react";
 import "./header.css";
 import logo from "../assets/logoSC.png";
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+    const navigate = useNavigate();
   return (
     <header className="sc-header shadow-sm sticky-top bg-white">
       <nav className="navbar navbar-expand-lg">
@@ -47,7 +49,12 @@ const Header = () => {
 
             {/* Action Button */}
             <div className="d-flex">
-              <button className="btn sc-signin-btn w-100-mobile">Sign In</button>
+                <button 
+                    className="btn sc-signin-btn w-100-mobile" 
+                    onClick={() => navigate('/login')}
+                >
+                    Sign In
+                </button>
             </div>
           </div>
         </div>
