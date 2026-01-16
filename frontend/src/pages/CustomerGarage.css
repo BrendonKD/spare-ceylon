@@ -1,0 +1,61 @@
+.customer-garage-page {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+}
+
+.add-vehicle-btn {
+  background-color: #0f766e;
+  color: #fff;
+  border-radius: 900px;
+  border: none;
+  width: 10%;
+  height: 40px;
+}
+
+.add-vehicle-btn:hover {
+  background-color: #0b5f57;
+  color: #fff;
+}
+
+.garage-form-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+}
+
+.garage-vehicle-card {
+  background-color: #f9fafb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.vehicle-image-wrapper {
+  height: 200px;
+  overflow: hidden;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.view-history-btn {
+  background-color: #0f766e;
+  color: #fff;
+  border-radius: 999px;
+}
+
+.view-history-btn:hover {
+  background-color: #0b5f57;
+  color: #fff;
+}
+
+@media (max-width: 767.98px) {
+  .vehicle-image-wrapper {
+    height: 180px;
+  }
+}

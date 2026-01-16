@@ -70,8 +70,11 @@ const CustomerDashboard = () => {
                                     <span className="material-symbols-outlined">dashboard</span>
                                     Dashboard
                                 </button>
-                                <button className="dash-menu-item">
-                                    <span className="material-symbols-outlined ">directions_car</span>
+                                <button
+                                    className="dash-menu-item"
+                                    onClick={() => navigate("/customer/garage")}
+                                    >
+                                    <span className="material-symbols-outlined">directions_car</span>
                                     My Garage
                                 </button>
                                 <button className="dash-menu-item">

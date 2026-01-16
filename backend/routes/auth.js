@@ -5,9 +5,10 @@ const CustomerProfile = require("../models/CustomerProfile");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/authMiddleware");
+const Vendor = require("../models/Vendor");
 
 
-// POST register
+// POST user register details
 router.post("/register", async (req, res) => {
   try {
     const { role, firstName, lastName, email, phone, location, password } = req.body;
@@ -51,12 +52,12 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    console.log("Login body:", req.body);          // debug
+    console.log("Login body:", req.body);
 
     const { email, password, role } = req.body;
 
     const user = await User.findOne({ email, role });
-    console.log("Found user:", user);              // debug
+    console.log("Found user:", user);           
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -84,15 +85,13 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Login error:", err);            // <- this prints in terminal
+    console.error("Login error:", err);            
     return res.status(500).json({ message: "Server error" });
   }
 });
 
-// GET /api/auth/profile  (protected – like user.js)
 router.get("/profile", auth, async (req, res) => {
   try {
-    // auth middleware already loaded req.user, but we can re‑fetch if needed
     const user = await User.findById(req.user._id).select("full_name email role");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -108,5 +107,69 @@ router.get("/profile", auth, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// POST vendor registration
+router.get("/register/vendor", async (req, res) => {
+  try {
+    const {
+      contactFirstName,
+      contactLastName,
+      email,
+      phone,
+      businessName,
+      businessRegNo,
+      address,
+      description,
+      password
+    } = req.body;
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    //create user with role 'vendor'
+    const user = new User({
+      full_name: `${contactFirstName} ${contactLastName}`,
+      email,
+      phone,
+      role: "vendor"
+    });
+    await user.setPassword(password);
+    await user.save();
+
+    //create vendor profile
+    const vendor = new Vendor({
+      vendor_id: user._id,
+      business_name: businessName,
+      business_reg_no: businessRegNo,
+      address,
+      description
+    });
+    await vendor.save();
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET || "dev_secret",
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({
+      message: "Vendor registered",
+      token,
+      user: {
+        id: user._id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    console.error("Vendor register error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 module.exports = router;
