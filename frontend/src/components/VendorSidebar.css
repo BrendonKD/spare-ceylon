@@ -1,0 +1,66 @@
+/* Sidebar container */
+
+.vd-sidebar {
+  background-color: #f9fafb;
+  border-radius: 0 16px 16px 0; /* flush left, rounded right */
+  padding: 1.5rem 1.25rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* User info card */
+
+.vd-user-card {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.vd-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background-color: #111827;
+}
+
+/* Menu */
+
+.vd-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.vd-menu-item {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  background-color: transparent;
+  text-align: left;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #111827;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.vd-menu-item .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.vd-menu-item:hover {
+  background-color: #e5f3f1;
+}
+
+.vd-menu-item.active {
+  background-color: #0f766e;
+  color: #ffffff;
+}
+
+.vd-menu-item.logout {
+  color: #b91c1c;
+}

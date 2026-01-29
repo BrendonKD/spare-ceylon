@@ -2,6 +2,20 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const CustomerVehicle = require("../models/CustomerVehicle");
+const multer = require("multer");
+const path = require("path");
+
+// Configure Storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Ensure this folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+  },
+});
+
+const upload = multer({ storage: storage });
 //const Order = require("../models/Order");
 
 // GET /api/garage  -> list vehicles for logged-in customer
@@ -23,14 +37,14 @@ router.get("/", auth, async (req, res) => {
 });
 
 // POST /api/garage  -> add vehicle
-router.post("/", auth, async (req, res) => {
+router.post("/", auth, upload.single("image"), async (req, res) => {
   try {
     if (req.user.role !== "customer") {
       return res.status(403).json({ message: "Only customers can add vehicles" });
     }
 
-    const { make, model, year, vehicle_no, fuel_type, engine_capacity, mileage, image_url } =
-      req.body;
+    // req.file contains the file info, req.body contains the text fields
+    const { make, model, year, vehicle_no, fuel_type, engine_capacity, mileage } = req.body;
 
     const vehicle = new CustomerVehicle({
       customer_id: req.user._id,
@@ -41,7 +55,8 @@ router.post("/", auth, async (req, res) => {
       fuel_type,
       engine_capacity,
       mileage,
-      image_url
+      // Save the relative path to the DB
+      image_url: req.file ? req.file.path.replace(/\\/g, "/") : "" 
     });
 
     await vehicle.save();

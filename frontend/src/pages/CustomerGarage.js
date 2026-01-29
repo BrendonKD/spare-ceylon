@@ -16,7 +16,7 @@ const CustomerGarage = () => {
     fuel_type: "Petrol",
     engine_capacity: "",
     mileage: "",
-    image_url: ""
+    image_file: null
   });
   const [loading, setLoading] = useState(false);
 
@@ -47,57 +47,51 @@ const CustomerGarage = () => {
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-//for image uploading of vehicles
-    const handleFileChange = (e) => {
+  };
+
+  const handleFileChange = (e) => {
     const file = e.target.files[0] || null;
     setForm((prev) => ({ ...prev, image_file: file }));
-    };
+  };
 
+const handleAddVehicle = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  const formData = new FormData();
+  formData.append("make", form.make);
+  formData.append("model", form.model);
+  formData.append("year", form.year);
+  formData.append("vehicle_no", form.vehicle_no);
+  formData.append("fuel_type", form.fuel_type);
+  formData.append("engine_capacity", form.engine_capacity);
+  formData.append("mileage", form.mileage);
 
-    const handleAddVehicle = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-        const fd = new FormData();
-        fd.append("make", form.make);
-        fd.append("model", form.model);
-        fd.append("year", form.year);
-        fd.append("vehicle_no", form.vehicle_no);
-        fd.append("fuel_type", form.fuel_type);
-        fd.append("engine_capacity", form.engine_capacity);
-        fd.append("mileage", form.mileage);
-        if (form.image_file) {
-        fd.append("image", form.image_file); // field name 'image'
-        }
+  // Only append if a file exists
+  if (form.image_file) {
+    formData.append("image", form.image_file); 
+  }
 
-        const res = await axios.post("http://localhost:5000/api/garage", fd, {
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/garage",
+      formData, // Send the formData object
+      {
         headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-        }
-        });
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", // Change content type
+        },
+      }
+    );
 
-        setVehicles((prev) => [res.data, ...prev]);
-        setShowForm(false);
-        setForm({
-        make: "",
-        model: "",
-        year: "",
-        vehicle_no: "",
-        fuel_type: "Petrol",
-        engine_capacity: "",
-        mileage: "",
-        image_url: "",
-        image_file: null
-        });
-    } catch (err) {
-        console.error("Error adding vehicle", err.response?.data || err.message);
-    } finally {
-        setLoading(false);
-    }
-    };
+    setVehicles((prev) => [res.data, ...prev]);
+    setShowForm(false);
+  } catch (err) {
+    console.error("Error adding vehicle", err.response?.data || err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const handleDelete = async (id) => {
@@ -113,7 +107,6 @@ const CustomerGarage = () => {
   };
 
   const handleViewHistory = (id) => {
-    // for now just alert; later navigate to /customer/garage/:id/history
     alert("History view not implemented yet. Vehicle ID: " + id);
   };
 
@@ -166,8 +159,8 @@ const CustomerGarage = () => {
                       <label className="form-label small">Year</label>
                       <input
                         name="year"
-                        placeholder="Manufactured Year"
                         type="number"
+                        placeholder="2024"
                         className="form-control form-control-sm"
                         value={form.year}
                         onChange={handleChange}
@@ -178,7 +171,7 @@ const CustomerGarage = () => {
                       <label className="form-label small">Vehicle No.</label>
                       <input
                         name="vehicle_no"
-                        placeholder="WP CBF- 6428"
+                        placeholder="WP CBF-6428"
                         className="form-control form-control-sm"
                         value={form.vehicle_no}
                         onChange={handleChange}
@@ -204,8 +197,8 @@ const CustomerGarage = () => {
                       <label className="form-label small">Engine Capacity</label>
                       <input
                         name="engine_capacity"
-                        className="form-control form-control-sm"
                         placeholder="1500cc"
+                        className="form-control form-control-sm"
                         value={form.engine_capacity}
                         onChange={handleChange}
                         required
@@ -215,27 +208,25 @@ const CustomerGarage = () => {
                       <label className="form-label small">Mileage</label>
                       <input
                         name="mileage"
-                        className="form-control form-control-sm"
                         placeholder="25000km"
+                        className="form-control form-control-sm"
                         value={form.mileage}
                         onChange={handleChange}
                         required
                       />
                     </div>
                     <div className="col-12 col-md-3">
-                        <label className="form-label small">Vehicle Image</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="form-control form-control-sm"
-                            onChange={handleFileChange}
-                        />
+                      <label className="form-label small">Vehicle Image</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="form-control form-control-sm"
+                        onChange={handleFileChange}
+                      />
                     </div>
-
                   </div>
 
                   <div className="mt-3">
-                    <form onSubmit={handleAddVehicle}>
                     <button
                       type="submit"
                       className="btn btn-sm btn-primary me-2"
@@ -250,7 +241,6 @@ const CustomerGarage = () => {
                     >
                       Cancel
                     </button>
-                    </form>
                   </div>
                 </form>
               </div>
@@ -266,8 +256,9 @@ const CustomerGarage = () => {
                         className="vehicle-image"
                         style={{
                           backgroundImage: `url(${
-                            v.image_url ||
-                            "https://images.pexels.com/photos/4488630/pexels-photo-4488630.jpeg"
+                            v.image_url 
+                              ? `http://localhost:5000/${v.image_url}` // Prepend your server URL
+                              : "https://images.pexels.com/photos/4488630/pexels-photo-4488630.jpeg"
                           })`
                         }}
                       />

@@ -5,6 +5,8 @@ import CustomerRegisterPage from './pages/CustomerRegisterPage';
 import VendorRegisterPage from "./pages/VendorRegisterPage";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CustomerGarage from "./pages/CustomerGarage";
+import VendorDashboard from "./pages/VendorDashboard";
+
 
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route path="/register/vendor" element={<VendorRegisterPage />} />
         <Route path="/customer/dashboard" element={<CustomerDashboard />} />
         <Route path="/customer/garage" element={<CustomerGarage />} />
+
+        <Route path="/vendor/dashboard" element={<VendorDashboard />} />
       </Routes>
 
   </Router>
