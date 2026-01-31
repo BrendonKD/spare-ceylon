@@ -12,9 +12,9 @@ app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", require("./routes/auth"));
-//app.use("/api/user", require("./routes/user"));
 app.use("/api/garage", require("./routes/garage"));
-
+app.use('/api/vendor/listings', require('./routes/vendorListings'));
+app.use('/api/products', require('./routes/products'));
 
 app.get('/', (req, res) => {
   res.send('Spare Ceylon API running');

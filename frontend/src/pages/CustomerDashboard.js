@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import "./CustomerDashboard.css";
 import Header from "../components/header.js";
+import Sidebar from "../components/CustomerSidebar.js";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
@@ -8,9 +9,17 @@ const CustomerDashboard = () => {
     const navigate = useNavigate();
     
     const [user, setUser] = useState({
-        name: "Loading...",
+        full_name: "Loading...",
         email: "..."
     });
+
+    // 1. Define handleLogout first and wrap in useCallback
+    // This prevents the "use-before-define" error and the dependency loop
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        navigate("/");
+    }, [navigate]);
 
     // 2. Fetch data from database on load
     useEffect(() => {
@@ -23,14 +32,14 @@ const CustomerDashboard = () => {
                 }
 
                 // Call backend API
-                const response = await axios.get("http://localhost:5000/api/user/profile", {
+                const response = await axios.get("http://localhost:5000/api/auth/profile", {
                     headers: { Authorization: `Bearer ${token}` }
-                    });
+                });
 
-                    setUser({
+                setUser({
                     full_name: response.data.full_name,
                     email: response.data.email
-                    });
+                });
 
             } catch (error) {
                 console.error("Error fetching user data", error);
@@ -42,70 +51,22 @@ const CustomerDashboard = () => {
         };
 
         fetchUserData();
-    }, [navigate]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        navigate("/");
-    };
+    }, [navigate, handleLogout]); // handleLogout is now stable
 
     return (
         <div className="customer-dashboard">
             <Header />
             <div className="container-fluid px-0"> 
                 <div className="row g-0"> 
-                    
-                    {/* LEFT SIDEBAR */}
                     <div className="col-12 col-md-3 col-lg-2">
-                        <aside className="dash-sidebar">
-                            <div className="dash-user-card text-center mb-3">
-                                <div className="dash-avatar mx-auto mb-2" />
-                                <div className="fw-semibold">{user.full_name}</div>
-                                <div className="small text-muted">{user.email}</div>
-                            </div>
-
-                            <nav className="dash-menu">
-                                <button className="dash-menu-item active">
-                                    <span className="material-symbols-outlined">dashboard</span>
-                                    Dashboard
-                                </button>
-                                <button
-                                    className="dash-menu-item"
-                                    onClick={() => navigate("/customer/garage")}
-                                    >
-                                    <span className="material-symbols-outlined">directions_car</span>
-                                    My Garage
-                                </button>
-                                <button className="dash-menu-item">
-                                    <span className="material-symbols-outlined">shopping_bag</span>
-                                    Orders
-                                </button>
-                                <button className="dash-menu-item">
-                                    <span className="material-symbols-outlined">mail</span>
-                                    Message Center
-                                </button>
-                                <button className="dash-menu-item">
-                                    <span className="material-symbols-outlined">settings</span>
-                                    Settings
-                                </button>
-
-                                <button 
-                                    className="dash-menu-item logout mt-3"
-                                    onClick={handleLogout}
-                                >
-                                    <span className="material-symbols-outlined">logout</span>
-                                    Log Out
-                                </button>
-                            </nav>
-                        </aside>
+                        <Sidebar user={user} handleLogout={handleLogout} />
                     </div>
 
                     {/* MAIN CONTENT */}
                     <div className="col-12 col-md-9 col-lg-10 p-4">
                         <main>
                             <div className="mb-4">
-                                <h5 className="mb-1">Welcome Back {user.name} !</h5>
+                                <h5 className="mb-1">Welcome Back {user.full_name} !</h5>
                                 <p className="small text-muted mb-0">Here is the summary of your activities...</p>
                             </div>
 
@@ -142,7 +103,7 @@ const CustomerDashboard = () => {
                             </div>
 
                             <div className="row g-4">
-                                {/* ORDER LISTn */}
+                                {/* ORDER LIST */}
                                 <div className="col-12 col-xl-8">
                                     <div className="order-list">
                                         {[1, 2, 3].map((o) => (

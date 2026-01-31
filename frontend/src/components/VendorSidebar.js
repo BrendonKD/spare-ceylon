@@ -1,7 +1,9 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import "./VendorSidebar.css";
 
 const VendorSidebar = ({ vendor, activeItem, onLogout }) => {
+  const navigate = useNavigate();
   return (
     <aside className="vd-sidebar">
       <div className="vd-user-card text-center mb-3">
@@ -13,6 +15,7 @@ const VendorSidebar = ({ vendor, activeItem, onLogout }) => {
       <nav className="vd-menu">
         <button
           className={`vd-menu-item ${activeItem === "dashboard" ? "active" : ""}`}
+          onClick={() => navigate("/vendor/dashboard")}  
         >
           <span className="material-symbols-outlined">dashboard</span>
           Dashboard
@@ -20,10 +23,12 @@ const VendorSidebar = ({ vendor, activeItem, onLogout }) => {
 
         <button
           className={`vd-menu-item ${activeItem === "list-products" ? "active" : ""}`}
+          onClick={() => navigate("/vendor/list-products")}  
         >
           <span className="material-symbols-outlined">add_box</span>
           List Products
         </button>
+
 
         <button
           className={`vd-menu-item ${activeItem === "manage-orders" ? "active" : ""}`}

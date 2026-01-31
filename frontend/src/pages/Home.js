@@ -99,7 +99,7 @@ const Home = () => {
             <h2 className="section-title mb-2">
               Trending & Newly Listed Parts
             </h2>
-            <button className="btn btn-link p-0">
+            <button className="btn p-0">
               View All
             </button>
           </div>
@@ -136,7 +136,7 @@ const Home = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h2 className="section-title mb-2">Verified Vendors</h2>
-            <button className="btn btn-link p-0">
+            <button className="btn p-0">
               View All Vendors
             </button>
           </div>
@@ -168,7 +168,7 @@ const Home = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h2 className="section-title mb-2">Community Highlights</h2>
-            <button className="btn btn-link p-0">Visit Forum</button>
+            <button className="btn p-0">Visit Forum</button>
           </div>
 
           <div className="row g-3">
