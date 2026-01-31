@@ -3,7 +3,6 @@
 .vd-sidebar {
   background-color: #f9fafb;
   border-radius: 0 16px 16px 0; /* flush left, rounded right */
-  padding: 1.5rem 1.25rem;
   height: 100%;
   display: flex;
   flex-direction: column;

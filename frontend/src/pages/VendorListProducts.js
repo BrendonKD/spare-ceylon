@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import Header from "../components/header";
 import VendorSidebar from '../components/VendorSidebar';
 import './VendorListProducts.css';
 
 const VendorListProducts = () => {
-  const [listings, setListings] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({
+    const [listings, setListings] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [formData, setFormData] = useState({
     product_id: '',
     title: '',
     description: '',
@@ -14,16 +15,25 @@ const VendorListProducts = () => {
     price: '',
     quantity_available: '',
     location: ''
-  });
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+    });
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem('token');
-  const vendor = { full_name: 'Vendor Name', email: 'vendor@email.com' }; // from profile
+    const token = localStorage.getItem('token');
+    const [vendor, setVendor] = useState({ full_name: 'Loading...', email: '' });
 
 useEffect(() => {
   const loadData = async () => {
     try {
+
+    // 1. Load Vendor Profile
+      const profileRes = await fetch('http://localhost:5000/api/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setVendor(profileData); // This updates the sidebar!
+      }
       // Load listings
       const listingsRes = await fetch('http://localhost:5000/api/vendor/listings', {
         headers: { Authorization: `Bearer ${token}` }
@@ -126,16 +136,17 @@ useEffect(() => {
 
   return (
     <div className="vendor-list-products">
-      <div className="container-fluid">
+        <Header />
+      <div className="container-fluid pt-4">
         <div className="row">
-          <div className="col-lg-2">
+          <div className="col-lg-3">
             <VendorSidebar 
               vendor={vendor} 
               activeItem="list-products" 
               onLogout={handleLogout} 
             />
           </div>
-          <div className="col-lg-10 p-4">
+          <div className="col-lg-9 p-4">
             <div className="page-header">
               <h4>My Listings ({listings.length})</h4>
            <button 

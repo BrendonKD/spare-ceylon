@@ -57,7 +57,7 @@ const VendorDashboard = () => {
           <div className="col-12 col-xl-10">
             
             
-              <div className="row g-3">
+              <div className="row g-3 pt-4">
                 {/* SIDEBAR */}
                 <div className="col-12 col-md-4 col-lg-3">
                     <VendorSidebar
