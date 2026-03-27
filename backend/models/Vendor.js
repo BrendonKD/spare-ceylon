@@ -12,6 +12,7 @@ const vendorSchema = new mongoose.Schema(
     business_reg_no: { type: String, required: true },
     address: { type: String, required: true },
     description: { type: String },
+    logo_url: { type: String, default: null },
     verification_status: {
       type: String,
       enum: ["pending", "verified", "rejected"],

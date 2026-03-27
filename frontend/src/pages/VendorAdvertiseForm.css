@@ -1,0 +1,290 @@
+/* Main layout */
+.vendor-advertise-form .col-lg-9 {
+  padding-right: 3.5rem;
+}
+
+.btn-primary {
+  background-color: #0f766e !important;
+  border-color: #0f766e !important;
+}
+
+.vendor-advertise-form .content-wrapper {
+  padding: 1.5rem 0;
+}
+
+/* Page header */
+.vendor-advertise-form .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.vendor-advertise-form .page-header h4 {
+  margin: 0;
+}
+
+/* Pricing banner */
+.vendor-advertise-form .pricing-banner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.vendor-advertise-form .pricing-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #059669;
+  margin-bottom: 0.25rem;
+}
+
+.vendor-advertise-form .pricing-value {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+/* Ad form card */
+.vendor-advertise-form .ad-form-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.vendor-advertise-form .card-body {
+  padding: 2rem;
+}
+
+/* Slot selector */
+.vendor-advertise-form .slot-selector {
+  display: flex;
+  gap: 1rem;
+}
+
+.vendor-advertise-form .slot-option {
+  flex: 1;
+  text-align: center;
+  padding: 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vendor-advertise-form .slot-option:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.vendor-advertise-form .slot-option.active {
+  border-color: #2563eb;
+  background: #dbeafe;
+}
+
+.vendor-advertise-form .slot-option .material-symbols-outlined {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+/* Image preview */
+.vendor-advertise-form .image-preview {
+  position: relative;
+  margin-top: 1rem;
+  max-width: 320px;
+}
+
+.vendor-advertise-form .image-preview img {
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.vendor-advertise-form .preview-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(220, 38, 38, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  color: white;
+  font-size: 1rem;
+}
+
+/* Ad preview */
+.vendor-advertise-form .ad-preview .preview-container {
+  max-width: 400px;
+}
+
+.vendor-advertise-form .preview-card {
+  height: 160px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e3a2f, #0f766e);
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  align-items: end;
+}
+
+/* Form actions */
+.vendor-advertise-form .form-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f3f4f6;
+  justify-content: flex-end;
+}
+
+/* My ads section */
+.vendor-advertise-form .my-ads-section h5 {
+  margin-bottom: 1.5rem;
+}
+
+/* Loading spinner */
+.vendor-advertise-form .loading-spinner {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+/* Empty state */
+.vendor-advertise-form .empty-state {
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #6b7280;
+}
+
+.vendor-advertise-form .empty-state .material-symbols-outlined {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Ads list */
+.vendor-advertise-form .ads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.vendor-advertise-form .ad-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.vendor-advertise-form .ad-body {
+  padding: 1.25rem;
+}
+
+.vendor-advertise-form .ad-thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.vendor-advertise-form .ad-thumbnail-placeholder {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vendor-advertise-form .slot-badge {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.vendor-advertise-form .ad-desc {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.75rem 0 0.5rem 0;
+}
+
+.vendor-advertise-form .ad-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.vendor-advertise-form .ad-meta small {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.vendor-advertise-form .admin-note {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .vendor-advertise-form .col-lg-9 {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  
+  .vendor-advertise-form .content-wrapper {
+    padding-top: 1rem;
+  }
+  
+  .vendor-advertise-form .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .vendor-advertise-form .page-header .btn {
+    align-self: flex-start;
+  }
+  
+  .vendor-advertise-form .card-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .vendor-advertise-form .pricing-banner {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .vendor-advertise-form .slot-selector {
+    flex-direction: column;
+  }
+  
+  .vendor-advertise-form .form-actions {
+    flex-direction: column;
+  }
+}

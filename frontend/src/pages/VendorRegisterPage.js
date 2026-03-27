@@ -254,7 +254,7 @@ const VendorRegisterPage = () => {
 
               <button
                 type="submit"
-                className="btn auth-submit-btn w-100 mt-2"
+                className="auth-submit-btn w-100 mt-2"
                 disabled={loading}
               >
                 {loading ? "Creating vendor..." : "Register"}

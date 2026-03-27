@@ -33,6 +33,8 @@ router.get('/', async (req, res) => {
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     if (req.user.role !== 'vendor') return res.status(403).json({ message: 'Vendor only' });
+
+    const filename = req.file ? req.file.filename : null;
     
     const listing = new VendorListing({
       vendor_id: req.user._id,
@@ -43,7 +45,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       price: req.body.price,
       quantity_available: req.body.quantity_available,
       location: req.body.location,
-      image_url: req.file ? req.file.path : null
+      image_url: filename ? `/uploads/listings/${filename}` : null
     });
     
     await listing.save();
@@ -56,7 +58,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 
 // update listing
 router.put('/:id', upload.single('image'), async (req, res) => {
-  try {
+    try {
     const listing = await VendorListing.findOne({ 
       _id: req.params.id, 
       vendor_id: req.user._id 

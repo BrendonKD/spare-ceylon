@@ -10,7 +10,7 @@
       rgba(23, 35, 45, 0.7),
       rgba(23, 35, 45, 0.85)
     ),
-    url("https://images.pexels.com/photos/4489720/pexels-photo-4489720.jpeg");
+    url("../assets/searchbar.png");
   background-size: cover;
   background-position: center;
   color: #fff;
@@ -27,8 +27,26 @@
   margin-bottom: 1.5rem;
 }
 
+/*------------ search loading model */
+@keyframes spin-left {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes spin-right {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(-360deg); }
+}
+
+@keyframes spin-center {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/*------------ search loading model */
+
 .hero-search-wrapper {
-  background: rgba(17, 24, 32, 0.85);
+  /*background: rgba(17, 24, 32, 0.85); */
   border-radius: 12px;
   padding: 1.25rem;
 }
@@ -96,6 +114,7 @@
 }
 
 /* Part cards */
+
 
 .part-card {
   border-radius: 12px;

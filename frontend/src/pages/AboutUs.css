@@ -1,0 +1,85 @@
+/* Typography & General */
+.about-container {
+  font-family: 'Inter', sans-serif;
+  background-color: #fcfcfc;
+  padding-bottom: 80px;
+}
+
+.about-hero h1 {
+  font-family: 'Poppins', sans-serif;
+  color: #1a1a1a;
+  padding-top: 60px;
+}
+
+.text-teal { color: #0E544F; }
+
+/* Horizontal Feature Cards */
+.horizontal-feature-card {
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.horizontal-feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
+}
+
+.card-top-accent {
+  height: 6px;
+  width: 100%;
+}
+
+.icon-box {
+  font-size: 2.5rem;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.feature-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 50px;
+  border: 1px solid;
+}
+
+.card-title {
+  font-family: 'Poppins', sans-serif;
+  color: #0E544F;
+  font-size: 1.25rem;
+}
+
+/* CTA & Buttons */
+.cta-banner {
+  background: linear-gradient(135deg, #0E544F 0%, #083b38 100%);
+  box-shadow: 0 10px 30px rgba(14, 84, 79, 0.2);
+}
+
+.btn-maroon {
+  background-color: #8D183A;
+  color: white;
+  border: none;
+  border-radius: 10px;
+}
+
+.btn-maroon:hover {
+  background-color: #6d122c;
+  color: white;
+}
+
+.btn-outline-light {
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 991px) {
+  .horizontal-feature-card {
+    margin-bottom: 10px;
+  }
+}

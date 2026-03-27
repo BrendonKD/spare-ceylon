@@ -137,16 +137,16 @@ useEffect(() => {
   return (
     <div className="vendor-list-products">
         <Header />
-      <div className="container-fluid pt-4">
+      <div className="container-fluid">
         <div className="row">
-          <div className="col-lg-3">
+          <div className="col-lg-3"style={{ width: '21%' }} >
             <VendorSidebar 
               vendor={vendor} 
               activeItem="list-products" 
               onLogout={handleLogout} 
             />
           </div>
-          <div className="col-lg-9 p-4">
+          <div className="col-lg-9 pt-5" style={{ paddingRight: '3.5rem' }}>
             <div className="page-header">
               <h4>My Listings ({listings.length})</h4>
            <button 

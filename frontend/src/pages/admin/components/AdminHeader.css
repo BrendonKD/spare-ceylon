@@ -1,0 +1,91 @@
+/* AdminHeader.css */
+
+.ad-header {
+  height: 64px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(146, 146, 146, 0.3);
+}
+
+/* Brand */
+.ad-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.ad-logo {
+  height: 36px;
+  width: auto;
+  filter: brightness(1.1);
+}
+
+.ad-admin-pill {
+  background: #0f766e;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Right */
+.ad-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ad-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #94a3b8;
+}
+
+.ad-user-icon {
+  font-size: 20px !important;
+  color: #0d9488;
+}
+
+.ad-user-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.ad-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(0, 0, 0, 0.548);
+  border-radius: 8px;
+  color: #000000;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ad-logout-btn .material-symbols-outlined { font-size: 16px !important; }
+
+.ad-logout-btn:hover {
+  background: rgba(255, 0, 0, 0.15);
+  border-color: rgba(239,68,68,0.3);
+  color: #000000;
+}
+
+@media (max-width: 576px) {
+  .ad-user-label { display: none; }
+  .ad-admin-pill  { display: none; }
+}

@@ -33,7 +33,7 @@ const LoginPage = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Save token, user, etc. (example)
+      // Save token, user
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", selectedRole);
 

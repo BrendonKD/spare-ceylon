@@ -149,10 +149,10 @@ const fetchVehicles = async () => {
   };
 
 return (
-  <div className="customer-garage-page">
+  <div className="customer-dashboard">
     <Header />
-    <div className="container-fluid py-4 px-0"> 
-      <div className="row g-3 mx-0"> 
+    <div className="cd-layout"> 
+      
         {/* SIDEBAR */}
         <div className="col-lg-3 col-xl-2 pe-0">
           <CustomerSidebar
@@ -364,7 +364,7 @@ return (
             </div>
           </main>
         </div>
-      </div>
+      
     </div>
   </div>
 );

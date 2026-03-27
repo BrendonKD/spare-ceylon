@@ -110,7 +110,7 @@ router.get("/profile", auth, async (req, res) => {
 
 
 // POST vendor registration
-router.get("/register/vendor", async (req, res) => {
+router.post("/register/vendor", async (req, res) => {
   try {
     const {
       contactFirstName,
