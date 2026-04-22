@@ -38,19 +38,61 @@ const StatCard = ({ icon, label, value, color, delay = 0 }) => {
   );
 };
 
-const OrderRow = ({ id, status, date, description, total, statusColor }) => (
-  <div className="cd-order-row">
-    <div className="cd-order-left">
-      <div className="cd-order-id">#{id}</div>
-      <div className="cd-order-desc">{description}</div>
-      <div className="cd-order-date">{date}</div>
+const OrderRow = ({
+  id,
+  status,
+  orderDate,
+  storeName,
+  productImage,
+  title,
+  variant,
+  qty,
+  total
+}) => (
+  <div className="cd-order-card">
+    {/* Top header row */}
+    <div className="cd-order-card-header">
+      <span className="cd-order-status-text">{status}</span>
+      <div className="cd-order-meta">
+        <span className="cd-order-meta-item">
+          Order date: {orderDate}
+        </span>
+        <span className="cd-order-meta-item">
+          Order ID: {id}
+        </span>
+      </div>
     </div>
-    <div className="cd-order-right">
-      <span className="cd-order-status" style={{ background: statusColor + "18", color: statusColor }}>
-        {status}
-      </span>
-      <div className="cd-order-total">Rs. {total}</div>
-      <button className="cd-order-btn">Details</button>
+
+    {/* Main row: image + details + total */}
+    <div className="cd-order-card-body">
+      <div className="cd-order-product-left">
+        <div className="cd-order-store">
+          <span className="cd-order-store-name">{storeName}</span>
+        </div>
+
+        <div className="cd-order-product-row">
+          <div className="cd-order-product-image">
+            <img
+              src={productImage}
+              alt={title}
+            />
+          </div>
+          <div className="cd-order-product-info">
+            <div className="cd-order-title">{title}</div>
+            {variant && (
+              <div className="cd-order-variant">{variant}</div>
+            )}
+            <div className="cd-order-qty">Qty: {qty}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="cd-order-total-right">
+        <div className="cd-order-total-label">Total:</div>
+        <div className="cd-order-total-value">
+          Rs. {total}
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -86,11 +128,43 @@ const CustomerDashboard = () => {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
-  const orders = [
-    { id: "05001", status: "Out for Delivery", date: "10 / 11 / 2025", description: "Nissan Caravan Brake Light", total: "1,000.00", statusColor: "#0d9488" },
-    { id: "05002", status: "Processing", date: "08 / 11 / 2025", description: "Toyota Corolla Air Filter", total: "2,500.00", statusColor: "#f59e0b" },
-    { id: "05003", status: "Delivered", date: "01 / 11 / 2025", description: "Honda Civic Wiper Blades", total: "850.00", statusColor: "#10b981" },
-  ];
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const [userRes, ordersRes] = await Promise.all([
+          axios.get(`${API}/api/auth/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${API}/api/orders/my-recent`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        setUser({
+          full_name: userRes.data.full_name,
+          email: userRes.data.email
+        });
+
+        setOrders(ordersRes.data);
+      } catch (error) {
+        console.error("Error fetching dashboard data", error);
+        if (error.response?.status === 401) handleLogout();
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [navigate, handleLogout]);
 
   return (
     <div className="customer-dashboard">
@@ -132,9 +206,36 @@ const CustomerDashboard = () => {
                 </button>
               </div>
               <div className="cd-orders-list">
-                {orders.map((o) => (
-                  <OrderRow key={o.id} {...o} />
-                ))}
+                {ordersLoading ? (
+                  <p>Loading recent orders...</p>
+                ) : orders.length === 0 ? (
+                  <p>No recent orders yet.</p>
+                ) : (
+                  orders.map((o) => {
+                    const listing = o.vendor_listing_id || {};
+                    const imageUrl = listing.image_url
+                      ? `${API}/${listing.image_url}`
+                      : "/placeholder.jpg";
+
+                    return (
+                      <OrderRow
+                        key={o._id}
+                        id={o._id.slice(-8)} // shorten the original ID
+                        status={o.status || "Completed"}
+                        orderDate={new Date(o.createdAt).toLocaleDateString()}
+                        storeName={listing.vendor?.name || "Store"}
+                        productImage={imageUrl}
+                        title={listing.title || "Order item"}
+                        variant={listing.condition} 
+                        qty={o.quantity}
+                        total={o.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      />
+                    );
+                  })
+                )}
               </div>
             </div>
 

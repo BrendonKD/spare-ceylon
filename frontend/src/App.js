@@ -6,15 +6,17 @@ import VendorRegisterPage from "./pages/VendorRegisterPage";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CustomerGarage from "./pages/CustomerGarage";
 import ListingDetail from "./pages/ListingDetail"; //product detail page
+import Checkout from './pages/Checkout';
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 //admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 
+
 //vendor pages
 import VendorDashboard from "./pages/VendorDashboard";
-//import VendorSidebar from './components/VendorSidebar';
 import VendorListProducts from './pages/VendorListProducts';
 import AboutUs from './pages/AboutUs'
 import VendorAdvertiseForm from "./pages/VendorAdvertiseForm1";
@@ -31,6 +33,8 @@ function App() {
         <Route path="/customer/garage" element={<CustomerGarage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/listings/:id" element={<ListingDetail />} />
+        <Route path="/checkout/:listingId" element={<Checkout />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
 
       {/* Vendor Routes */}
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />

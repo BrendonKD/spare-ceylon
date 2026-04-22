@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./ListingDetail.css";
 import Header from "../components/header.js";
+import { Link } from 'react-router-dom';
 
 const API = "http://localhost:5000";
 
@@ -278,7 +279,7 @@ const ListingDetail = () => {
               </div>
               <div className="ld-shipping-row">
                 <span className="text-muted small">Shipping Fee:</span>
-                <span className="small fw-semibold text-success">FREE</span>
+                <span className="small fw-semibold text-success">Rs. 900. 00</span>
               </div>
               <div className="ld-shipping-row">
                 <span className="text-muted small">Delivery:</span>
@@ -296,10 +297,12 @@ const ListingDetail = () => {
                 <span className="ld-qty-val">{quantity}</span>
                 <button className="ld-qty-btn" onClick={() => changeQty(1)} disabled={quantity >= quantity_available}>+</button>
               </div>
-              <button className="btn btn-success w-100 mb-2 ld-buy-btn">
-                <span className="material-symbols-outlined ld-icon-sm me-1">bolt</span>
-                Buy Now
-              </button>
+              <Link to={`/checkout/${listing._id}`} className="text-decoration-none">
+                <button className="btn btn-success w-100 mb-2 ld-buy-btn d-flex align-items-center justify-content-center">
+                  <span className="material-symbols-outlined ld-icon-sm me-1">bolt</span>
+                  Buy Now
+                </button>
+              </Link>
               <button className="btn btn-outline-success w-100 ld-cart-btn">
                 <span className="material-symbols-outlined ld-icon-sm me-1">shopping_cart</span>
                 Add to Cart

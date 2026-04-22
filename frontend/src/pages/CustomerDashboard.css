@@ -203,3 +203,159 @@
   direction: ltr;
  -webkit-font-smoothing: antialiased;
 }
+
+.cd-order-product-image {
+  width: 72px;         
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+.cd-order-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     
+  object-position: center;
+  display: block;
+}
+
+/* Recent orders list spacing */
+.cd-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Whole card */
+.cd-order-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Top row: status + meta */
+.cd-order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 0.8rem;
+}
+
+/* Status text (left) */
+.cd-order-status-text {
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #16a34a; /* confirmed/delivered */
+}
+
+/* Order meta (right) */
+.cd-order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  color: var(--text-muted);
+}
+
+.cd-order-meta-item {
+  font-size: 0.78rem;
+}
+
+/* Main body: left info + right total */
+.cd-order-card-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Left side (store + product row) */
+.cd-order-product-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* “Store” line */
+.cd-order-store-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Product image + text row */
+.cd-order-product-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+
+/* Product text */
+.cd-order-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.cd-order-title {
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.cd-order-variant {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cd-order-qty {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Right side (total) */
+.cd-order-total-right {
+  min-width: 110px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.cd-order-total-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cd-order-total-value {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+/* Mobile res */
+@media (max-width: 768px) {
+  .cd-order-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cd-order-total-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .cd-order-meta {
+    justify-content: flex-start;
+  }
+}
