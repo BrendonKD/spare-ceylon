@@ -9,28 +9,26 @@ const API = "http://localhost:5000";
 
 const EMPTY_FORM = { name: "", description: "", oem_part_number: "" };
 
-// ---------------------------------------------------------------------------
 // AdminProducts
-// ---------------------------------------------------------------------------
 const AdminProducts = () => {
-  const navigate  = useNavigate();
-  const token     = localStorage.getItem("token");
-  const headers   = { Authorization: `Bearer ${token}` };
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const headers = { Authorization: `Bearer ${token}` };
 
-  const [products,  setProducts]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [search,    setSearch]    = useState("");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [editItem,  setEditItem]  = useState(null);   // null = add mode
-  const [form,      setForm]      = useState(EMPTY_FORM);
-  const [saving,    setSaving]    = useState(false);
+  const [editItem, setEditItem] = useState(null);   // null = add mode
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
   // Delete confirm
-  const [deleteId,  setDeleteId]  = useState(null);
-  const [deleting,  setDeleting]  = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Guard
   useEffect(() => {
@@ -74,8 +72,8 @@ const AdminProducts = () => {
   const openEdit = (product) => {
     setEditItem(product);
     setForm({
-      name:            product.name            || "",
-      description:     product.description     || "",
+      name: product.name || "",
+      description: product.description || "",
       oem_part_number: product.oem_part_number || ""
     });
     setFormError("");

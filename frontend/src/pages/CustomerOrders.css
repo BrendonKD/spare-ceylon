@@ -1,0 +1,80 @@
+.co-main {
+  background-color: #f1f5f9;
+}
+
+/* summary cards */
+.co-stat-card {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.co-stat-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* orders container */
+.co-list-card {
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* wrap list */
+.co-orders-list {
+  margin-top: 0.5rem;
+}
+
+/* individual order card */
+.co-order-item {
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+/* image thumbnail */
+.co-order-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.co-order-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* text styling */
+.co-order-title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.co-order-meta {
+  margin-top: 0.1rem;
+}
+
+.bg-success-subtle {
+  background-color: #dcfce7 !important;
+}
+
+.bg-info-subtle {
+  background-color: #e0f2fe !important;
+}
+
+.bg-warning-subtle {
+  background-color: #fef9c3 !important;
+}
+
+.bg-danger-subtle {
+  background-color: #fee2e2 !important;
+}
+
+.bg-secondary-subtle {
+  background-color: #e5e7eb !important;
+}

@@ -7,7 +7,6 @@ const advertisementSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
-    // Which promo slot on the Home page: left card or right card
     slot: {
       type: String,
       enum: ["left", "right"],
@@ -23,31 +22,44 @@ const advertisementSchema = new mongoose.Schema(
       required: true,
       maxlength: 120
     },
-    // Background image uploaded by vendor
     image_url: {
       type: String,
       default: null
     },
-    // CTA button label e.g. "Shop Now", "View Deals"
     cta_label: {
       type: String,
       default: "Shop Now",
       maxlength: 30
     },
-    // How many days the vendor wants to run the ad
     duration_days: {
       type: Number,
       required: true,
       min: 1,
       max: 90
     },
-    // Vendor's note about payment / bank transfer reference etc.
-    payment_note: {
-      type: String,
-      maxlength: 200,
-      default: ""
+
+    payment_amount: {
+      type: Number,
+      required: true
     },
-    // Set by admin on approval
+    payment_currency: {
+      type: String,
+      default: "lkr"
+    },
+    payment_status: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "pending"
+    },
+    stripe_session_id: {
+      type: String,
+      default: null
+    },
+    stripe_payment_intent_id: {
+      type: String,
+      default: null
+    },
+
     start_date: {
       type: Date,
       default: null
@@ -61,7 +73,6 @@ const advertisementSchema = new mongoose.Schema(
       enum: ["pending", "active", "rejected", "expired"],
       default: "pending"
     },
-    // Admin note shown to vendor on rejection
     admin_note: {
       type: String,
       default: ""

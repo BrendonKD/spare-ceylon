@@ -10,7 +10,7 @@ const AD_CONTACT = "074 3013 073"; // contact number for advertising
 // PromoCard — shows a live vendor ad OR an "ad space available" fallback
 const PromoCard = ({ ad, side }) => {
   const fallbackGradient = {
-    left:  "linear-gradient(135deg, rgba(15,118,110,0.92), rgba(6,78,59,0.95))",
+    left: "linear-gradient(135deg, rgba(15,118,110,0.92), rgba(6,78,59,0.95))",
     right: "linear-gradient(135deg, rgba(30,58,138,0.92), rgba(15,23,42,0.95))"
   }[side];
 
@@ -80,14 +80,17 @@ const PromoCard = ({ ad, side }) => {
 const PartCard = ({ item, onVendorClick, onViewDetails }) => {
   const [imgError, setImgError] = useState(false);
 
-const imgSrc = item.image_url && !imgError
-  ? `${API}/${item.image_url.replace(/^\//, "")}`
-  : null;
+  const imgSrc = item.image_url && !imgError
+    ? `${API}/${item.image_url.replace(/^\//, "")}`
+    : null;
 
   const conditionLabel =
     item.condition === "new" ? "Genuine / New" : "Used";
 
   const businessName = item.vendor?.business_name || "Unknown Vendor";
+
+  const vendorProfileId =
+    item.vendor?._id || item.vendor?.vendor_id || item.vendor?.userId;
 
   return (
     <div className="col-12 col-sm-6 col-lg-3">
@@ -133,14 +136,18 @@ const imgSrc = item.image_url && !imgError
               style={{ cursor: "pointer", textDecoration: "underline" }}
               onClick={(e) => {
                 e.stopPropagation();
-                onVendorClick(item.vendor?.userId);
+                onVendorClick(vendorProfileId);
               }}
             >
               {businessName}
             </span>
           </p>
 
-          <p className="card-text small mb-2">⭐ 4.8 · 120+ orders</p>
+          <p className="card-text small mb-2">
+            {item.review_count > 0
+              ? `⭐ ${item.average_rating?.toFixed(1)} · ${item.review_count} reviews`
+              : "No reviews yet"}
+          </p>
 
           <div className="d-flex justify-content-between align-items-center">
             <span className="price-tag">LKR {item.price?.toLocaleString()}</span>
@@ -165,15 +172,14 @@ const imgSrc = item.image_url && !imgError
 // ---------------------------------------------------------------------------
 const VendorCard = ({ vendor, onClick }) => {
   const [logoError, setLogoError] = useState(false);
-  const userId =
-    vendor.vendor_id?._id || vendor.vendor_id || vendor._id;
+  const vendorId = vendor._id || vendor.vendor_id?._id || vendor.vendor_id;
 
   return (
     <div className="col-12 col-sm-6 col-lg-3">
       <div
         className="card vendor-card h-100 text-center"
         style={{ cursor: "pointer" }}
-        onClick={() => onClick(userId)}
+        onClick={() => onClick(vendorId)}
       >
         <div className="pt-3 pb-0 d-flex justify-content-center">
           {vendor.logo_url && !logoError ? (
@@ -211,19 +217,20 @@ const VendorCard = ({ vendor, onClick }) => {
 
         <div className="card-body pt-2">
           <h6 className="card-title mb-1">{vendor.business_name}</h6>
-          <p className="small mb-1 text-muted">
-            {vendor.address || "Sri Lanka"}
-          </p>
+          <p className="small mb-1 text-muted">{vendor.address || "Sri Lanka"}</p>
           <p className="small mb-2 text-success d-flex align-items-center justify-content-center gap-1">
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "10px" }}
-            >
+            <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
               verified
             </span>
             Verified
           </p>
-          <button className="btn btn-sm btn-outline-primary w-100">
+          <button
+            className="btn btn-sm btn-outline-primary w-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick(vendorId);
+            }}
+          >
             View Profile
           </button>
         </div>
@@ -351,79 +358,79 @@ const Home = () => {
   };
 
   // ── image upload search ────────────────────────────────────────────────────
-    const [identifying, setIdentifying] = useState(false);
-    const [uploadStatus, setUploadStatus] = useState(null);
-    const [statusMessage, setStatusMessage] = useState('');
+  const [identifying, setIdentifying] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
 
-    const handleImageUpload = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-      // Reset to loading state
-      setIdentifying(true);
-      setUploadStatus('loading');
-      setStatusMessage('');
+    // Reset to loading state
+    setIdentifying(true);
+    setUploadStatus('loading');
+    setStatusMessage('');
 
-      const reader = new FileReader();
+    const reader = new FileReader();
 
-      reader.onload = async () => {
-        const base64 = reader.result.split(",")[1];
-        try {
-          const res = await fetch("http://localhost:5001/predict", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: base64 })
-          });
-          const data = await res.json();
+    reader.onload = async () => {
+      const base64 = reader.result.split(",")[1];
+      try {
+        const res = await fetch("http://localhost:5001/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64 })
+        });
+        const data = await res.json();
 
-          if (data.success) {
-            // Success: trigger search and show success message
-            setUploadStatus('success');
-            setStatusMessage(`✅ Found: ${data.part_name}`);
-            setTimeout(() => {
-              setSearchQuery(data.part_name);
-              handleChipSearch(data.part_name);
-            }, 1500); // Show success for 1.5s then search
-            
-          } else if (data.reason === "blur") {
-            setUploadStatus('error');
-            setStatusMessage(`📷 ${data.message}`);
-            
-          } else if (data.reason === "unknown") {
-            setUploadStatus('error');
-            setStatusMessage("❓ Undefined part — please upload an image of a spare part.");
-            
-          } else {
-            setUploadStatus('error');
-            setStatusMessage("Something went wrong. Please try again.");
-          }
-        } catch (err) {
-          console.error("Identify error:", err);
-          setUploadStatus('error');
-          setStatusMessage("Could not connect to the image recognition service.");
-        } finally {
-          // Keep modal open for status message, auto-close after 3s
+        if (data.success) {
+          // Success: trigger search and show success message
+          setUploadStatus('success');
+          setStatusMessage(`✅ Found: ${data.part_name}`);
           setTimeout(() => {
-            setIdentifying(false);
-            setUploadStatus(null);
-            setStatusMessage('');
-          }, 3000);
-        }
-      };
+            setSearchQuery(data.part_name);
+            handleChipSearch(data.part_name);
+          }, 1500); // Show success for 1.5s then search
 
-      reader.onerror = () => {
-        console.error("FileReader error");
+        } else if (data.reason === "blur") {
+          setUploadStatus('error');
+          setStatusMessage(`📷 ${data.message}`);
+
+        } else if (data.reason === "unknown") {
+          setUploadStatus('error');
+          setStatusMessage("❓ Undefined part — please upload an image of a spare part.");
+
+        } else {
+          setUploadStatus('error');
+          setStatusMessage("Something went wrong. Please try again.");
+        }
+      } catch (err) {
+        console.error("Identify error:", err);
         setUploadStatus('error');
-        setStatusMessage("Failed to read image file.");
+        setStatusMessage("Could not connect to the image recognition service.");
+      } finally {
+        // Keep modal open for status message, auto-close after 3s
         setTimeout(() => {
           setIdentifying(false);
           setUploadStatus(null);
           setStatusMessage('');
         }, 3000);
-      };
-
-      reader.readAsDataURL(file);
+      }
     };
+
+    reader.onerror = () => {
+      console.error("FileReader error");
+      setUploadStatus('error');
+      setStatusMessage("Failed to read image file.");
+      setTimeout(() => {
+        setIdentifying(false);
+        setUploadStatus(null);
+        setStatusMessage('');
+      }, 3000);
+    };
+
+    reader.readAsDataURL(file);
+  };
 
 
   return (
@@ -451,7 +458,7 @@ const Home = () => {
                       }
                       <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
                     </label>
-                    
+
                     <input
                       type="text"
                       className="form-control hero-search-input"
@@ -508,7 +515,7 @@ const Home = () => {
           {/* ── Promo Cards — live ads or fallback ─────────────────────── */}
           <div className="row mt-4 g-3">
             <div className="col-md-6">
-              <PromoCard ad={activeAds.left}  side="left" />
+              <PromoCard ad={activeAds.left} side="left" />
             </div>
             <div className="col-md-6">
               <PromoCard ad={activeAds.right} side="right" />
@@ -570,7 +577,9 @@ const Home = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h2 className="section-title mb-2">Trending &amp; Newly Listed Parts</h2>
-            <button className="btn p-0">View All</button>
+            <button className="btn p-0" onClick={() => navigate("/parts")}>
+              View All
+            </button>
           </div>
 
           {loadingTrending ? (
@@ -601,7 +610,9 @@ const Home = () => {
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h2 className="section-title mb-2">Verified Vendors</h2>
-            <button className="btn p-0">View All Vendors</button>
+            <button className="btn p-0" onClick={() => navigate("/vendors")}>
+              View All Vendors
+            </button>
           </div>
 
           {loadingVendors ? (
@@ -696,19 +707,19 @@ const Home = () => {
       {/* ── Footer ───────────────────────────────────────────────────── */}
       <footer className="footer-section">
         <div className="container text-center">
-                  <p className="small" style={{ color: "white" }}>
-          <span style={{ cursor: "pointer" }} onClick={() => navigate("/admin/login")}>
-            Admin
-          </span>
-        </p>
+          <p className="small" style={{ color: "white" }}>
+            <span style={{ cursor: "pointer" }} onClick={() => navigate("/admin/login")}>
+              Admin
+            </span>
+          </p>
           <p className="mb-0 small text-light">
             © {new Date().getFullYear()} Spare Ceylon. All rights reserved.
           </p>
         </div>
       </footer>
-      <LoadingModal 
-        isOpen={identifying} 
-        status={uploadStatus} 
+      <LoadingModal
+        isOpen={identifying}
+        status={uploadStatus}
         message={statusMessage}
       />
     </div>

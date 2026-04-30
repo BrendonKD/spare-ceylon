@@ -56,7 +56,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
       engine_capacity,
       mileage,
       // Save the relative path to the DB
-      image_url: req.file ? req.file.path.replace(/\\/g, "/") : "" 
+      image_url: req.file ? req.file.path.replace(/\\/g, "/") : ""
     });
 
     await vehicle.save();

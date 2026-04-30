@@ -1,20 +1,25 @@
-/* ============================================================
-   ListingDetail.css — Spare Ceylon Product Detail Page
-   Bootstrap handles layout; custom CSS only where needed
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Sora:wght@600;700&display=swap');
 
 .ld-page {
-  background: #f7f7f7;     /* matches Home.css background */
+  background: #f7f7f7;
+  /* matches Home.css background */
   min-height: 100vh;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* ── Breadcrumb ────────────────────────────────────────────── */
-.ld-breadcrumb { font-size: 0.82rem; }
-.ld-link { color: #0f766e; cursor: pointer; }
-.ld-link:hover { text-decoration: underline; }
+.ld-breadcrumb {
+  font-size: 0.82rem;
+}
+
+.ld-link {
+  color: #0f766e;
+  cursor: pointer;
+}
+
+.ld-link:hover {
+  text-decoration: underline;
+}
 
 /* ── Image ─────────────────────────────────────────────────── */
 .ld-img-wrap {
@@ -29,7 +34,11 @@
   justify-content: center;
 }
 
-.ld-main-img { width: 100%; height: 100%; object-fit: cover; }
+.ld-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .ld-img-placeholder {
   display: flex;
@@ -38,8 +47,15 @@
   color: #cbd5e1;
   gap: 0.5rem;
 }
-.ld-img-placeholder .material-symbols-outlined { font-size: 56px !important; }
-.ld-img-placeholder p { font-size: 0.8rem; margin: 0; }
+
+.ld-img-placeholder .material-symbols-outlined {
+  font-size: 56px !important;
+}
+
+.ld-img-placeholder p {
+  font-size: 0.8rem;
+  margin: 0;
+}
 
 .ld-cond-badge {
   position: absolute;
@@ -68,7 +84,11 @@
 }
 
 /* ── Stars ─────────────────────────────────────────────────── */
-.ld-stars { color: #f59e0b; font-size: 1rem; letter-spacing: 1px; }
+.ld-stars {
+  color: #f59e0b;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
 
 /* ── Section headings ──────────────────────────────────────── */
 .ld-section-head {
@@ -87,10 +107,21 @@
   padding: 1rem;
   border: 1px solid #e2e8f0;
 }
-.ld-td-key { color: #64748b; font-size: 0.82rem; width: 38%; white-space: nowrap; font-weight: 500; }
+
+.ld-td-key {
+  color: #64748b;
+  font-size: 0.82rem;
+  width: 38%;
+  white-space: nowrap;
+  font-weight: 500;
+}
 
 /* ── Description ───────────────────────────────────────────── */
-.ld-desc { font-size: 0.88rem; color: #475569; line-height: 1.7; }
+.ld-desc {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.7;
+}
 
 /* ── Vendor Card ───────────────────────────────────────────── */
 .ld-vendor-card {
@@ -98,12 +129,33 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 1rem 1.1rem;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
-.ld-vendor-logo { height: 36px; object-fit: contain; border-radius: 6px; }
-.ld-vendor-name { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; color: #0f172a; cursor: pointer; }
-.ld-vendor-name:hover { color: #0f766e; text-decoration: underline; }
-.ld-shipping-row { display: flex; justify-content: space-between; margin-bottom: 0.2rem; }
+
+.ld-vendor-logo {
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.ld-vendor-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.ld-vendor-name:hover {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+.ld-shipping-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
 
 /* ── Purchase Card ─────────────────────────────────────────── */
 .ld-purchase-card {
@@ -111,35 +163,90 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 1rem 1.1rem;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
-.ld-qty-row    { display: flex; align-items: center; gap: 0.75rem; }
+.ld-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .ld-qty-btn {
-  width: 34px; height: 34px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   border: 1.5px solid #e2e8f0;
   background: #f8fafc;
-  font-size: 1.1rem; font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #0f172a;
   transition: all 0.15s;
 }
-.ld-qty-btn:hover:not(:disabled) { border-color: #0f766e; color: #0f766e; background: #f0fdf9; }
-.ld-qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.ld-qty-val { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.1rem; min-width: 28px; text-align: center; }
 
-.ld-buy-btn  { background: #0f766e; border-color: #0f766e; font-weight: 600; border-radius: 10px; }
-.ld-buy-btn:hover { background: #0d5f58; border-color: #0d5f58; }
-.ld-cart-btn { border-color: #0f766e; color: #0f766e; font-weight: 600; border-radius: 10px; }
-.ld-cart-btn:hover { background: #f0fdf9; }
+.ld-qty-btn:hover:not(:disabled) {
+  border-color: #0f766e;
+  color: #0f766e;
+  background: #f0fdf9;
+}
 
-.ld-trust-badges { display: flex; flex-direction: column; gap: 0.4rem; }
-.ld-trust-item   { display: flex; align-items: center; gap: 0.5rem; }
+.ld-qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ld-qty-val {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 28px;
+  text-align: center;
+}
+
+.ld-buy-btn {
+  background: #0f766e;
+  border-color: #0f766e;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.ld-buy-btn:hover {
+  background: #0d5f58;
+  border-color: #0d5f58;
+}
+
+.ld-cart-btn {
+  border-color: #0f766e;
+  color: #0f766e;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.ld-cart-btn:hover {
+  background: #f0fdf9;
+}
+
+.ld-trust-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ld-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 /* ── Small icon helper ─────────────────────────────────────── */
-.ld-icon-sm { font-size: 16px !important; vertical-align: middle; }
+.ld-icon-sm {
+  font-size: 16px !important;
+  vertical-align: middle;
+}
 
 /* ── More from vendor section wrapper ──────────────────────── */
 .ld-more-section {
@@ -157,7 +264,10 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   transition: transform 0.2s;
 }
-.part-card:hover { transform: translateY(-2px); }
+
+.part-card:hover {
+  transform: translateY(-2px);
+}
 
 .price-tag {
   font-weight: 600;
@@ -172,19 +282,94 @@
   align-items: center;
   justify-content: center;
 }
-.ld-err-icon { font-size: 48px !important; color: #be123c; }
+
+.ld-err-icon {
+  font-size: 48px !important;
+  color: #be123c;
+}
 
 /* ── Footer ────────────────────────────────────────────────── */
-.ld-footer { background: #0f172a; color: #f1f5f9; margin-top: 2rem; }
-.ld-footer h6 { color: #fff; }
-.ld-footer-links { display: flex; flex-direction: column; gap: 0.3rem; }
-.ld-footer-links span { font-size: 0.85rem; color: #94a3b8; cursor: pointer; }
-.ld-footer-links span:hover { color: #0d9488; }
+.ld-footer {
+  background: #0f172a;
+  color: #f1f5f9;
+  margin-top: 2rem;
+}
+
+.ld-footer h6 {
+  color: #fff;
+}
+
+.ld-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ld-footer-links span {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ld-footer-links span:hover {
+  color: #0d9488;
+}
+
+.ld-reviews-section {
+  margin-top: 3rem;
+}
+
+.ld-review-card {
+  border: 1px solid #e9ecef;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ld-review-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.ld-review-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ld-review-rating {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f59e0b;
+  background: #fff7e6;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.ld-review-comment {
+  color: #4b5563;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ld-empty-reviews {
+  background: #fafafa;
+  border: 1px dashed #ddd;
+  border-radius: 14px;
+}
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 991px) {
-  .ld-title { font-size: 1.25rem; }
+  .ld-title {
+    font-size: 1.25rem;
+  }
 }
+
 @media (max-width: 576px) {
-  .ld-price { font-size: 1.4rem; }
+  .ld-price {
+    font-size: 1.4rem;
+  }
 }

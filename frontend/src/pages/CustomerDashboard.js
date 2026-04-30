@@ -47,7 +47,8 @@ const OrderRow = ({
   title,
   variant,
   qty,
-  total
+  total,
+  onViewDetail
 }) => (
   <div className="cd-order-card">
     {/* Top header row */}
@@ -92,6 +93,12 @@ const OrderRow = ({
         <div className="cd-order-total-value">
           Rs. {total}
         </div>
+        <button
+          className="btn btn-outline-success btn-sm mt-2 d-flex align-items-center gap-1"
+          onClick={onViewDetail}
+        >
+          View detail
+        </button>
       </div>
     </div>
   </div>
@@ -220,18 +227,19 @@ const CustomerDashboard = () => {
                     return (
                       <OrderRow
                         key={o._id}
-                        id={o._id.slice(-8)} // shorten the original ID
+                        id={o._id}
                         status={o.status || "Completed"}
                         orderDate={new Date(o.createdAt).toLocaleDateString()}
                         storeName={listing.vendor?.name || "Store"}
                         productImage={imageUrl}
                         title={listing.title || "Order item"}
-                        variant={listing.condition} 
+                        variant={listing.condition}
                         qty={o.quantity}
                         total={o.total.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                         })}
+                        onViewDetail={() => navigate(`/customer/orders/${o._id}`)}
                       />
                     );
                   })

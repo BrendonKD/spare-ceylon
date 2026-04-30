@@ -8,6 +8,7 @@ const menuItems = [
   { key: "listings",  icon: "inventory_2",       label: "Listings",           path: "/admin/listings" },
   { key: "users",     icon: "group",             label: "Users",              path: "/admin/users" },
   { key: "products",  icon: "inventory",         label: "products",           path: "/admin/products" },
+  { key: "Subscription Plans",      icon: "subscriptions",     label: "Subscription Plans",        path: "/admin/subscriptions" },
   { key: "settings",  icon: "settings",          label: "Settings",           path: null },
 ];
 

@@ -2,13 +2,17 @@ import React from "react";
 import "./header.css";
 import logo from "../assets/logoSC.png";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useCart } from "../context/CartContext";
 
 const Header = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { totalCount, toggleCart } = useCart();
 
     // 1. Logic to check if we are on a dashboard page (to show "Back to Home")
-    const isDashboardPage = location.pathname.includes("/customer") || location.pathname.includes("/vendor");
+    const isDashboardPage =
+        location.pathname.startsWith("/customer/") ||
+        location.pathname.startsWith("/vendor/");
 
     // 2. Logic to check if user is logged in (to show User Icon)
     const isLoggedIn = localStorage.getItem("token");
@@ -59,32 +63,47 @@ const Header = () => {
                         </ul>
 
                         {/* Action Section: This is where the logic combines */}
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center gap-2">
                             {isDashboardPage ? (
-                                /* PRIORITY 1: If on Dashboard, show "Back to Home" */
-                                <button 
-                                    className="btn sc-home-btn" 
-                                    onClick={() => navigate('/')}
+                                <button
+                                    className="btn sc-home-btn"
+                                    onClick={() => navigate("/")}
                                 >
                                     Back to Home
                                 </button>
-                            ) : isLoggedIn ? (
-                                /* If Logged In (and not on dashboard), show User Icon */
-                                <button 
-                                    className="user-icon-btn" 
-                                    onClick={handleUserIconClick}
-                                    title="Go to Dashboard"
-                                >
-                                    <span className="material-symbols-outlined">account_circle</span>
-                                </button>
                             ) : (
-                                /* DEFAULT: Show Sign In button */
-                                <button 
-                                    className="btn sc-signin-btn" 
-                                    onClick={() => navigate('/login')}
-                                >
-                                    Sign In
-                                </button>
+                                <>
+                                    {/* user / sign-in */}
+                                    {isLoggedIn ? (
+                                        <button
+                                            className="user-icon-btn"
+                                            onClick={handleUserIconClick}
+                                            title="Go to Dashboard"
+                                        >
+                                            <span className="material-symbols-outlined">account_circle</span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="btn sc-signin-btn"
+                                            onClick={() => navigate("/login")}
+                                        >
+                                            Sign In
+                                        </button>
+                                    )}
+
+                                    {/* cart icon */}
+                                    <button
+                                        className="sc-cart-icon-btn"
+                                        type="button"
+                                        onClick={toggleCart}
+                                        title="View Cart"
+                                    >
+                                        <span className="material-symbols-outlined">shopping_cart</span>
+                                        {totalCount > 0 && (
+                                            <span className="sc-cart-badge">{totalCount}</span>
+                                        )}
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>

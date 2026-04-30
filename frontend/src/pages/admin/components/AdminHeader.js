@@ -6,6 +6,13 @@ import "./AdminHeader.css";
 const AdminHeader = ({ onLogout }) => {
   const navigate = useNavigate();
 
+    const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/admin/login");
+  };
+
+
   return (
     <header className="ad-header">
       {/* Logo */}
@@ -17,7 +24,7 @@ const AdminHeader = ({ onLogout }) => {
       {/* Right side */}
       <div className="ad-header-right">
         
-        <button className="ad-logout-btn" onClick={onLogout}>
+        <button className="ad-logout-btn" onClick={handleLogout}>
           <span className="material-symbols-outlined">logout</span>
           Sign Out
         </button>

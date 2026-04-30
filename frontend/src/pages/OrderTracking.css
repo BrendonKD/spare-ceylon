@@ -1,0 +1,159 @@
+.order-track-main {
+  background: #f1f5f9;
+}
+
+/* top status chip */
+.ot-chip-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ot-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ot-status-pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.ot-status-shipped {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* title */
+.ot-title {
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.ot-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+/* meta card */
+.ot-meta-card {
+  border-radius: 18px;
+}
+
+.ot-meta-id {
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.ot-meta-text {
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* generic cards */
+.ot-card {
+  border-radius: 18px;
+}
+
+/* timeline */
+.ot-timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.ot-step {
+  flex: 1;
+  position: relative;
+  text-align: center;
+}
+
+.ot-step-icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  z-index: 2;
+}
+
+.ot-step-icon-complete {
+  background: #16a34a;
+  color: #ecfdf3;
+}
+
+.ot-step-line {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  right: -50%;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.ot-step-line-complete {
+  background: #16a34a;
+}
+
+.ot-step-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+/* order summary */
+.ot-summary-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.ot-summary-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ot-summary-title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ot-summary-sub {
+  font-size: 0.8rem;
+}
+
+/* care card */
+.ot-care-card {
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0f766e, #16a34a);
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .ot-timeline {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .ot-step-line {
+    display: none;
+  }
+}

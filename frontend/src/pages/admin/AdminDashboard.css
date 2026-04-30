@@ -1,9 +1,3 @@
-/* ============================================================
-   AdminDashboard.css — Spare Ceylon Admin Portal
-   Same design system as Vendor/Customer dashboards
-   Admin identity: dark slate sidebar + teal accents
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap');
 
 :root {
@@ -199,7 +193,7 @@
   font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;
 }
 .ad-header-link .material-symbols-outlined { font-size: 15px !important; }
-.ad-header-link:hover { text-decoration: underline; }
+.ad-header-link:hover { text-decoration: none; }
 
 /* ── Two column ────────────────────────────────────────────── */
 .ad-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }

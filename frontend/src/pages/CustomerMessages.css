@@ -1,0 +1,256 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.customer-dashboard-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f5f7fa;
+}
+
+.customer-dashboard-page>header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  flex: 0 0 auto;
+}
+
+.customer-dashboard-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.customer-dashboard-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-dashboard-header {
+  flex: 0 0 auto;
+  margin-bottom: 14px;
+}
+
+.customer-dashboard-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.customer-dashboard-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.customer-messages-shell {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 14px;
+  overflow: hidden;
+}
+
+.customer-messages-sidebar,
+.customer-messages-chat {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.customer-messages-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-messages-sidebar-header,
+.customer-messages-chat-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.customer-messages-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.customer-messages-list-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.customer-messages-list-item.active {
+  background: #ecfdf5;
+  border-left: 4px solid #0E544F;
+  padding-left: 10px;
+}
+
+.customer-messages-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #e6f4f1;
+  color: #0E544F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.customer-messages-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customer-messages-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.customer-messages-name {
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-messages-preview {
+  font-size: 0.82rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-messages-chat {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.customer-messages-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.customer-message-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.customer-message-row.mine {
+  justify-content: flex-end;
+}
+
+.customer-message-row.theirs {
+  justify-content: flex-start;
+}
+
+.customer-message-bubble {
+  max-width: 72%;
+  padding: 10px 12px;
+  border-radius: 16px;
+  word-break: break-word;
+}
+
+.customer-message-row.mine .customer-message-bubble {
+  background: #0E544F;
+  color: #fff;
+}
+
+.customer-message-row.theirs .customer-message-bubble {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.customer-messages-empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  text-align: center;
+}
+
+.customer-messages-composer {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-top: 1px solid #eef2f7;
+  background: #fff;
+}
+
+.customer-messages-composer .form-control {
+  min-height: 46px;
+  border-radius: 999px;
+}
+
+.customer-messages-composer .btn {
+  min-height: 46px;
+  border-radius: 999px;
+  background: #0E544F;
+  border-color: #0E544F;
+}
+
+@media (max-width: 991.98px) {
+  .customer-messages-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-dashboard-layout {
+    overflow: auto;
+  }
+
+  .customer-messages-sidebar {
+    max-height: 260px;
+  }
+
+  .customer-messages-chat {
+    min-height: 55vh;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .customer-dashboard-main {
+    padding: 12px;
+  }
+
+  .customer-messages-composer {
+    flex-direction: column;
+  }
+
+  .customer-messages-composer .btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,76 @@
+.parts-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* search bar reuse */
+.hero-search-wrapper {
+  border-radius: 16px;
+}
+
+.hero-search-input {
+  min-width: 220px;
+}
+
+/* filter sidebar */
+.parts-filter-card {
+  border-radius: 16px;
+}
+
+.parts-filter-card .form-check-label {
+  cursor: pointer;
+}
+
+/* part cards */
+.parts-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+.parts-card-img-top {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.parts-card-img-placeholder {
+  width: 100%;
+  height: 180px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parts-card-img-icon {
+  font-size: 40px;
+  color: #cbd5f5;
+}
+
+.parts-card-title {
+  font-size: 0.95rem;
+}
+
+.parts-price {
+  font-weight: 700;
+  color: #0E544F;
+}
+
+/* pagination */
+.parts-page .pagination .page-link {
+  border-radius: 999px;
+}
+
+.parts-page .pagination .page-item.active .page-link {
+  background-color: #0E544F;
+  border-color: #047857;
+}
+
+/* small responsiveness tweaks */
+@media (max-width: 767.98px) {
+  .parts-filter-card {
+    border-radius: 12px;
+  }
+}

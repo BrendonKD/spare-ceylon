@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./CustomerSidebar.css";
 
 const menuItems = [
-  { key: "dashboard", icon: "dashboard",     label: "Dashboard",      path: "/customer/dashboard" },
+  { key: "dashboard", icon: "dashboard",      label: "Dashboard",      path: "/customer/dashboard" },
   { key: "garage",    icon: "directions_car", label: "My Garage",      path: "/customer/garage" },
   { key: "orders",    icon: "shopping_bag",   label: "Orders",         path: "/customer/orders" },
   { key: "messages",  icon: "mail",           label: "Message Center", path: "/customer/messages" },

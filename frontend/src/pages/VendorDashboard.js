@@ -7,9 +7,7 @@ import VendorSidebar from "../components/VendorSidebar";
 
 const API = "http://localhost:5000";
 
-// ---------------------------------------------------------------------------
 // Animated counter hook
-// ---------------------------------------------------------------------------
 const useCounter = (target, duration = 1000) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -25,9 +23,7 @@ const useCounter = (target, duration = 1000) => {
   return count;
 };
 
-// ---------------------------------------------------------------------------
 // Stat Card
-// ---------------------------------------------------------------------------
 const StatCard = ({ icon, label, value, color, delay = 0 }) => {
   const count = useCounter(value, 900);
   return (
@@ -50,7 +46,7 @@ const StatCard = ({ icon, label, value, color, delay = 0 }) => {
 // ---------------------------------------------------------------------------
 const VendorDashboard = () => {
   const navigate = useNavigate();
-  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "..." });
+  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "" });
   const [listings, setListings] = useState({ total: 0, active: 0, inactive: 0 });
   const [loadingListings, setLoadingListings] = useState(true);
   const token = localStorage.getItem("token");
@@ -64,7 +60,7 @@ const VendorDashboard = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data.role !== "vendor") { navigate("/login"); return; }
-        setVendor({ full_name: res.data.full_name, email: res.data.email });
+        setVendor({ full_name: res.data.full_name, email: res.data.email, business_name: res.data.business_name || "" });
       } catch (err) {
         console.error("Vendor profile error", err.response?.data || err.message);
         navigate("/login");
@@ -82,8 +78,8 @@ const VendorDashboard = () => {
       .then((res) => {
         const data = res.data;
         setListings({
-          total:    data.length,
-          active:   data.filter((l) => l.status === "active").length,
+          total: data.length,
+          active: data.filter((l) => l.status === "active").length,
           inactive: data.filter((l) => l.status === "inactive").length
         });
       })
@@ -136,10 +132,10 @@ const VendorDashboard = () => {
 
           {/* ── Stat Cards ────────────────────────────────────────── */}
           <div className="vd-stats-grid">
-            <StatCard icon="local_shipping"  label="Pending Orders"    value={10} color="linear-gradient(135deg,#0f766e,#0d9488)" delay={0}   />
-            <StatCard icon="task_alt"         label="Completed Orders"  value={24} color="linear-gradient(135deg,#1d4ed8,#3b82f6)" delay={80}  />
-            <StatCard icon="mail"             label="New Messages"      value={5}  color="linear-gradient(135deg,#7c3aed,#a78bfa)" delay={160} />
-            <StatCard icon="payments"         label="Payments Received" value={2}  color="linear-gradient(135deg,#b45309,#f59e0b)" delay={240} />
+            <StatCard icon="local_shipping" label="Pending Orders" value={10} color="linear-gradient(135deg,#0f766e,#0d9488)" delay={0} />
+            <StatCard icon="task_alt" label="Completed Orders" value={24} color="linear-gradient(135deg,#1d4ed8,#3b82f6)" delay={80} />
+            <StatCard icon="mail" label="New Messages" value={5} color="linear-gradient(135deg,#7c3aed,#a78bfa)" delay={160} />
+            <StatCard icon="payments" label="Payments Received" value={2} color="linear-gradient(135deg,#b45309,#f59e0b)" delay={240} />
           </div>
 
           {/* ── Listed Items + Performance ────────────────────────── */}
@@ -252,10 +248,10 @@ const VendorDashboard = () => {
             </div>
             <div className="vd-activity-list">
               {[
-                { icon: "add_box",      color: "#0f766e", text: "New listing published — Genuine brake pads Toyota",  time: "2h ago" },
-                { icon: "local_shipping", color: "#1d4ed8", text: "Order #1042 dispatched to Colombo",                time: "5h ago" },
-                { icon: "payments",     color: "#b45309", text: "Payment of LKR 7,500 received",                     time: "Yesterday" },
-                { icon: "campaign",     color: "#7c3aed", text: "Advertisement approved — Engine Parts Sale",         time: "2 days ago" },
+                { icon: "add_box", color: "#0f766e", text: "New listing published — Genuine brake pads Toyota", time: "2h ago" },
+                { icon: "local_shipping", color: "#1d4ed8", text: "Order #1042 dispatched to Colombo", time: "5h ago" },
+                { icon: "payments", color: "#b45309", text: "Payment of LKR 7,500 received", time: "Yesterday" },
+                { icon: "campaign", color: "#7c3aed", text: "Advertisement approved — Engine Parts Sale", time: "2 days ago" },
               ].map(({ icon, color, text, time }, i) => (
                 <div className="vd-activity-item" key={i}>
                   <div className="vd-activity-icon" style={{ background: color }}>

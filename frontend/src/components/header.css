@@ -92,3 +92,36 @@
 .material-symbols-outlined {
     font-size: 31px !important;
 }
+
+/* cart button */
+.sc-cart-icon-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0.25rem;
+  margin-left: 0.25rem;
+  color: #374151;
+}
+
+.sc-cart-icon-btn .material-symbols-outlined {
+  font-size: 26px;
+}
+
+.sc-cart-icon-btn:hover {
+  color: #0f766e;
+}
+
+.sc-cart-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+  background: #dc2626;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  min-width: 1.1rem;
+  text-align: center;
+}

@@ -7,8 +7,20 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const publicListingsRoutes = require('./routes/publicListings');
+const publicVendor = require("./routes/publicVendor");
+const messageRoute = require("./routes/messageRoute");
+const subscriptionRoutes = require('./routes/subscriptions');
+const vendorRoutes = require("./routes/vendor");
+const adminVendorRoutes = require("./routes/adminVendorRoute");
+const vendorDocumentRoutes = require("./routes/vendorDocumentRoute"); //used for hide certificate for verified vendor
+const adminRoutes = require('./routes/admin');
 
-app.use('/api/orders/webhook', express.raw({ type: 'application/json' }));
+const stripeWebhookRoutes = require('./routes/stripeWebhook');
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
+//app.use('/api/orders/webhook', express.raw({ type: 'application/json' }));
+//app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }));
 
 app.use(cors());
 app.use(express.json());
@@ -17,12 +29,30 @@ app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/garage", require("./routes/garage"));
 app.use("/api/orders", require("./routes/orders"));
+app.use("/api/cart", require("./routes/Cart"));
+app.use("/api/reviews", require("./routes/reviews"));
+app.use('/api/public', publicListingsRoutes);
+app.use("/api/public", publicVendor);
+app.use("/api/messages", messageRoute);
+app.use('/api/subscriptions', subscriptionRoutes);
+
 
 // vendor side
 app.use('/api/vendor/listings', require('./routes/vendorListings'));
 app.use("/api/ads", require("./routes/Advertisements"));
 app.use("/api/public/listings", require("./routes/publicListings"));
 app.use("/api/products", require("./routes/product"));
+app.use("/api/vendors", vendorRoutes);
+const path = require("path");
+
+//admin
+app.use("/api/admin/vendors", adminVendorRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/vendor-documents", vendorDocumentRoutes);
+app.use("/api/admin", adminRoutes); 
+
+app.use('/api/stripe', stripeWebhookRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Spare Ceylon API running');

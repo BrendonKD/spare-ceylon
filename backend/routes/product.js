@@ -1,7 +1,7 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const Product = require("../models/Product");
-const auth    = require("../middleware/authMiddleware");
+const auth = require("../middleware/authMiddleware");
 
 // ── GET /api/products   — public, supports ?q= search ─────────────────────
 router.get("/", async (req, res) => {
@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
     const { q, limit = 20 } = req.query;
     const query = q ? {
       $or: [
-        { name:            { $regex: q, $options: "i" } },
+        { name: { $regex: q, $options: "i" } },
         { oem_part_number: { $regex: q, $options: "i" } }
       ]
     } : {};

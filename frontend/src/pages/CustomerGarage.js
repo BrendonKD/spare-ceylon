@@ -56,23 +56,23 @@ const CustomerGarage = () => {
 
     fetchProfile();
 
-const fetchVehicles = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/garage", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setVehicles(res.data);
-    } catch (err) {
-      console.error("Error loading garage", err.response?.data || err.message);
-      if (err.response && err.response.status === 401) {
-        navigate("/login");
+    const fetchVehicles = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/garage", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setVehicles(res.data);
+      } catch (err) {
+        console.error("Error loading garage", err.response?.data || err.message);
+        if (err.response && err.response.status === 401) {
+          navigate("/login");
+        }
       }
-    }
-  };
-  fetchVehicles();
+    };
+    fetchVehicles();
   },
 
-  [navigate, token]);
+    [navigate, token]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -148,22 +148,22 @@ const fetchVehicles = async () => {
     alert("History view not implemented yet. Vehicle ID: " + id);
   };
 
-return (
-  <div className="customer-dashboard">
-    <Header />
-    <div className="cd-layout"> 
-      
+  return (
+    <div className="customer-dashboard">
+      <Header />
+      <div className="cd-layout">
+
         {/* SIDEBAR */}
         <div className="col-lg-3 col-xl-2 pe-0">
           <CustomerSidebar
-             user={user}  
+            user={user}
             activeItem="garage"
             onLogout={handleLogout}
           />
         </div>
 
         {/* MAIN CONTENT */}
-        <div className="col-lg-9 col-xl-10 ps-3"> 
+        <div className="col-lg-9 col-xl-10 ps-3">
           <main className="customer-garage-main">
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5 className="mb-0">My Garage</h5>
@@ -304,11 +304,10 @@ return (
                       <div
                         className="vehicle-image"
                         style={{
-                          backgroundImage: `url(${
-                            v.image_url 
+                          backgroundImage: `url(${v.image_url
                               ? `http://localhost:5000/${v.image_url}`
                               : "https://images.pexels.com/photos/4488630/pexels-photo-4488630.jpeg"
-                          })`
+                            })`
                         }}
                       />
                     </div>
@@ -364,10 +363,10 @@ return (
             </div>
           </main>
         </div>
-      
+
+      </div>
     </div>
-  </div>
-);
+  );
 
 };
 

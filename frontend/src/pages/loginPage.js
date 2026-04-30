@@ -20,11 +20,11 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role: selectedRole })
-        });
+      });
 
 
       const data = await res.json();
@@ -66,9 +66,8 @@ const LoginPage = () => {
                 <div className="col-6">
                   <button
                     type="button"
-                    className={`account-type-option ${
-                      selectedRole === "customer" ? "active" : ""
-                    }`}
+                    className={`account-type-option ${selectedRole === "customer" ? "active" : ""
+                      }`}
                     onClick={() => handleRoleClick("customer")}
                   >
                     {selectedRole === "customer" && <div className="tick-mark">✓</div>}
@@ -79,9 +78,8 @@ const LoginPage = () => {
                 <div className="col-6">
                   <button
                     type="button"
-                    className={`account-type-option ${
-                      selectedRole === "vendor" ? "active" : ""
-                    }`}
+                    className={`account-type-option ${selectedRole === "vendor" ? "active" : ""
+                      }`}
                     onClick={() => handleRoleClick("vendor")}
                   >
                     {selectedRole === "vendor" && <div className="tick-mark">✓</div>}
@@ -111,10 +109,10 @@ const LoginPage = () => {
                 className="toggle-btn"
                 type="button"
                 onClick={() =>
-                  (window.location.href =
-                    selectedRole === "customer"
-                      ? "/register/customer"
-                      : "/register/vendor")
+                (window.location.href =
+                  selectedRole === "customer"
+                    ? "/register/customer"
+                    : "/register/vendor")
                 }
               >
                 Register
@@ -126,6 +124,8 @@ const LoginPage = () => {
                 <label className="form-label small">Email Address</label>
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   className="form-control auth-input"
                   placeholder="Enter Your Email Address"
                   value={email}
@@ -182,8 +182,8 @@ const LoginPage = () => {
                 {loading
                   ? "Signing In..."
                   : selectedRole === "customer"
-                  ? "Sign In as Customer"
-                  : "Sign In as Vendor"}
+                    ? "Sign In as Customer"
+                    : "Sign In as Vendor"}
               </button>
             </form>
           </div>

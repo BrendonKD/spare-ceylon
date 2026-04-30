@@ -1,0 +1,462 @@
+.admin-dashboard {
+    min-height: 100vh;
+    background: #f6f7fb;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: calc(100vh - 74px);
+}
+
+.admin-main.amu-main {
+    flex: 1;
+    margin-top: 0px;
+    padding: 24px;
+    background: #f6f7fb;
+    min-height: calc(100vh - 74px);
+    width: calc(100% - 230px);
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.amu-main {
+    padding: 24px;
+    background: #f6f7fb;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.amu-page-header {
+    margin-bottom: 18px;
+}
+
+.amu-page-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.amu-page-subtitle {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.amu-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.amu-stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border: 1px solid #eef0f5;
+}
+
+.amu-stat-card span {
+    display: block;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.amu-stat-card h3 {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1;
+    color: #111827;
+    font-weight: 700;
+}
+
+.amu-toolbar {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.amu-toolbar-inner {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    width: 100%;
+}
+
+.amu-search-box {
+    background: #fff;
+    border: 1px solid #e7eaf1;
+    border-radius: 12px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    flex: 1 1 70%;
+    min-width: 0;
+}
+
+.amu-search-box .material-symbols-outlined {
+    color: #9ca3af;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.amu-search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: #111827;
+}
+
+.amu-filter-select {
+    flex: 1 1 30%;
+    min-width: 180px;
+    height: 50px;
+    border: 1px solid #e7eaf1;
+    border-radius: 12px;
+    background: #fff;
+    padding: 0 14px;
+    font-size: 14px;
+    color: #111827;
+    outline: none;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.amu-filter-select:focus {
+    border-color: #c7d2fe;
+}
+
+@media (max-width: 768px) {
+    .amu-toolbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .amu-search-box,
+    .amu-filter-select {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+.amu-search-box {
+    background: #fff;
+    border: 1px solid #e7eaf1;
+    border-radius: 14px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 50px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.amu-search-box .material-symbols-outlined {
+    color: #9ca3af;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.amu-search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+}
+
+.amu-role-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+.amu-role-box {
+    background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.amu-role-box-head {
+    margin-bottom: 14px;
+}
+
+.amu-role-box-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.amu-role-box-title .material-symbols-outlined {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.amu-role-box-title h3 {
+    margin: 0;
+    font-size: 19px;
+    color: #111827;
+    font-weight: 700;
+}
+
+.amu-role-box-title p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.amu-mini-list {
+    display: grid;
+    gap: 12px;
+}
+
+.amu-mini-row {
+    border: 1px solid #eef2f7;
+    border-radius: 16px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr auto;
+    gap: 14px;
+    align-items: center;
+    background: #fafbfc;
+}
+
+.amu-mini-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.amu-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0E544F, #17756f);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.amu-mini-text {
+    min-width: 0;
+}
+
+.amu-mini-text h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: #111827;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.amu-mini-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+    word-break: break-word;
+}
+
+.amu-mini-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.amu-badge,
+.amu-role-badge,
+.amu-phone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.amu-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.amu-badge.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.amu-role-badge.admin {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.amu-role-badge.vendor {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.amu-role-badge.customer {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.amu-phone {
+    background: #eef2f7;
+    color: #475569;
+}
+
+.amu-mini-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.amu-action-btn {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    min-height: 40px;
+}
+
+.amu-action-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.amu-action-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.active-btn {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.inactive-btn {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.delete-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.amu-empty-state {
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+    background: #f8fafc;
+    color: #6b7280;
+    border: 1px dashed #dbe1ea;
+    font-size: 14px;
+}
+
+.amu-loading-wrap {
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 992px) {
+    .amu-main {
+        padding: 18px;
+    }
+
+    .amu-page-title {
+        font-size: 24px;
+    }
+
+    .amu-mini-row {
+        grid-template-columns: 1fr;
+    }
+
+    .amu-mini-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .amu-main {
+        padding: 14px;
+    }
+
+    .amu-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .amu-role-box {
+        padding: 16px;
+    }
+
+    .amu-search-box {
+        height: 46px;
+        padding: 0 12px;
+    }
+
+    .amu-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .amu-mini-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 520px) {
+    .amu-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .amu-page-title {
+        font-size: 21px;
+    }
+
+    .amu-page-subtitle {
+        font-size: 13px;
+    }
+
+    .amu-role-box-title h3 {
+        font-size: 17px;
+    }
+
+    .amu-role-box-title .material-symbols-outlined {
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+    }
+}
