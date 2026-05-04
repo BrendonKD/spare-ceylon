@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import Header from "../components/header.js";
@@ -8,13 +8,12 @@ const API = "http://localhost:5000";
 const AD_CONTACT = "074 3013 073"; // contact number for advertising
 
 // PromoCard — shows a live vendor ad OR an "ad space available" fallback
-const PromoCard = ({ ad, side }) => {
+const PromoCard = ({ ad, side, onShopNow }) => {
   const fallbackGradient = {
     left: "linear-gradient(135deg, rgba(15,118,110,0.92), rgba(6,78,59,0.95))",
     right: "linear-gradient(135deg, rgba(30,58,138,0.92), rgba(15,23,42,0.95))"
   }[side];
 
-  // No active ad for this slot — show fallback
   if (!ad) {
     return (
       <div
@@ -49,7 +48,6 @@ const PromoCard = ({ ad, side }) => {
     );
   }
 
-  // Active vendor ad
   const bgImage = ad.image_url
     ? `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url(${API}${ad.image_url})`
     : fallbackGradient;
@@ -66,12 +64,43 @@ const PromoCard = ({ ad, side }) => {
       <div>
         <h5>{ad.title}</h5>
         <p>{ad.description}</p>
-        <button className="btn btn-outline-light btn-sm">
+        <button
+          className="btn btn-outline-light btn-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onShopNow?.(ad);
+          }}
+        >
           {ad.cta_label || "Shop Now"}
         </button>
       </div>
     </div>
   );
+};
+const PromoSlider = ({ ads, side, onShopNow }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const sideAds = useMemo(() => {
+    return ads?.[side] ?? [];
+  }, [ads, side]);
+
+  const ad = sideAds[currentIndex];
+
+  useEffect(() => {
+    if (!sideAds.length) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % sideAds.length);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [sideAds]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [sideAds]);
+
+  return <PromoCard ad={ad} side={side} onShopNow={onShopNow} />;
 };
 
 // ---------------------------------------------------------------------------
@@ -261,6 +290,16 @@ const Home = () => {
 
   const searchResultsRef = useRef(null);
 
+const handleAdShopNow = (ad) => {
+  const vendorId = ad?.vendor_profile_id;
+
+  if (vendorId) {
+    navigate(`/vendors/${vendorId}`);
+  } else {
+    console.warn("No vendor profile id found for ad:", ad);
+  }
+};
+
   // ── Fetch trending listings ───────────────────────────────────────────────
   useEffect(() => {
     const fetchTrending = async () => {
@@ -449,40 +488,55 @@ const Home = () => {
 
               <div className="hero-search-wrapper">
                 <form onSubmit={handleSearch}>
-                  <div className="input-group flex-wrap">
-
-                    <label className="btn btn-outline-light btn-sm" style={{ cursor: "pointer" }}>
-                      {identifying
-                        ? <span className="spinner-border spinner-border-sm" />
-                        : <><span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: "middle" }}>image_search</span> Upload Image</>
-                      }
-                      <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
+                  <div className="hero-search-bar">
+                    <label className="hero-upload-btn" title="Upload image">
+                      {identifying ? (
+                        <span className="spinner-border spinner-border-sm" />
+                      ) : (
+                        <>
+                          <span
+                            className="material-symbols-outlined"
+                            style={{ fontSize: 18 }}
+                          >
+                            image_search
+                          </span>
+                          <span className="upload-text">Upload Image</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={handleImageUpload}
+                      />
                     </label>
 
                     <input
                       type="text"
-                      className="form-control hero-search-input"
+                      className="hero-search-input"
                       placeholder="Search by part name or vehicle model"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
+
                     {hasSearched && (
                       <button
                         type="button"
-                        className="btn-outline-light"
+                        className="hero-clear-btn"
                         onClick={handleClearSearch}
                         title="Clear search"
                       >
                         <span
                           className="material-symbols-outlined"
-                          style={{ fontSize: "20px", verticalAlign: "middle" }}
+                          style={{ fontSize: "20px" }}
                         >
                           close
                         </span>
                       </button>
                     )}
+
                     <button
-                      className="btn btn-primary btn-outline-light"
+                      className="hero-search-btn"
                       type="submit"
                       disabled={searchLoading}
                     >
@@ -496,31 +550,29 @@ const Home = () => {
                 </form>
 
                 <div className="hero-filters mt-3 d-flex flex-wrap justify-content-center">
-                  {["Engine", "Suspension", "Electrical", "Body Parts"].map(
-                    (chip) => (
-                      <button
-                        key={chip}
-                        className="btn btn-sm btn-outline-light me-2 mb-2"
-                        onClick={() => handleChipSearch(chip)}
-                      >
-                        {chip}
-                      </button>
-                    )
-                  )}
+                  {["Engine", "Suspension", "Electrical", "Body Parts"].map((chip) => (
+                    <button
+                      key={chip}
+                      className="btn btn-sm btn-outline-light me-2 mb-2"
+                      onClick={() => handleChipSearch(chip)}
+                    >
+                      {chip}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* ── Promo Cards — live ads or fallback ─────────────────────── */}
-          <div className="row mt-4 g-3">
-            <div className="col-md-6">
-              <PromoCard ad={activeAds.left} side="left" />
-            </div>
-            <div className="col-md-6">
-              <PromoCard ad={activeAds.right} side="right" />
-            </div>
-          </div>
+<div className="row mt-4 g-3">
+  <div className="col-md-6">
+    <PromoSlider ads={activeAds} side="left" onShopNow={handleAdShopNow} />
+  </div>
+  <div className="col-md-6">
+    <PromoSlider ads={activeAds} side="right" onShopNow={handleAdShopNow} />
+  </div>
+</div>
         </div>
       </section>
 

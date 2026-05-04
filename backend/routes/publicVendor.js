@@ -41,7 +41,10 @@ router.get("/vendors/:id", async (req, res) => {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    const products = await VendorListing.find({ vendor_id: vendor.vendor_id })
+    const products = await VendorListing.find({
+      vendor_id: vendor.vendor_id,
+      status: "active"
+    })
       .populate("product_id", "name oem_part_number")
       .sort({ createdAt: -1 });
 

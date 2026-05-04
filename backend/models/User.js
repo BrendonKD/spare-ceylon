@@ -8,7 +8,11 @@ const userSchema = new mongoose.Schema(
     password_hash: { type: String, required: true },
     phone: { type: String, required: true },
     role: { type: String, enum: ["customer", "vendor", "admin"], required: true },
-    status: { type: String, default: "active" }
+    status: { type: String, default: "active" },
+    profile_image: { type: String, default: "" },
+    reset_otp: { type: String, default: null, },
+    reset_otp_expires: { type: Date, default: null, },
+    reset_otp_verified: { type: Boolean, default: false, },
   },
   { timestamps: true }
 );

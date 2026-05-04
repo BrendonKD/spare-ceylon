@@ -7,9 +7,14 @@ import "./CustomerMessages.css";
 
 const API = "http://localhost:5000";
 
-const CustomerMessages = ({ user, handleLogout }) => {
+const CustomerMessages = () => {
   const navigate = useNavigate();
   const { vendorId } = useParams();
+
+  const [user, setUser] = useState({
+    full_name: "Loading...",
+    email: "..."
+  });
 
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -17,8 +22,16 @@ const CustomerMessages = ({ user, handleLogout }) => {
   const [text, setText] = useState("");
   const [loadingList, setLoadingList] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   const token = localStorage.getItem("token");
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/");
+  }, [navigate]);
 
   const authHeaders = useMemo(
     () => ({
@@ -26,6 +39,24 @@ const CustomerMessages = ({ user, handleLogout }) => {
     }),
     [token]
   );
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl("");
+  };
 
   const loadConversations = useCallback(async () => {
     try {
@@ -66,6 +97,33 @@ const CustomerMessages = ({ user, handleLogout }) => {
   };
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const res = await axios.get(`${API}/api/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setUser({
+          full_name: res.data.full_name,
+          email: res.data.email
+        });
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+        if (err.response?.status === 401) {
+          handleLogout();
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [token, navigate, handleLogout]);
+
+  useEffect(() => {
     const init = async () => {
       const list = await loadConversations();
 
@@ -99,17 +157,31 @@ const CustomerMessages = ({ user, handleLogout }) => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!text.trim() || !selectedConversation) return;
+    if ((!text.trim() && !selectedFile) || !selectedConversation) return;
 
     try {
+      const formData = new FormData();
+      formData.append("text", text);
+
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
+
       const res = await axios.post(
         `${API}/api/messages/conversations/${selectedConversation._id}`,
-        { text },
-        authHeaders
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
 
       setMessages((prev) => [...prev, res.data]);
       setText("");
+      setSelectedFile(null);
+      setPreviewUrl("");
       await loadConversations();
     } catch (err) {
       console.error("Error sending message:", err);
@@ -211,7 +283,17 @@ const CustomerMessages = ({ user, handleLogout }) => {
                             className={`customer-message-row ${mine ? "mine" : "theirs"}`}
                           >
                             <div className="customer-message-bubble">
-                              {msg.text}
+                              {msg.text && (
+                                <div className="customer-message-text">{msg.text}</div>
+                              )}
+
+                              {msg.image_url && (
+                                <img
+                                  src={`${API}${msg.image_url}`}
+                                  alt="Message attachment"
+                                  className="customer-message-image"
+                                />
+                              )}
                             </div>
                           </div>
                         );
@@ -220,16 +302,46 @@ const CustomerMessages = ({ user, handleLogout }) => {
                   </div>
 
                   <form className="customer-messages-composer" onSubmit={handleSend}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Write your message..."
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                    />
-                    <button className="btn btn-success" type="submit">
-                      Send
-                    </button>
+                    <div className="customer-messages-composer-row">
+                      <input
+                        type="text"
+                        className="form-control customer-message-input"
+                        placeholder="Write your message..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                      />
+
+                      <label className="customer-upload-btn">
+                        <span className="material-symbols-outlined">attach_file</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={handleFileChange}
+                        />
+                      </label>
+
+                      <button
+                        className=" btn-sm customer-send-btn"
+                        type="submit"
+                        disabled={!text.trim() && !selectedFile}
+                      >
+                        Send
+                      </button>
+                    </div>
+
+                    {previewUrl && (
+                      <div className="customer-message-preview">
+                        <img src={previewUrl} alt="Selected preview" />
+                        <button
+                          type="button"
+                          className="btn-sm btn-outline-danger"
+                          onClick={removeSelectedFile}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
                   </form>
                 </>
               ) : (

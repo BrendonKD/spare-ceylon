@@ -22,6 +22,11 @@ const messageSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+
+    image_url: {
+      type: String,
+      default: null
+    },
     read_by: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"

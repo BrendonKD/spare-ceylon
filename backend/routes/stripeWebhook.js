@@ -3,10 +3,12 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const Order = require('../models/Order');
+const User = require('../models/User');
 const VendorListing = require('../models/VendorListing');
 const PendingCheckout = require('../models/PendingCheckout');
 
 const SubscriptionPlan = require('../models/SubscriptionPlan');
+const { sendSubscriptionActivatedEmail } = require('../utils/subscriptionMail');
 const VendorSubscription = require('../models/VendorSubscription');
 const PendingSubscriptionCheckout = require('../models/PendingSubscriptionCheckout');
 const PendingAdvertisementCheckout = require('../models/PendingAdvertisementCheckout');
@@ -228,31 +230,53 @@ async function handleSubscriptionCheckoutCompleted(session) {
     await pendingCheckout.save();
 
     const startDate = new Date();
-    const endDate = addDuration(startDate, pendingCheckout.billingCycle);
+    const endDate = addDuration(startDate, pendingCheckout.billing_cycle);
 
     await VendorSubscription.updateMany(
-        { vendorId: pendingCheckout.vendorId, status: 'active' },
+        { vendor_id: pendingCheckout.vendor_id, status: 'active' },
         { $set: { status: 'expired' } }
     );
 
-    await VendorSubscription.create({
-        vendorId: pendingCheckout.vendorId,
-        planId: pendingCheckout.planId,
-        billingCycle: pendingCheckout.billingCycle,
-        pricePaid: pendingCheckout.amount,
+    const subscription = await VendorSubscription.create({
+        vendor_id: pendingCheckout.vendor_id,
+        plan_id: pendingCheckout.plan_id,
+        billing_cycle: pendingCheckout.billing_cycle,
+        price_paid: pendingCheckout.amount,
         currency: pendingCheckout.currency,
         status: 'active',
-        startDate,
-        endDate,
-        activatedByAdmin: false,
-        stripeSessionId: session.id,
-        stripePaymentIntentId: session.payment_intent || null,
-        paymentStatus: 'paid',
+        start_date: startDate,
+        end_date: endDate,
+        activated_by_admin: false,
+        stripe_session_id: session.id,
+        stripe_payment_intent_id: session.payment_intent || null,
+        payment_status: 'paid',
         notes: 'Paid via Stripe one-time checkout',
     });
 
+    const vendorUser = await User.findById(pendingCheckout.vendor_id).select('full_name email');
+    const plan = await SubscriptionPlan.findById(pendingCheckout.plan_id).select('name');
+
+    if (vendorUser?.email && plan) {
+        try {
+            await sendSubscriptionActivatedEmail({
+                to: vendorUser.email,
+                vendorName: vendorUser.full_name,
+                planName: plan.name,
+                billingCycle: pendingCheckout.billing_cycle,
+                startDate,
+                endDate,
+                amount: pendingCheckout.amount,
+                currency: pendingCheckout.currency,
+            });
+        } catch (mailErr) {
+            console.error('Subscription activation email failed:', mailErr.message);
+        }
+    }
+
     pendingCheckout.status = 'completed';
     await pendingCheckout.save();
+
+    return subscription;
 }
 
 //Advertisement checkout

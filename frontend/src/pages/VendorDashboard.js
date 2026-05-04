@@ -95,7 +95,7 @@ const VendorDashboard = () => {
   };
 
   // First name for greeting
-  const firstName = vendor.full_name.split(" ")[0];
+  const firstName = vendor.business_name;
 
   // Time-based greeting
   const hour = new Date().getHours();

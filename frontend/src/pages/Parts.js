@@ -9,7 +9,7 @@ import { useCart } from "../context/CartContext";
 const API = "http://localhost:5000";
 const IMAGE_API = "http://localhost:5001/predict";
 
-const PartCard = ({ item, onViewDetails }) => {
+const PartCard = ({ item, onViewDetails, onVendorClick }) => {
     const [imgError, setImgError] = useState(false);
     const { addToCart } = useCart();
 
@@ -23,6 +23,12 @@ const PartCard = ({ item, onViewDetails }) => {
 
     const product = item.product_id || {};
     const vendorName = item.vendor?.business_name || "Unknown Vendor"
+
+
+    const businessName = item.vendor?.business_name || "Unknown Vendor";
+
+    const vendorProfileId =
+        item.vendor?._id || item.vendor?.vendor_id || item.vendor?.userId;
 
     return (
         <div className="col-12 col-sm-6 col-lg-4 col-xl-3">
@@ -46,9 +52,18 @@ const PartCard = ({ item, onViewDetails }) => {
                     <h6 className="card-title mb-1 parts-card-title text-dark">
                         {item.title || product.name}
                     </h6>
-
-                    <p className="small text-muted mb-1">
-                        Vendor: {vendorName}
+                    <p className="card-text small mb-1 text-muted">
+                        Vendor: {"  "}
+                        <span
+                            className="text-primary"
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onVendorClick(vendorProfileId);
+                            }}
+                        >
+                            {businessName}
+                        </span>
                     </p>
 
                     {product.name && (
@@ -115,6 +130,12 @@ const Parts = () => {
         conditions: [],
         locations: []
     });
+
+    const handleVendorClick = (vendorId) => {
+        if (!vendorId) return;
+        navigate(`/vendors/${vendorId}`);
+    };
+
 
     const buildParams = (targetPage = 1, overrideTerm) => {
         const params = { page: targetPage };
@@ -249,49 +270,56 @@ const Parts = () => {
 
             <main className="container-fluid py-4">
                 {/* Search Header */}
-                <section className="mb-4">
-                    <div className="hero-search-wrapper bg-dark text-light p-4 rounded-3 shadow">
-                        <form onSubmit={handleSearch}>
-                            <div className="input-group flex-wrap">
-                                <label className="btn btn-outline-light btn-sm me-2 mb-2 d-flex align-items-center">
-                                    <span className="material-symbols-outlined me-1" style={{ fontSize: 18 }}>
-                                        image_search
-                                    </span>
-                                    Upload Image
-                                    <input type="file" accept="image/*" className="d-none" onChange={handleImageUpload} />
-                                </label>
+                <section className="parts-search-box mb-4">
+                    <p className="parts-search-label mb-2">Find Spare Parts</p>
 
-                                <input
-                                    type="text"
-                                    className="form-control hero-search-input me-2 mb-2"
-                                    placeholder="Search by part name or vehicle model"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+                    <form onSubmit={handleSearch}>
+                        <div className="parts-search-row">
+                            <label className="parts-upload-simple">
+                                <span className="material-symbols-outlined">image_search</span>
+                                <span>Upload</span>
+                                <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
+                            </label>
 
-                                {hasSearched && (
-                                    <button type="button" className="btn btn-outline-light me-2 mb-2" onClick={handleClearSearch}>
-                                        <span className="material-symbols-outlined" style={{ verticalAlign: "middle" }}>close</span>
-                                    </button>
-                                )}
+                            <input
+                                type="text"
+                                className="parts-search-input"
+                                placeholder="Search by part name or vehicle model"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
 
-                                <button className="btn btn-primary mb-2 px-4" type="submit" disabled={searchLoading}>
-                                    {searchLoading ? <span className="spinner-border spinner-border-sm" /> : "Search"}
-                                </button>
-                            </div>
-                        </form>
-
-                        <div className="hero-filters mt-3 d-flex flex-wrap justify-content-center gap-2">
-                            {["Engine", "Suspension", "Electrical", "Body Parts"].map((chip) => (
+                            {hasSearched && (
                                 <button
-                                    key={chip}
-                                    className="btn btn-sm btn-outline-light px-3"
-                                    onClick={() => handleChipSearch(chip)}
+                                    type="button"
+                                    className="parts-clear-simple"
+                                    onClick={handleClearSearch}
                                 >
-                                    {chip}
+                                    <span className="material-symbols-outlined">close</span>
                                 </button>
-                            ))}
+                            )}
+
+                            <button
+                                className="parts-search-btn"
+                                type="submit"
+                                disabled={searchLoading}
+                            >
+                                {searchLoading ? <span className="spinner-border spinner-border-sm" /> : "Search"}
+                            </button>
                         </div>
+                    </form>
+
+                    <div className="parts-chip-row mt-3">
+                        {["Engine", "Suspension", "Electrical", "Body Parts"].map((chip) => (
+                            <button
+                                key={chip}
+                                type="button"
+                                className="parts-chip"
+                                onClick={() => handleChipSearch(chip)}
+                            >
+                                {chip}
+                            </button>
+                        ))}
                     </div>
                 </section>
 
@@ -392,7 +420,12 @@ const Parts = () => {
                             <>
                                 <div className="row g-3">
                                     {parts.map((p) => (
-                                        <PartCard key={p._id} item={p} onViewDetails={handleViewDetails} />
+                                        <PartCard
+                                            key={p._id}
+                                            item={p}
+                                            onViewDetails={handleViewDetails}
+                                            onVendorClick={handleVendorClick}
+                                        />
                                     ))}
                                 </div>
 

@@ -356,7 +356,7 @@ const VendorOrders = () => {
                                                     <div className="small text-muted">{customer.full_name || "Unknown Customer"}</div>
                                                     <div className="small text-muted">{customer.email || "No email"}</div>
                                                     <div className="small text-muted mt-1">
-                                                        {o.shipping_address?.city || "No city"}
+                                                        {o.shipping_address?.address || "No city"}
                                                     </div>
                                                     <div className="small text-muted">{o.shipping_address?.phone || "No phone"}</div>
                                                 </div>

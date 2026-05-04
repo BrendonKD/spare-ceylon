@@ -1,10 +1,43 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
 
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const Vendor = require("../models/Vendor");
 const protect = require("../middleware/authMiddleware");
+
+//image upload
+const uploadDir = path.join(__dirname, "../uploads/messages");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const safeName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, safeName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  }
+});
 
 // START or GET existing conversation with vendor
 router.post("/conversations/start", protect, async (req, res) => {
@@ -119,55 +152,67 @@ router.get("/conversations/:conversationId", protect, async (req, res) => {
 });
 
 // SEND message to conversation
-router.post("/conversations/:conversationId", protect, async (req, res) => {
-  try {
-    const { conversationId } = req.params;
-    const { text } = req.body;
-    const userId = req.user.id;
-    const userRole = req.user.role;
+router.post(
+  "/conversations/:conversationId",
+  protect,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      const text = req.body?.text || "";
+      const userId = req.user.id;
+      const userRole = req.user.role;
 
-    if (!text || !text.trim()) {
-      return res.status(400).json({ message: "Message text is required" });
-    }
+      const trimmedText = text.trim();
+      const imageUrl = req.file ? `/uploads/messages/${req.file.filename}` : null;
 
-    const conversation = await Conversation.findById(conversationId);
-
-    if (!conversation) {
-      return res.status(404).json({ message: "Conversation not found" });
-    }
-
-    let isAuthorized = false;
-
-    if (userRole === "customer") {
-      isAuthorized = conversation.customer_id.toString() === userId;
-    } else if (userRole === "vendor") {
-      const vendorProfile = await Vendor.findOne({ vendor_id: userId });
-      if (vendorProfile) {
-        isAuthorized = conversation.vendor_id.toString() === vendorProfile._id.toString();
+      if (!trimmedText && !imageUrl) {
+        return res.status(400).json({ message: "Message text or image is required" });
       }
+
+      const conversation = await Conversation.findById(conversationId);
+
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      let isAuthorized = false;
+
+      if (userRole === "customer") {
+        isAuthorized = conversation.customer_id.toString() === userId;
+      } else if (userRole === "vendor") {
+        const vendorProfile = await Vendor.findOne({ vendor_id: userId });
+        if (vendorProfile) {
+          isAuthorized = conversation.vendor_id.toString() === vendorProfile._id.toString();
+        }
+      }
+
+      if (!isAuthorized) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+
+      const message = await Message.create({
+        conversation_id: conversationId,
+        sender_id: userId,
+        sender_role: userRole,
+        text: trimmedText,
+        image_url: imageUrl,
+        read_by: [userId]
+      });
+
+      conversation.last_message = trimmedText
+        ? trimmedText
+        : "Image";
+      conversation.last_message_at = new Date();
+
+      await conversation.save();
+
+      res.status(201).json(message);
+    } catch (error) {
+      console.error("send message error:", error);
+      res.status(500).json({ message: "Failed to send message" });
     }
-
-    if (!isAuthorized) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
-    const message = await Message.create({
-      conversation_id: conversationId,
-      sender_id: userId,
-      sender_role: userRole,
-      text: text.trim(),
-      read_by: [userId]
-    });
-
-    conversation.last_message = text.trim();
-    conversation.last_message_at = new Date();
-    await conversation.save();
-
-    res.status(201).json(message);
-  } catch (error) {
-    console.error("send message error:", error);
-    res.status(500).json({ message: "Failed to send message" });
   }
-});
+);
 
 module.exports = router;

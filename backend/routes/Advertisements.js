@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const Advertisement = require("../models/Advertisement");
+const Vendor = require("../models/Vendor");
 const PendingAdvertisementCheckout = require("../models/PendingAdvertisementCheckout");
 const auth = require("../middleware/authMiddleware");
 const logActivity = require("../utils/logActivity");
@@ -48,15 +49,39 @@ router.get("/active", async (req, res) => {
       .sort({ start_date: -1 })
       .lean();
 
-    const slots = { left: null, right: null };
+    const slots = { left: [], right: [] };
+
+    if (!ads.length) {
+      return res.json(slots);
+    }
+
+    const vendorUserIds = ads
+      .map((ad) => ad.vendor_id?._id?.toString() || ad.vendor_id?.toString())
+      .filter(Boolean);
+
+    const vendorProfiles = await Vendor.find({
+      vendor_id: { $in: vendorUserIds }
+    }).lean();
+
+    const vendorProfileMap = new Map(
+      vendorProfiles.map((vp) => [vp.vendor_id.toString(), vp._id.toString()])
+    );
 
     for (const ad of ads) {
+      const vendorUserId =
+        ad.vendor_id?._id?.toString() || ad.vendor_id?.toString();
+
+      const vendorProfileId = vendorProfileMap.get(vendorUserId) || null;
+
       if (!slots[ad.slot]) {
-        slots[ad.slot] = {
-          ...ad,
-          image_url: normalizePath(ad.image_url),
-        };
+        slots[ad.slot] = [];
       }
+
+      slots[ad.slot].push({
+        ...ad,
+        image_url: normalizePath(ad.image_url),
+        vendor_profile_id: vendorProfileId,
+      });
     }
 
     res.json(slots);

@@ -59,7 +59,7 @@ const OrderRow = ({
           Order date: {orderDate}
         </span>
         <span className="cd-order-meta-item">
-          Order ID: {id}
+          Order ID: {id.slice(-6).toUpperCase()}
         </span>
       </div>
     </div>

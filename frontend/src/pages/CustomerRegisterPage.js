@@ -42,7 +42,6 @@ const CustomerRegisterPage = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      // Redirect after success
       window.location.href = "/login";
     } catch (err) {
       setErrorMsg(err.message);
@@ -52,24 +51,24 @@ const CustomerRegisterPage = () => {
   };
 
   return (
-    <div className="auth-page container-fluid">
-      <div className="row justify-content-center py-5">
-        {/* LEFT: account type selector (customer fixed) */}
+    <div className="auth-page register-page container-fluid">
+      <div className="row justify-content-center py-2">
+        {/* LEFT */}
         <div className="col-12 col-lg-5 mb-4 mb-lg-0">
           <div className="account-type-card">
             <div className="account-type-bg" />
             <div className="account-type-overlay">
-              <h5 className="mb-4 text-center text-white">
-                Choose Account Type
-              </h5>
+              <h5 className="mb-4 text-center text-white">Choose Account Type</h5>
 
               <div className="row g-3">
                 <div className="col-6">
                   <div className="account-type-option active">
+                    <div className="tick-mark">✓</div>
                     <div className="type-icon customer-icon" />
                     <div className="mt-2 fw-semibold">Customer</div>
                   </div>
                 </div>
+
                 <div className="col-6">
                   <button
                     type="button"
@@ -89,18 +88,17 @@ const CustomerRegisterPage = () => {
           </div>
         </div>
 
-        {/* RIGHT: registration form */}
+        {/* RIGHT */}
         <div className="col-12 col-lg-5">
-          <div className="auth-card">
-            <div className="auth-card-header text-center mb-4">
+          <div className="auth-card register-auth-card">
+            <div className="auth-card-header text-center mb-3">
               <h5 className="mb-1">Welcome !</h5>
               <p className="mb-0 text-muted small">
                 Create a new customer account
               </p>
             </div>
 
-            {/* Toggle Sign In / Register */}
-            <div className="auth-toggle mb-4">
+            <div className="auth-toggle mb-3">
               <button
                 className="toggle-btn"
                 type="button"
@@ -114,7 +112,7 @@ const CustomerRegisterPage = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="row g-3">
+              <div className="row g-2">
                 <div className="col-12 col-md-6">
                   <label className="form-label small">First Name</label>
                   <input
@@ -125,6 +123,7 @@ const CustomerRegisterPage = () => {
                     required
                   />
                 </div>
+
                 <div className="col-12 col-md-6">
                   <label className="form-label small">Last Name</label>
                   <input
@@ -193,10 +192,7 @@ const CustomerRegisterPage = () => {
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
                 />
-                <label
-                  className="form-check-label small"
-                  htmlFor="agreeTerms"
-                >
+                <label className="form-check-label small" htmlFor="agreeTerms">
                   Agree <span className="text-danger">Terms And Conditions</span>
                 </label>
               </div>

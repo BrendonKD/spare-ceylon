@@ -59,7 +59,6 @@ const Header = () => {
                             <li className="nav-item"><a className="nav-link" href="/vendors">Vendors</a></li>
                             <li className="nav-item"><a className="nav-link" href="/community">Community</a></li>
                             <li className="nav-item"><a className="nav-link" href="/about">About</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/inqueries">Inqiries</a></li>
                         </ul>
 
                         {/* Action Section: This is where the logic combines */}

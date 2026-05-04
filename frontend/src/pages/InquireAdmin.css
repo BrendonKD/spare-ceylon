@@ -1,0 +1,179 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.inquire-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f5f7fa;
+}
+
+.inquire-page > header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  flex: 0 0 auto;
+}
+
+.inquire-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inquire-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.inquire-header {
+  margin-bottom: 16px;
+}
+
+.inquire-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.inquire-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.inquire-grid {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.inquire-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.inquire-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inquire-form .form-control {
+  border-radius: 12px;
+}
+
+.inquire-submit-btn {
+  background: #0E544F;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 600;
+}
+
+.inquire-submit-btn:hover {
+  background: #0c4743;
+  color: #fff;
+}
+
+.inquire-empty {
+  color: #6b7280;
+  padding: 16px 0;
+}
+
+.inquire-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inquire-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.inquire-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.inquire-item-top h5 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.replied {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.inquire-message {
+  margin: 0 0 12px;
+  color: #374151;
+}
+
+.admin-reply-box {
+  background: #ecfdf5;
+  border: 1px solid #ccefe5;
+  border-radius: 12px;
+  padding: 12px;
+  color: #0f172a;
+}
+
+.admin-reply-box p {
+  margin: 6px 0;
+}
+
+.pending-reply {
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 991.98px) {
+  .inquire-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .inquire-main {
+    padding: 12px;
+  }
+
+  .inquire-card {
+    padding: 14px;
+  }
+}

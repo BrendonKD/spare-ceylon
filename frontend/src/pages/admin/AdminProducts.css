@@ -424,6 +424,17 @@
   cursor: not-allowed;
 }
 
+.ap-search-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ap-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 991px) {
   .ap-desc-text {

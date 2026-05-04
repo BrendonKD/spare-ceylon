@@ -18,6 +18,10 @@ import VendorDetails from "./pages/VendorDetails";
 import Messages from "./pages/Messages";
 import CustomerMessages from './pages/CustomerMessages';
 import VendorSubscriptions from './pages/VendorSubscriptions';
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import CustomerProfileSettings from './pages/CustomerProfileSettings';
+import InquireAdmin from "./pages/InquireAdmin";
+import CommunityForum from "./pages/CommunityForum";
 
 //admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -28,6 +32,9 @@ import AdminVendorsList from "./pages/admin/AdminVendorsList";
 import AdminVendorDetail from "./pages/admin/AdminVendorDetails";
 import AdminManageAds from './pages/admin/AdminManageAds';
 import AdminManageUser from './pages/admin/AdminManageUser';
+import AdminProductRequests from "./pages/admin/AdminProductRequests";
+import AdminInquireReq from "./pages/admin/AdminInquireReq";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 //vendor pages
 import VendorDashboard from "./pages/VendorDashboard";
@@ -67,6 +74,10 @@ function App() {
         <Route path="/customer/messages" element={<CustomerMessages />} />
         <Route path="/customer/messages/:vendorId" element={<CustomerMessages />} />
         <Route path="/vendor/subscriptions" element={<VendorSubscriptions />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/customer/settings" element={<CustomerProfileSettings />} />
+        <Route path="/customer/inquire" element={<InquireAdmin />} />
+        <Route path="/community" element={<CommunityForum />} />
 
         {/* Vendor Routes */}
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />
@@ -88,6 +99,9 @@ function App() {
         <Route path="/admin/vendors/:vendorId" element={<AdminVendorDetail />} />
         <Route path="/admin/ads" element={<AdminManageAds />} />
         <Route path="/admin/users" element={<AdminManageUser />} />
+        <Route path="/admin/product-requests" element={<AdminProductRequests />} />
+        <Route path="/admin/inquiries" element={<AdminInquireReq />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
 
     </Router>

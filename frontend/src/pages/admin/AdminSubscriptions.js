@@ -25,16 +25,41 @@ const emptyForm = {
   is_recommended: false,
 };
 
+const assignInitial = {
+  vendor_id: "",
+  plan_id: "",
+  billing_cycle: "monthly",
+  notes: "",
+};
+
 const AdminSubscriptions = () => {
   const [plans, setPlans] = useState([]);
   const [vendorSubscriptions, setVendorSubscriptions] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [stats, setStats] = useState({
+    totalActiveSubscribedVendors: 0,
+    totalSubscriptionEarnings: 0,
+    planBreakdown: {
+      basic: { vendors: 0, earnings: 0 },
+      pro: { vendors: 0, earnings: 0 },
+      premium: { vendors: 0, earnings: 0 },
+    },
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
+  const [vendorFilter, setVendorFilter] = useState("");
+
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+
   const [editingPlanId, setEditingPlanId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [assignForm, setAssignForm] = useState(assignInitial);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   const getToken = () => localStorage.getItem("token");
 
@@ -46,13 +71,17 @@ const AdminSubscriptions = () => {
     try {
       setLoading(true);
 
-      const [plansRes, subscriptionsRes] = await Promise.all([
+      const [plansRes, subscriptionsRes, statsRes, usersRes] = await Promise.all([
         axios.get(`${API}/api/subscriptions/admin/plans`, authHeaders()),
         axios.get(`${API}/api/subscriptions/admin/all`, authHeaders()),
+        axios.get(`${API}/api/subscriptions/admin/stats`, authHeaders()),
+        axios.get(`${API}/api/admin/users`, authHeaders()),
       ]);
 
-      setPlans(plansRes.data);
-      setVendorSubscriptions(subscriptionsRes.data);
+      setPlans(plansRes.data || []);
+      setVendorSubscriptions(subscriptionsRes.data || []);
+      setStats(statsRes.data || stats);
+      setVendors((usersRes.data || []).filter((u) => u.role === "vendor"));
     } catch (err) {
       console.error("Failed to load subscription admin data", err);
       alert(err.response?.data?.message || "Failed to load subscription data");
@@ -65,59 +94,41 @@ const AdminSubscriptions = () => {
     fetchData();
   }, []);
 
-  const planVendorCounts = useMemo(() => {
-    const counts = {};
-
-    vendorSubscriptions.forEach((sub) => {
-      const planId = sub.plan_id?._id || sub.plan_id;
-      if (!planId) return;
-      counts[planId] = (counts[planId] || 0) + 1;
-    });
-
-    return counts;
-  }, [vendorSubscriptions]);
-
   const filteredPlans = useMemo(() => {
     return plans.filter((plan) => {
-      const featureText = Array.isArray(plan.features)
-        ? plan.features.join(", ")
-        : "";
-
+      const featureText = Array.isArray(plan.features) ? plan.features.join(", ") : "";
       const matchesSearch =
-        plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plan.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         featureText.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        plan.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (plan.description || "").toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "all" || plan.status.toLowerCase() === statusFilter;
+        statusFilter === "all" || plan.status?.toLowerCase() === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
   }, [plans, searchTerm, statusFilter]);
 
-  const totalPlans = plans.length;
-  const totalVendors = vendorSubscriptions.length;
-  const premiumPlan = plans.find((p) => p.name === "Premium");
-  const proPlan = plans.find((p) => p.name === "Pro");
-  const premiumVendors = premiumPlan ? planVendorCounts[premiumPlan._id] || 0 : 0;
-  const proVendors = proPlan ? planVendorCounts[proPlan._id] || 0 : 0;
+  const activeVendorSubscriptions = useMemo(() => {
+    return vendorSubscriptions.filter((sub) => {
+      const vendorName = sub.vendor_id?.full_name || "";
+      const vendorEmail = sub.vendor_id?.email || "";
+      const planName = sub.plan_id?.name || "";
+      const matchesVendor =
+        vendorName.toLowerCase().includes(vendorFilter.toLowerCase()) ||
+        vendorEmail.toLowerCase().includes(vendorFilter.toLowerCase()) ||
+        planName.toLowerCase().includes(vendorFilter.toLowerCase());
 
-  const getPlanColor = (slug) => {
-    if (slug === "basic") return "#0E544F";
-    if (slug === "pro") return "#EB7623";
-    if (slug === "premium") return "#8D183A";
-    return "#6c757d";
-  };
+      return sub.status === "active" && matchesVendor;
+    });
+  }, [vendorSubscriptions, vendorFilter]);
 
-  const formatPrice = (plan) => {
-    if (plan.is_free || Number(plan.price_monthly) === 0) return "Free";
-    return `Rs. ${Number(plan.price_monthly).toLocaleString()} / month`;
-  };
+  const formatMoney = (amount) => `Rs. ${Number(amount || 0).toLocaleString()}`;
 
   const openCreateModal = () => {
     setEditingPlanId(null);
     setFormData(emptyForm);
-    setShowModal(true);
+    setShowPlanModal(true);
   };
 
   const openEditModal = (plan) => {
@@ -140,27 +151,32 @@ const AdminSubscriptions = () => {
       status: plan.status || "active",
       is_recommended: !!plan.is_recommended,
     });
-    setShowModal(true);
+    setShowPlanModal(true);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
+  const closePlanModal = () => {
+    setShowPlanModal(false);
     setEditingPlanId(null);
     setFormData(emptyForm);
   };
 
+  const closeAssignModal = () => {
+    setShowAssignModal(false);
+    setAssignForm(assignInitial);
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]:
-        type === "checkbox"
-          ? checked
-          : type === "number"
-            ? Number(value)
-            : value,
+        type === "checkbox" ? checked : type === "number" ? Number(value) : value,
     }));
+  };
+
+  const handleAssignChange = (e) => {
+    const { name, value } = e.target;
+    setAssignForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -183,21 +199,13 @@ const AdminSubscriptions = () => {
       }
 
       if (editingPlanId) {
-        await axios.put(
-          `${API}/api/subscriptions/plans/${editingPlanId}`,
-          payload,
-          authHeaders()
-        );
+        await axios.put(`${API}/api/subscriptions/plans/${editingPlanId}`, payload, authHeaders());
       } else {
-        await axios.post(
-          `${API}/api/subscriptions/plans`,
-          payload,
-          authHeaders()
-        );
+        await axios.post(`${API}/api/subscriptions/plans`, payload, authHeaders());
       }
 
       await fetchData();
-      closeModal();
+      closePlanModal();
     } catch (err) {
       console.error("Save plan error:", err);
       alert(err.response?.data?.message || "Failed to save plan");
@@ -206,13 +214,9 @@ const AdminSubscriptions = () => {
     }
   };
 
-  const handleDeactivate = async (id) => {
+  const handleDeactivatePlan = async (id) => {
     try {
-      await axios.patch(
-        `${API}/api/subscriptions/plans/${id}/deactivate`,
-        {},
-        authHeaders()
-      );
+      await axios.patch(`${API}/api/subscriptions/plans/${id}/deactivate`, {}, authHeaders());
       await fetchData();
     } catch (err) {
       console.error("Deactivate plan error:", err);
@@ -220,21 +224,49 @@ const AdminSubscriptions = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to permanently delete this plan?"
-    );
+  const handleDeletePlan = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to permanently delete this plan?");
     if (!confirmed) return;
 
     try {
-      await axios.delete(
-        `${API}/api/subscriptions/plans/${id}`,
-        authHeaders()
-      );
+      await axios.delete(`${API}/api/subscriptions/plans/${id}`, authHeaders());
       await fetchData();
     } catch (err) {
       console.error("Delete plan error:", err);
       alert(err.response?.data?.message || "Failed to delete plan");
+    }
+  };
+
+  const handleAssignSubscription = async (e) => {
+    e.preventDefault();
+
+    try {
+      setAssigning(true);
+      await axios.post(`${API}/api/subscriptions/admin/assign`, assignForm, authHeaders());
+      await fetchData();
+      closeAssignModal();
+    } catch (err) {
+      console.error("Assign subscription error:", err);
+      alert(err.response?.data?.message || "Failed to assign subscription");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  const handleDeactivateVendorSubscription = async (vendorId) => {
+    const confirmed = window.confirm("Deactivate this vendor's active subscription?");
+    if (!confirmed) return;
+
+    try {
+      await axios.patch(
+        `${API}/api/subscriptions/admin/vendor/${vendorId}/deactivate`,
+        {},
+        authHeaders()
+      );
+      await fetchData();
+    } catch (err) {
+      console.error("Deactivate vendor subscription error:", err);
+      alert(err.response?.data?.message || "Failed to deactivate vendor subscription");
     }
   };
 
@@ -246,172 +278,267 @@ const AdminSubscriptions = () => {
         <AdminSidebar activeItem="subscriptions" />
 
         <main className="as-main">
-          <div className="as-header card border-0 shadow-sm">
-            <div className="card-body p-4">
-              <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                <div>
-                  <span className="as-eyebrow">Admin Subscription Control</span>
-                  <h2 className="as-title mb-2">Manage Vendor Subscription Plans</h2>
-                  <p className="text-muted mb-0">
-                    Review plan activity, compare usage, and manage subscription offerings across the marketplace.
-                  </p>
-                </div>
-                <button className="as-create-btn" onClick={openCreateModal}>
-                  <span className="material-symbols-outlined me-2">add</span>
-                  Add New Plan
-                </button>
+          <section className="as-hero-card">
+            <div>
+              <span className="as-eyebrow">Admin Subscription Control</span>
+              <h2 className="as-title">Subscription Performance & Access Control</h2>
+              <p className="as-subtitle">
+                Track active vendors, review subscription earnings, and manage vendor access from one place.
+              </p>
+            </div>
+
+            <div className="as-hero-actions">
+              <button className="as-create-btn" onClick={() => setShowAssignModal(true)}>
+                <span className="material-symbols-outlined">person_add</span>
+                Assign Subscription
+              </button>
+              <button className="as-create-btn secondary" onClick={openCreateModal}>
+                <span className="material-symbols-outlined">add</span>
+                Add New Plan
+              </button>
+            </div>
+          </section>
+
+          <section className="as-metrics-grid">
+            <div className="as-kpi-card">
+              <div className="as-kpi-top">
+                <span className="material-symbols-outlined">groups</span>
+                <span>Total Subscribed Vendors</span>
+              </div>
+              <h3>{stats.totalActiveSubscribedVendors}</h3>
+              <div className="as-mini-stats">
+                <div><strong>Basic</strong><span>{stats.planBreakdown.basic.vendors}</span></div>
+                <div><strong>Pro</strong><span>{stats.planBreakdown.pro.vendors}</span></div>
+                <div><strong>Premium</strong><span>{stats.planBreakdown.premium.vendors}</span></div>
               </div>
             </div>
-          </div>
 
-          <div className="row g-4 mt-1">
-            <div className="col-xl-3 col-md-6">
-              <div className="card border-0 shadow-sm as-stat-card">
-                <div className="card-body">
-                  <div className="as-stat-label">Total Plans</div>
-                  <div className="as-stat-value">{totalPlans}</div>
-                </div>
+            <div className="as-kpi-card">
+              <div className="as-kpi-top">
+                <span className="material-symbols-outlined">payments</span>
+                <span>Total Earnings</span>
+              </div>
+              <h3>{formatMoney(stats.totalSubscriptionEarnings)}</h3>
+              <div className="as-mini-stats">
+                <div><strong>Basic</strong><span>{formatMoney(stats.planBreakdown.basic.earnings)}</span></div>
+                <div><strong>Pro</strong><span>{formatMoney(stats.planBreakdown.pro.earnings)}</span></div>
+                <div><strong>Premium</strong><span>{formatMoney(stats.planBreakdown.premium.earnings)}</span></div>
               </div>
             </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="card border-0 shadow-sm as-stat-card">
-                <div className="card-body">
-                  <div className="as-stat-label">Subscribed Vendors</div>
-                  <div className="as-stat-value">{totalVendors}</div>
-                </div>
+          </section>
+
+          <section className="as-panel">
+            <div className="as-panel-head">
+              <div>
+                <h4>Vendor Subscription Control</h4>
+                <p>Manage active vendor subscriptions and admin-issued plan access.</p>
               </div>
+
+              <input
+                type="text"
+                className="form-control as-search"
+                placeholder="Search vendor, email, or plan..."
+                value={vendorFilter}
+                onChange={(e) => setVendorFilter(e.target.value)}
+              />
             </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="card border-0 shadow-sm as-stat-card">
-                <div className="card-body">
-                  <div className="as-stat-label">Pro Vendors</div>
-                  <div className="as-stat-value text-warning">{proVendors}</div>
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="card border-0 shadow-sm as-stat-card">
-                <div className="card-body">
-                  <div className="as-stat-label">Premium Vendors</div>
-                  <div className="as-stat-value text-danger">{premiumVendors}</div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="card border-0 shadow-sm as-table-card mt-4">
-            <div className="card-body p-4">
-              <div className="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
-                <div>
-                  <h5 className="mb-1">Subscription Plans</h5>
-                  <p className="text-muted mb-0 small">
-                    Search, review, and manage all available vendor plans.
-                  </p>
-                </div>
-
-                <div className="as-filter-row">
-                  <input
-                    type="text"
-                    className="form-control as-search"
-                    placeholder="Search plans or features..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-
-                  <select
-                    className="form-select as-select"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-
-              {loading ? (
-                <div className="as-empty">Loading subscription plans...</div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table align-middle as-table mb-0">
-                    <thead>
-                      <tr>
-                        <th>Plan</th>
-                        <th>Price</th>
-                        <th>Features</th>
-                        <th>Vendors</th>
-                        <th>Status</th>
-                        <th className="text-end">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredPlans.map((plan) => (
-                        <tr key={plan._id}>
-                          <td>
-                            <div className="d-flex align-items-center gap-3">
-                              <span
-                                className="as-dot"
-                                style={{ backgroundColor: getPlanColor(plan.slug) }}
-                              />
-                              <div>
-                                <div className="fw-bold">{plan.name}</div>
-                                <div className="text-muted small">{plan.description}</div>
-                              </div>
+            {loading ? (
+              <div className="as-empty">Loading vendor subscriptions...</div>
+            ) : activeVendorSubscriptions.length === 0 ? (
+              <div className="as-empty">No active vendor subscriptions found.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table align-middle as-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Vendor</th>
+                      <th>Plan</th>
+                      <th>Billing</th>
+                      <th>Paid</th>
+                      <th>Period</th>
+                      <th>Source</th>
+                      <th>Status</th>
+                      <th className="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeVendorSubscriptions.map((sub) => (
+                      <tr key={sub._id}>
+                        <td>
+                          <div className="as-vendor-cell">
+                            <div className="as-avatar">
+                              {(sub.vendor_id?.full_name || "V").charAt(0).toUpperCase()}
                             </div>
-                          </td>
-                          <td className="fw-semibold">{formatPrice(plan)}</td>
-                          <td className="text-muted">
-                            {Array.isArray(plan.features)
-                              ? plan.features.join(", ")
-                              : "-"}
-                          </td>
-                          <td>{planVendorCounts[plan._id] || 0}</td>
-                          <td>
-                            <span className={`as-status ${plan.status.toLowerCase()}`}>
-                              {plan.status}
-                            </span>
-                          </td>
-                          <td className="text-end">
-                            <button
-                              className="btn btn-sm btn-outline-secondary me-2"
-                              onClick={() => openEditModal(plan)}
-                            >
-                              Edit
-                            </button>
+                            <div>
+                              <div className="fw-bold">{sub.vendor_id?.full_name || "Unknown Vendor"}</div>
+                              <div className="text-muted small">{sub.vendor_id?.email || "-"}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{sub.plan_id?.name || "-"}</td>
+                        <td className="text-capitalize">{sub.billing_cycle || "-"}</td>
+                        <td>{formatMoney(sub.price_paid)}</td>
+                        <td>
+                          <div className="small">
+                            <div>{new Date(sub.start_date).toLocaleDateString()}</div>
+                            <div className="text-muted">to {new Date(sub.end_date).toLocaleDateString()}</div>
+                          </div>
+                        </td>
+                        <td>
+                          {sub.activated_by_admin ? (
+                            <span className="as-badge admin">Admin assigned</span>
+                          ) : (
+                            <span className="as-badge paid">Vendor checkout</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`as-status ${sub.status?.toLowerCase()}`}>{sub.status}</span>
+                        </td>
+                        <td className="text-end">
+                          <button
+                            className="btn btn-sm btn-outline-secondary me-2"
+                            onClick={() => {
+                              setAssignForm({
+                                vendor_id: sub.vendor_id?._id || "",
+                                plan_id: sub.plan_id?._id || "",
+                                billing_cycle: sub.billing_cycle || "monthly",
+                                notes: "",
+                              });
+                              setShowAssignModal(true);
+                            }}
+                          >
+                            Reassign
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeactivateVendorSubscription(sub.vendor_id?._id)}
+                          >
+                            Deactivate
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
-                            {plan.status === "active" ? (
-                              <button
-                                className="btn btn-sm as-manage-btn me-2"
-                                onClick={() => handleDeactivate(plan._id)}
-                              >
-                                Deactivate
-                              </button>
-                            ) : null}
+          <section className="as-panel">
+            <div className="as-panel-head">
+              <div>
+                <h4>Subscription Plans</h4>
+                <p>Create, edit, and manage all available vendor plans.</p>
+              </div>
 
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => handleDelete(plan._id)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <div className="as-filter-row">
+                <input
+                  type="text"
+                  className="form-control as-search"
+                  placeholder="Search plans or features..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
 
-              {!loading && filteredPlans.length === 0 && (
-                <div className="as-empty">No subscription plans found.</div>
-              )}
+                <select
+                  className="form-select as-select"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
             </div>
-          </div>
+
+            {loading ? (
+              <div className="as-empty">Loading subscription plans...</div>
+            ) : filteredPlans.length === 0 ? (
+              <div className="as-empty">No subscription plans found.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table align-middle as-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Plan</th>
+                      <th>Price</th>
+                      <th>Features</th>
+                      <th>Status</th>
+                      <th className="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPlans.map((plan) => (
+                      <tr key={plan._id}>
+                        <td>
+                          <div className="d-flex align-items-center gap-3">
+                            <span
+                              className="as-dot"
+                              style={{
+                                backgroundColor:
+                                  plan.slug === "basic"
+                                    ? "#0E544F"
+                                    : plan.slug === "pro"
+                                    ? "#EB7623"
+                                    : plan.slug === "premium"
+                                    ? "#8D183A"
+                                    : "#6c757d",
+                              }}
+                            />
+                            <div>
+                              <div className="fw-bold">{plan.name}</div>
+                              <div className="text-muted small">{plan.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          {plan.is_free || Number(plan.price_monthly) === 0
+                            ? "Free"
+                            : `Rs. ${Number(plan.price_monthly).toLocaleString()} / month`}
+                        </td>
+                        <td className="text-muted">
+                          {Array.isArray(plan.features) ? plan.features.join(", ") : "-"}
+                        </td>
+                        <td>
+                          <span className={`as-status ${plan.status?.toLowerCase()}`}>{plan.status}</span>
+                        </td>
+                        <td className="text-end">
+                          <button
+                            className="btn btn-sm btn-outline-secondary me-2"
+                            onClick={() => openEditModal(plan)}
+                          >
+                            Edit
+                          </button>
+
+                          {plan.status === "active" && (
+                            <button
+                              className="btn btn-sm as-manage-btn me-2"
+                              onClick={() => handleDeactivatePlan(plan._id)}
+                            >
+                              Deactivate
+                            </button>
+                          )}
+
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeletePlan(plan._id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </main>
       </div>
 
-      {showModal && (
+      {showPlanModal && (
         <div className="as-modal-backdrop">
           <div className="as-modal card border-0 shadow">
             <div className="card-body p-4">
@@ -419,7 +546,7 @@ const AdminSubscriptions = () => {
                 <h5 className="mb-0">
                   {editingPlanId ? "Edit Subscription Plan" : "Create Subscription Plan"}
                 </h5>
-                <button className="btn btn-sm btn-outline-secondary" onClick={closeModal}>
+                <button className="btn btn-sm btn-outline-secondary" onClick={closePlanModal}>
                   Close
                 </button>
               </div>
@@ -428,13 +555,7 @@ const AdminSubscriptions = () => {
                 <div className="row g-3">
                   <div className="col-md-6">
                     <label className="form-label">Plan Name</label>
-                    <select
-                      name="name"
-                      className="form-select"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    >
+                    <select name="name" className="form-select" value={formData.name} onChange={handleChange} required>
                       <option value="">Select plan</option>
                       <option value="Basic">Basic</option>
                       <option value="Pro">Pro</option>
@@ -444,13 +565,7 @@ const AdminSubscriptions = () => {
 
                   <div className="col-md-6">
                     <label className="form-label">Slug</label>
-                    <select
-                      name="slug"
-                      className="form-select"
-                      value={formData.slug}
-                      onChange={handleChange}
-                      required
-                    >
+                    <select name="slug" className="form-select" value={formData.slug} onChange={handleChange} required>
                       <option value="">Select slug</option>
                       <option value="basic">basic</option>
                       <option value="pro">pro</option>
@@ -653,15 +768,102 @@ const AdminSubscriptions = () => {
                 </div>
 
                 <div className="d-flex justify-content-end gap-2 mt-4">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={closeModal}
-                  >
+                  <button type="button" className="btn btn-outline-secondary" onClick={closePlanModal}>
                     Cancel
                   </button>
                   <button type="submit" className="as-create-btn" disabled={saving}>
                     {saving ? "Saving..." : editingPlanId ? "Update Plan" : "Create Plan"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAssignModal && (
+        <div className="as-modal-backdrop">
+          <div className="as-modal card border-0 shadow">
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Assign Subscription to Vendor</h5>
+                <button className="btn btn-sm btn-outline-secondary" onClick={closeAssignModal}>
+                  Close
+                </button>
+              </div>
+
+              <form onSubmit={handleAssignSubscription}>
+                <div className="row g-3">
+                  <div className="col-md-12">
+                    <label className="form-label">Vendor</label>
+                    <select
+                      name="vendor_id"
+                      className="form-select"
+                      value={assignForm.vendor_id}
+                      onChange={handleAssignChange}
+                      required
+                    >
+                      <option value="">Select vendor</option>
+                      {vendors.map((vendor) => (
+                        <option key={vendor._id} value={vendor._id}>
+                          {vendor.full_name} - {vendor.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">Plan</label>
+                    <select
+                      name="plan_id"
+                      className="form-select"
+                      value={assignForm.plan_id}
+                      onChange={handleAssignChange}
+                      required
+                    >
+                      <option value="">Select plan</option>
+                      {plans
+                        .filter((p) => p.status === "active")
+                        .map((plan) => (
+                          <option key={plan._id} value={plan._id}>
+                            {plan.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">Billing Cycle</label>
+                    <select
+                      name="billing_cycle"
+                      className="form-select"
+                      value={assignForm.billing_cycle}
+                      onChange={handleAssignChange}
+                    >
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  </div>
+
+                  <div className="col-12">
+                    <label className="form-label">Notes</label>
+                    <textarea
+                      name="notes"
+                      className="form-control"
+                      rows="3"
+                      value={assignForm.notes}
+                      onChange={handleAssignChange}
+                      placeholder="Optional admin note"
+                    />
+                  </div>
+                </div>
+
+                <div className="d-flex justify-content-end gap-2 mt-4">
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeAssignModal}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="as-create-btn" disabled={assigning}>
+                    {assigning ? "Assigning..." : "Assign Subscription"}
                   </button>
                 </div>
               </form>

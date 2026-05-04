@@ -354,34 +354,6 @@ const OrderTracking = () => {
             </div>
 
             <div className="col-lg-4">
-              <div className="card ot-card shadow-sm border-0 mb-4">
-                <div className="card-body">
-                  <h6 className="mb-3">Status Updates</h6>
-                  <div className="form-check form-switch mb-3">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="otEmailUpdates"
-                      defaultChecked
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="otEmailUpdates"
-                    >
-                      Email updates for each step
-                    </label>
-                  </div>
-                  <button className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 mb-2">
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: 18 }}
-                    >
-                      help
-                    </span>
-                    Contact Support
-                  </button>
-                </div>
-              </div>
 
               <div className="card ot-care-card border-0">
                 <div className="card-body text-white">

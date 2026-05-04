@@ -33,7 +33,7 @@
   padding: 2rem 2rem 3rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   overflow-x: hidden;
 }
 
@@ -188,7 +188,7 @@
 .ad-card-header h6 { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0; }
 
 .ad-header-link {
-  display: inline-flex; align-items: center; gap: 0.2rem;
+  display: inline-flex; align-items: center; gap: 0.3rem;
   background: none; border: none; color: var(--brand);
   font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;
 }

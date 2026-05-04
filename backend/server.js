@@ -15,6 +15,8 @@ const vendorRoutes = require("./routes/vendor");
 const adminVendorRoutes = require("./routes/adminVendorRoute");
 const vendorDocumentRoutes = require("./routes/vendorDocumentRoute"); //used for hide certificate for verified vendor
 const adminRoutes = require('./routes/admin');
+const adminInquiryRoutes = require("./routes/adminInquiries");
+const communityForum = require("./routes/communityForum");
 
 const stripeWebhookRoutes = require('./routes/stripeWebhook');
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
@@ -35,6 +37,8 @@ app.use('/api/public', publicListingsRoutes);
 app.use("/api/public", publicVendor);
 app.use("/api/messages", messageRoute);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use("/api/community-forum", communityForum);
+
 
 
 // vendor side
@@ -42,6 +46,7 @@ app.use('/api/vendor/listings', require('./routes/vendorListings'));
 app.use("/api/ads", require("./routes/Advertisements"));
 app.use("/api/public/listings", require("./routes/publicListings"));
 app.use("/api/products", require("./routes/product"));
+app.use("/api/product-requests", require("./routes/productRequests")); //product req by vendors
 app.use("/api/vendors", vendorRoutes);
 const path = require("path");
 
@@ -50,6 +55,7 @@ app.use("/api/admin/vendors", adminVendorRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/vendor-documents", vendorDocumentRoutes);
 app.use("/api/admin", adminRoutes); 
+app.use("/api/inquiries", adminInquiryRoutes);
 
 app.use('/api/stripe', stripeWebhookRoutes);
 

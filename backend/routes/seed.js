@@ -1,19 +1,119 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Product = require('../models/Product');
+const Product = require("../models/Product");
 
-router.post('/products', async (req, res) => {
+router.post("/products", async (req, res) => {
   try {
     const products = [
-      { name: 'Toyota CHR Front Brake Pads', oem_part_number: '04465-47020' },
-      { name: 'Honda Civic Rear Brake Disc', oem_part_number: '42510-TBA-A01' },
-      { name: 'Suzuki Alto Headlight', oem_part_number: '95151-M68-003' },
-      { name: 'Nissan Caravan Break Light', oem_part_number: '26120-89900' }
+      { name: "Oil Filter", description: "Standard replacement oil filter for engine maintenance", is_active: true },
+      { name: "Air Filter", description: "Engine air intake filtration unit", is_active: true },
+      { name: "Fuel Filter", description: "Inline fuel filtration for system protection", is_active: true },
+      { name: "Cabin Air Filter", description: "Interior air conditioning and ventilation filter", is_active: true },
+      { name: "Spark Plug", description: "Ignition system electrode for petrol engines", is_active: true },
+      { name: "Glow Plug", description: "Preheating element for diesel engine starting", is_active: true },
+      { name: "Ignition Coil", description: "High-voltage ignition power supply unit", is_active: true },
+      { name: "Fuel Injector", description: "Fuel delivery nozzle for engine combustion", is_active: true },
+      { name: "Water Pump", description: "Engine coolant circulation pump", is_active: true },
+      { name: "Oil Pump", description: "Engine lubrication pressure pump", is_active: true },
+      { name: "Radiator", description: "Main engine coolant heat exchanger", is_active: true },
+      { name: "Radiator Hose", description: "Coolant transfer hose for radiator system", is_active: true },
+      { name: "Thermostat", description: "Coolant temperature regulation valve", is_active: true },
+      { name: "Thermostat Gasket", description: "Seal for thermostat housing", is_active: true },
+      { name: "Coolant Expansion Tank", description: "Coolant overflow reservoir tank", is_active: true },
+      { name: "Radiator Cooling Fan", description: "Cooling fan for radiator airflow support", is_active: true },
+      { name: "Fan Belt", description: "Drive belt for engine accessories", is_active: true },
+      { name: "Serpentine Belt", description: "Accessory drive belt for multiple pulleys", is_active: true },
+      { name: "Timing Belt", description: "Valve timing belt for engine synchronization", is_active: true },
+      { name: "Timing Chain", description: "Valve timing chain for engine synchronization", is_active: true },
+      { name: "Head Gasket", description: "Cylinder head sealing gasket", is_active: true },
+      { name: "Valve Cover Gasket", description: "Seal for engine valve cover", is_active: true },
+      { name: "Exhaust Manifold Gasket", description: "Seal between engine and exhaust manifold", is_active: true },
+      { name: "Intake Manifold Gasket", description: "Seal between engine and intake manifold", is_active: true },
+      { name: "Piston Ring Set", description: "Compression and oil control piston rings", is_active: true },
+      { name: "Engine Mount", description: "Rubber-mounted bracket supporting engine", is_active: true },
+      { name: "Transmission Mount", description: "Support mount for transmission assembly", is_active: true },
+      { name: "PCV Valve", description: "Positive crankcase ventilation control valve", is_active: true },
+      { name: "Throttle Body", description: "Air intake throttle valve assembly", is_active: true },
+      { name: "Idle Air Control Valve", description: "Engine idle speed control valve", is_active: true },
+      { name: "Fuel Pump", description: "Fuel delivery pump from tank to engine", is_active: true },
+      { name: "Fuel Tank Cap", description: "Cap for sealing vehicle fuel tank", is_active: true },
+      { name: "Fuel Pressure Regulator", description: "Valve controlling fuel rail pressure", is_active: true },
+      { name: "Oxygen Sensor", description: "Exhaust gas oxygen monitoring sensor", is_active: true },
+      { name: "MAF Sensor", description: "Mass air flow sensor for intake measurement", is_active: true },
+      { name: "MAP Sensor", description: "Manifold absolute pressure sensor", is_active: true },
+      { name: "Crankshaft Position Sensor", description: "Engine crankshaft timing position sensor", is_active: true },
+      { name: "Camshaft Position Sensor", description: "Engine camshaft timing position sensor", is_active: true },
+      { name: "Knock Sensor", description: "Engine detonation detection sensor", is_active: true },
+      { name: "EGR Valve", description: "Exhaust gas recirculation control valve", is_active: true },
+      { name: "Battery", description: "12V automotive starting and electrical battery", is_active: true },
+      { name: "Alternator", description: "Charging system power generation unit", is_active: true },
+      { name: "Starter Motor", description: "Engine cranking motor assembly", is_active: true },
+      { name: "Fuse", description: "Electrical circuit protection component", is_active: true },
+      { name: "Relay", description: "Electromechanical circuit switching component", is_active: true },
+      { name: "Headlight Bulb", description: "Replaceable front lighting bulb", is_active: true },
+      { name: "Headlight Assembly", description: "Complete front headlamp housing assembly", is_active: true },
+      { name: "Tail Light Assembly", description: "Complete rear tail lamp housing assembly", is_active: true },
+      { name: "Fog Light", description: "Auxiliary low-visibility front or rear lamp", is_active: true },
+      { name: "Indicator Lamp", description: "Turn signal light unit", is_active: true },
+      { name: "Wiper Blade", description: "Windshield cleaning rubber blade", is_active: true },
+      { name: "Wiper Motor", description: "Motor for windshield wiper movement", is_active: true },
+      { name: "Washer Pump", description: "Pump for windshield washer fluid spray", is_active: true },
+      { name: "Side Mirror Assembly", description: "Exterior rear-view mirror assembly", is_active: true },
+      { name: "Door Handle", description: "Interior or exterior vehicle door handle", is_active: true },
+      { name: "Window Regulator", description: "Mechanism for lifting and lowering door glass", is_active: true },
+      { name: "Power Window Switch", description: "Electrical switch for window operation", is_active: true },
+      { name: "Door Lock Actuator", description: "Electric central locking actuator", is_active: true },
+      { name: "Horn", description: "Vehicle audible warning device", is_active: true },
+      { name: "Reverse Light Switch", description: "Switch that activates reverse lamps", is_active: true },
+      { name: "Brake Pad Set", description: "Disc brake friction pad set", is_active: true },
+      { name: "Brake Disc Rotor", description: "Brake rotor for disc braking system", is_active: true },
+      { name: "Brake Shoe Set", description: "Drum brake friction shoe set", is_active: true },
+      { name: "Brake Drum", description: "Drum for drum braking system", is_active: true },
+      { name: "Brake Caliper", description: "Disc brake caliper housing and piston unit", is_active: true },
+      { name: "Brake Master Cylinder", description: "Hydraulic pressure generator for braking", is_active: true },
+      { name: "Brake Booster", description: "Power assist unit for brake pedal force", is_active: true },
+      { name: "ABS Sensor", description: "Wheel speed sensor for anti-lock braking", is_active: true },
+      { name: "Brake Hose", description: "Flexible hydraulic brake fluid hose", is_active: true },
+      { name: "Hand Brake Cable", description: "Parking brake cable assembly", is_active: true },
+      { name: "Shock Absorber", description: "Suspension damping component", is_active: true },
+      { name: "Strut Assembly", description: "Complete suspension strut unit", is_active: true },
+      { name: "Coil Spring", description: "Load-bearing suspension spring", is_active: true },
+      { name: "Control Arm", description: "Suspension control arm link", is_active: true },
+      { name: "Ball Joint", description: "Pivot joint for steering and suspension", is_active: true },
+      { name: "Tie Rod End", description: "Steering linkage end component", is_active: true },
+      { name: "Rack End", description: "Inner steering rack end joint", is_active: true },
+      { name: "Steering Rack", description: "Main steering gear rack assembly", is_active: true },
+      { name: "Power Steering Pump", description: "Hydraulic steering assist pump", is_active: true },
+      { name: "Stabilizer Link", description: "Sway bar link for suspension stability", is_active: true },
+      { name: "Suspension Bush", description: "Rubber or polyurethane suspension bushing", is_active: true },
+      { name: "Wheel Bearing", description: "Bearing allowing wheel rotation", is_active: true },
+      { name: "Wheel Hub Assembly", description: "Wheel hub unit with integrated bearing", is_active: true },
+      { name: "CV Joint", description: "Constant velocity joint for drive axle", is_active: true },
+      { name: "CV Boot Kit", description: "Protective boot and grease kit for CV joint", is_active: true },
+      { name: "Axle Shaft", description: "Drive shaft transferring power to wheels", is_active: true },
+      { name: "Clutch Disc", description: "Manual transmission clutch friction disc", is_active: true },
+      { name: "Clutch Pressure Plate", description: "Clutch engagement pressure plate", is_active: true },
+      { name: "Clutch Release Bearing", description: "Bearing for clutch disengagement", is_active: true },
+      { name: "Flywheel", description: "Engine flywheel for clutch and inertia", is_active: true },
+      { name: "Torque Converter", description: "Automatic transmission fluid coupling", is_active: true },
+      { name: "Transmission Filter", description: "Automatic transmission fluid filter", is_active: true },
+      { name: "Gear Lever Bush", description: "Bushing for gear selector mechanism", is_active: true },
+      { name: "A/C Compressor", description: "Air conditioning refrigerant compressor", is_active: true },
+      { name: "A/C Condenser", description: "Air conditioning condenser heat exchanger", is_active: true },
+      { name: "A/C Expansion Valve", description: "Valve regulating refrigerant flow", is_active: true },
+      { name: "Blower Motor", description: "Cabin air circulation fan motor", is_active: true },
+      { name: "Heater Core", description: "Cabin heating heat exchanger", is_active: true },
+      { name: "Catalytic Converter", description: "Exhaust emissions control converter", is_active: true },
+      { name: "Exhaust Muffler", description: "Rear exhaust silencer unit", is_active: true }
     ];
-    
+
     await Product.deleteMany({});
     await Product.insertMany(products);
-    res.json({ message: 'Seeded 4 test products' });
+
+    res.json({
+      message: "Seeded 100 products successfully",
+      count: products.length
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

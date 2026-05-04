@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import "./ListingDetail.css";
 import Header from "../components/header.js";
-import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 const API = "http://localhost:5000";
@@ -21,6 +20,7 @@ const Stars = ({ rating = 0 }) => {
 // PartCard
 const PartCard = ({ item, onVendorClick, onViewDetails }) => {
   const [imgError, setImgError] = useState(false);
+
   const imgSrc =
     item.image_url && !imgError
       ? `${API}/${item.image_url.replace(/^\//, "")}`
@@ -41,14 +41,21 @@ const PartCard = ({ item, onVendorClick, onViewDetails }) => {
             src={imgSrc}
             alt={item.title}
             onError={() => setImgError(true)}
-            style={{ height: "130px", objectFit: "cover", borderRadius: "12px 12px 0 0" }}
+            style={{
+              height: "130px",
+              objectFit: "cover",
+              borderRadius: "12px 12px 0 0",
+            }}
           />
         ) : (
           <div
             className="d-flex align-items-center justify-content-center bg-light"
             style={{ height: "130px", borderRadius: "12px 12px 0 0" }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "48px", color: "#ccc" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "48px", color: "#ccc" }}
+            >
               image_search
             </span>
           </div>
@@ -66,7 +73,7 @@ const PartCard = ({ item, onVendorClick, onViewDetails }) => {
               style={{ cursor: "pointer", textDecoration: "underline" }}
               onClick={(e) => {
                 e.stopPropagation();
-                onVendorClick(item.vendor?.userId);
+                onVendorClick(item.vendor?.userId || item.vendor?._id || item.vendor?.vendor_id);
               }}
             >
               {businessName}
@@ -107,7 +114,7 @@ const ReviewCard = ({ review }) => {
   });
 
   return (
-    <div className="col-6 col-md-4 col-lg-2">
+    <div className="col-12 col-md-6 col-lg-4">
       <div className="card ld-review-card h-100">
         <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start mb-2">
@@ -156,7 +163,7 @@ const ListingDetail = () => {
       })
       .then(({ listing, moreFromVendor }) => {
         setListing(listing);
-        setMoreFromVendor(moreFromVendor);
+        setMoreFromVendor(moreFromVendor || []);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -196,7 +203,10 @@ const ListingDetail = () => {
         <div className="ld-center-state">
           <span className="material-symbols-outlined ld-err-icon">error</span>
           <p className="text-muted mt-2">Listing not found or unavailable.</p>
-          <button className="btn btn-outline-success btn-sm mt-2" onClick={() => navigate(-1)}>
+          <button
+            className="btn btn-outline-success btn-sm mt-2"
+            onClick={() => navigate(-1)}
+          >
             ← Go Back
           </button>
         </div>
@@ -215,7 +225,7 @@ const ListingDetail = () => {
     vendor,
     product,
     average_rating,
-    review_count
+    review_count,
   } = listing;
 
   const avgRating = average_rating || 0;
@@ -223,14 +233,19 @@ const ListingDetail = () => {
   const conditionLabel = condition === "new" ? "Brand New" : "Used";
   const isVerified = vendor?.verification_status === "verified";
 
-  const changeQty = (delta) =>
-    setQuantity((q) => Math.max(1, Math.min(quantity_available, q + delta)));
+  const changeQty = (delta) => {
+    setQuantity((q) =>
+      Math.max(1, Math.min(quantity_available || 1, q + delta))
+    );
+  };
 
   const goToVendor = (userId) => {
     if (userId) navigate(`/vendors/${userId}`);
   };
 
-  const goToListing = (itemId) => navigate(`/listings/${itemId}`);
+  const goToListing = (itemId) => {
+    if (itemId) navigate(`/listings/${itemId}`);
+  };
 
   return (
     <div className="ld-page">
@@ -240,12 +255,19 @@ const ListingDetail = () => {
         <nav className="mb-3">
           <ol className="breadcrumb ld-breadcrumb">
             <li className="breadcrumb-item">
-              <span onClick={() => navigate("/")} className="ld-link">Home</span>
+              <span onClick={() => navigate("/")} className="ld-link">
+                Home
+              </span>
             </li>
             <li className="breadcrumb-item">
-              <span onClick={() => navigate(-1)} className="ld-link">Parts</span>
+              <span onClick={() => navigate(-1)} className="ld-link">
+                Parts
+              </span>
             </li>
-            <li className="breadcrumb-item active text-truncate" style={{ maxWidth: 260 }}>
+            <li
+              className="breadcrumb-item active text-truncate"
+              style={{ maxWidth: 260 }}
+            >
               {title}
             </li>
           </ol>
@@ -267,7 +289,10 @@ const ListingDetail = () => {
                   <p>No image available</p>
                 </div>
               )}
-              <span className={`ld-cond-badge badge ${condition === "new" ? "bg-success" : "bg-secondary"}`}>
+              <span
+                className={`ld-cond-badge badge ${condition === "new" ? "bg-success" : "bg-secondary"
+                  }`}
+              >
                 {conditionLabel}
               </span>
             </div>
@@ -280,7 +305,7 @@ const ListingDetail = () => {
               <span className="ld-price">Rs. {price?.toLocaleString()}</span>
             </div>
 
-            <div className="d-flex align-items-center gap-2 mb-3">
+            <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
               <Stars rating={avgRating} />
               <span className="text-muted small">
                 {reviewCount > 0
@@ -288,38 +313,89 @@ const ListingDetail = () => {
                   : "No reviews yet"}
               </span>
               <span className="text-muted small">•</span>
-              <span className="material-symbols-outlined ld-icon-sm">shopping_cart</span>
-              <span className="text-muted small">{listing.items_sold || 0} sold</span>
+              <span className="material-symbols-outlined ld-icon-sm">
+                shopping_cart
+              </span>
+              <span className="text-muted small">
+                {listing.items_sold || 0} sold
+              </span>
             </div>
 
             <div className="ld-details-table mb-3">
               <h6 className="ld-section-head">Product Details</h6>
+
               <table className="table table-sm table-borderless mb-0">
                 <tbody>
                   {product?.name && (
-                    <tr><td className="ld-td-key">Product</td><td>{product.name}</td></tr>
+                    <tr>
+                      <td className="ld-td-key">Product</td>
+                      <td>{product.name}</td>
+                    </tr>
                   )}
+
                   {product?.brand && (
-                    <tr><td className="ld-td-key">Brand</td><td>{product.brand}</td></tr>
+                    <tr>
+                      <td className="ld-td-key">Brand</td>
+                      <td>{product.brand}</td>
+                    </tr>
                   )}
-                  <tr><td className="ld-td-key">Condition</td><td>{conditionLabel}</td></tr>
-                  {product?.oem_part_number && (
-                    <tr><td className="ld-td-key">OEM Number</td><td><code>{product.oem_part_number}</code></td></tr>
+
+                  <tr>
+                    <td className="ld-td-key">Condition</td>
+                    <td>{conditionLabel}</td>
+                  </tr>
+
+                  {(listing.oem_part_number || product?.oem_part_number) && (
+                    <tr>
+                      <td className="ld-td-key">OEM Number</td>
+                      <td>
+                        <code>{listing.oem_part_number || product?.oem_part_number}</code>
+                      </td>
+                    </tr>
                   )}
-                  {product?.compatibility && (
-                    <tr><td className="ld-td-key">Compatibility</td><td>{product.compatibility}</td></tr>
-                  )}
+
                   {location && (
-                    <tr><td className="ld-td-key">Location</td><td>{location}</td></tr>
+                    <tr>
+                      <td className="ld-td-key">Location</td>
+                      <td>{location}</td>
+                    </tr>
                   )}
+
                   <tr>
                     <td className="ld-td-key">Stock</td>
                     <td>
-                      <span className={`badge ${quantity_available > 5 ? "bg-success" : "bg-warning text-dark"}`}>
+                      <span
+                        className={`badge ${quantity_available > 5
+                            ? "bg-success"
+                            : "bg-warning text-dark"
+                          }`}
+                      >
                         {quantity_available} available
                       </span>
                     </td>
                   </tr>
+
+                  {listing.compatibility && listing.compatibility.length > 0 && (
+                    <tr>
+                      <td className="ld-td-key" style={{ verticalAlign: "top" }}>
+                        Compatibility
+                      </td>
+                      <td>
+                        <div className="d-flex flex-wrap gap-2">
+                          {listing.compatibility.map((item, index) => (
+                            <span
+                              key={index}
+                              className="badge bg-light text-dark border"
+                            >
+                              {[item.year, item.make, item.model]
+                                .filter(Boolean)
+                                .join(" ")}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -335,17 +411,27 @@ const ListingDetail = () => {
           <div className="col-lg-3">
             <div className="ld-vendor-card mb-3">
               <div className="d-flex align-items-center gap-2 mb-2">
-                <span className="material-symbols-outlined ld-icon-sm text-muted">storefront</span>
+                <span className="material-symbols-outlined ld-icon-sm text-muted">
+                  storefront
+                </span>
                 <span className="text-muted small">Sold by</span>
               </div>
+
               {vendor?.logo_url && (
-                <img src={`${API}${vendor.logo_url}`} alt={vendor.business_name} className="ld-vendor-logo mb-2" />
+                <img
+                  src={`${API}${vendor.logo_url}`}
+                  alt={vendor.business_name}
+                  className="ld-vendor-logo mb-2"
+                />
               )}
+
               <div
                 className="ld-vendor-name"
                 role="button"
                 tabIndex={0}
-                onClick={() => goToVendor(vendor?._id || vendor?.vendor_id || vendor?.userId)}
+                onClick={() =>
+                  goToVendor(vendor?._id || vendor?.vendor_id || vendor?.userId)
+                }
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     goToVendor(vendor?._id || vendor?.vendor_id || vendor?.userId);
@@ -354,21 +440,35 @@ const ListingDetail = () => {
               >
                 {vendor?.business_name || "Unknown Vendor"}
               </div>
+
               {isVerified && (
                 <div className="d-flex align-items-center gap-1 mt-1">
-                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: "#0f766e" }}>verified</span>
-                  <span className="text-success small fw-semibold">Verified Seller</span>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: 14, color: "#0f766e" }}
+                  >
+                    verified
+                  </span>
+                  <span className="text-success small fw-semibold">
+                    Verified Seller
+                  </span>
                 </div>
               )}
+
               <hr className="my-2" />
+
               <div className="d-flex align-items-center gap-2 mb-1">
-                <span className="material-symbols-outlined ld-icon-sm text-muted">local_shipping</span>
+                <span className="material-symbols-outlined ld-icon-sm text-muted">
+                  local_shipping
+                </span>
                 <span className="small fw-semibold">Shipping</span>
               </div>
+
               <div className="ld-shipping-row">
                 <span className="text-muted small">Shipping Fee:</span>
                 <span className="small fw-semibold text-success">Rs. 900.00</span>
               </div>
+
               <div className="ld-shipping-row">
                 <span className="text-muted small">Delivery:</span>
                 <span className="small fw-semibold">3–5 days</span>
@@ -378,37 +478,63 @@ const ListingDetail = () => {
             <div className="ld-purchase-card">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <span className="small fw-semibold text-muted">Quantity</span>
-                <span className="small text-muted">{quantity_available} available</span>
+                <span className="small text-muted">
+                  {quantity_available} available
+                </span>
               </div>
+
               <div className="ld-qty-row mb-3">
-                <button className="ld-qty-btn" onClick={() => changeQty(-1)} disabled={quantity <= 1}>−</button>
+                <button
+                  type="button"
+                  className="ld-qty-btn"
+                  onClick={() => changeQty(-1)}
+                  disabled={quantity <= 1}
+                >
+                  −
+                </button>
                 <span className="ld-qty-val">{quantity}</span>
-                <button className="ld-qty-btn" onClick={() => changeQty(1)} disabled={quantity >= quantity_available}>+</button>
+                <button
+                  type="button"
+                  className="ld-qty-btn"
+                  onClick={() => changeQty(1)}
+                  disabled={quantity >= quantity_available}
+                >
+                  +
+                </button>
               </div>
+
               <Link to={`/checkout/${listing._id}`} className="text-decoration-none">
                 <button className="btn btn-success w-100 mb-2 ld-buy-btn d-flex align-items-center justify-content-center">
-                  <span className="material-symbols-outlined ld-icon-sm me-1">bolt</span>
+                  <span className="material-symbols-outlined ld-icon-sm me-1">
+                    bolt
+                  </span>
                   Buy Now
                 </button>
               </Link>
+
               <button
                 className="btn btn-outline-success w-100 ld-cart-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  addToCart(listing);
+                  addToCart({ ...listing, qty: quantity });
                 }}
               >
-                <span className="material-symbols-outlined ld-icon-sm me-1">shopping_cart</span>
+                <span className="material-symbols-outlined ld-icon-sm me-1">
+                  shopping_cart
+                </span>
                 Add to Cart
               </button>
+
               <div className="ld-trust-badges mt-3">
                 {[
                   { icon: "shield", text: "Secure Payment" },
                   { icon: "replay", text: "7 Days Return Policy" },
-                  { icon: "verified_user", text: "Quality Guaranteed" }
+                  { icon: "verified_user", text: "Quality Guaranteed" },
                 ].map(({ icon, text }) => (
                   <div key={text} className="ld-trust-item">
-                    <span className="material-symbols-outlined ld-icon-sm text-success">{icon}</span>
+                    <span className="material-symbols-outlined ld-icon-sm text-success">
+                      {icon}
+                    </span>
                     <span className="small text-muted">{text}</span>
                   </div>
                 ))}
@@ -436,10 +562,15 @@ const ListingDetail = () => {
             </div>
           ) : reviews.length === 0 ? (
             <div className="ld-empty-reviews text-center py-4">
-              <span className="material-symbols-outlined mb-2" style={{ fontSize: "40px", color: "#bdbdbd" }}>
+              <span
+                className="material-symbols-outlined mb-2"
+                style={{ fontSize: "40px", color: "#bdbdbd" }}
+              >
                 rate_review
               </span>
-              <p className="text-muted mb-0">No customer reviews yet for this item.</p>
+              <p className="text-muted mb-0">
+                No customer reviews yet for this item.
+              </p>
             </div>
           ) : (
             <div className="row g-3">
@@ -458,7 +589,9 @@ const ListingDetail = () => {
               </h5>
               <button
                 className="btn btn-sm btn-outline-success"
-                onClick={() => goToVendor(vendor?._id || vendor?.vendor_id || vendor?.userId)}
+                onClick={() =>
+                  goToVendor(vendor?._id || vendor?.vendor_id || vendor?.userId)
+                }
               >
                 View All
               </button>
@@ -483,8 +616,11 @@ const ListingDetail = () => {
           <div className="row py-4 g-4">
             <div className="col-md-4">
               <h6 className="fw-bold mb-2">About Spare Ceylon</h6>
-              <p className="small text-muted mb-0">Your trusted marketplace for quality vehicle spare parts in Sri Lanka.</p>
+              <p className="small text-muted mb-0">
+                Your trusted marketplace for quality vehicle spare parts in Sri Lanka.
+              </p>
             </div>
+
             <div className="col-md-4">
               <h6 className="fw-bold mb-2">Customer Service</h6>
               <div className="ld-footer-links">
@@ -493,14 +629,20 @@ const ListingDetail = () => {
                 <span>Shipping Info</span>
               </div>
             </div>
+
             <div className="col-md-4">
               <h6 className="fw-bold mb-2">Contact</h6>
-              <p className="small text-muted mb-0">Phone: +94 11 234 5678</p>
-              <p className="small text-muted mb-0">Email: support@spareceylon.lk</p>
+              <p className="small text-muted mb-0">Phone: +94 74 3013 073</p>
+              <p className="small text-muted mb-0">
+                Email: SpareCeylon@gmail.com
+              </p>
             </div>
           </div>
+
           <div className="border-top pt-3 text-center">
-            <p className="small text-muted mb-0">© {new Date().getFullYear()} Spare Ceylon. All rights reserved.</p>
+            <p className="small text-muted mb-0">
+              © {new Date().getFullYear()} Spare Ceylon. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

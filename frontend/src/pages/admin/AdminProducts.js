@@ -7,32 +7,31 @@ import AdminSidebar from "../admin/components/AdminSidebar";
 
 const API = "http://localhost:5000";
 
-const EMPTY_FORM = { name: "", description: "", oem_part_number: "" };
+const EMPTY_FORM = { name: "", description: "" };
 
-// AdminProducts
 const AdminProducts = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
 
   const [products, setProducts] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [editItem, setEditItem] = useState(null);   // null = add mode
+  const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
-  // Delete confirm
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Guard
   useEffect(() => {
-    if (!token || localStorage.getItem("role") !== "admin") navigate("/admin/login");
+    if (!token || localStorage.getItem("role") !== "admin") {
+      navigate("/admin/login");
+    }
   }, [token, navigate]);
 
   const handleLogout = () => {
@@ -40,28 +39,28 @@ const AdminProducts = () => {
     navigate("/admin/login");
   };
 
-  // ── Fetch products ─────────────────────────────────────────────────────
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(
-        `${API}/api/products?q=${encodeURIComponent(search)}&limit=100`,
-        { headers }
-      );
-      setProducts(data);
+      const [productsRes, requestsRes] = await Promise.all([
+        axios.get(`${API}/api/products?q=${encodeURIComponent(search)}&limit=100`, { headers }),
+        axios.get(`${API}/api/product-requests`, { headers })
+      ]);
+
+      setProducts(productsRes.data);
+      setRequests(requestsRes.data);
     } catch (err) {
       console.error("Fetch products error:", err);
     } finally {
       setLoading(false);
     }
-  }, [search]); // eslint-disable-line
+  }, [search]);
 
   useEffect(() => {
     const delay = setTimeout(fetchProducts, 300);
     return () => clearTimeout(delay);
   }, [fetchProducts]);
 
-  // ── Open modal ─────────────────────────────────────────────────────────
   const openAdd = () => {
     setEditItem(null);
     setForm(EMPTY_FORM);
@@ -73,27 +72,34 @@ const AdminProducts = () => {
     setEditItem(product);
     setForm({
       name: product.name || "",
-      description: product.description || "",
-      oem_part_number: product.oem_part_number || ""
+      description: product.description || ""
     });
     setFormError("");
     setShowModal(true);
   };
 
-  const closeModal = () => { setShowModal(false); setFormError(""); };
+  const closeModal = () => {
+    setShowModal(false);
+    setFormError("");
+  };
 
-  // ── Save (add or edit) ─────────────────────────────────────────────────
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) { setFormError("Product name is required."); return; }
+    if (!form.name.trim()) {
+      setFormError("Product type name is required.");
+      return;
+    }
+
     setSaving(true);
     setFormError("");
+
     try {
       if (editItem) {
         await axios.put(`${API}/api/products/${editItem._id}`, form, { headers });
       } else {
         await axios.post(`${API}/api/products`, form, { headers });
       }
+
       closeModal();
       fetchProducts();
     } catch (err) {
@@ -103,7 +109,6 @@ const AdminProducts = () => {
     }
   };
 
-  // ── Delete ─────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -117,11 +122,31 @@ const AdminProducts = () => {
     }
   };
 
-  // Filtered list (client-side instant filter on top of server search)
+  const handleApprove = async (id) => {
+    try {
+      await axios.put(`${API}/api/product-requests/${id}/approve`, {}, { headers });
+      fetchProducts();
+    } catch (err) {
+      alert(err.response?.data?.message || "Approve failed.");
+    }
+  };
+
+  const handleReject = async (id) => {
+    const admin_note = window.prompt("Reason for rejection (optional):") || "";
+    try {
+      await axios.put(`${API}/api/product-requests/${id}/reject`, { admin_note }, { headers });
+      fetchProducts();
+    } catch (err) {
+      alert(err.response?.data?.message || "Reject failed.");
+    }
+  };
+
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.oem_part_number || "").toLowerCase().includes(search.toLowerCase())
+    (p.description || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const pendingRequests = requests.filter((r) => r.status === "pending");
 
   return (
     <div className="admin-dashboard">
@@ -131,52 +156,94 @@ const AdminProducts = () => {
         <AdminSidebar activeItem="products" />
 
         <main className="ad-main">
-
-          {/* ── Page Header ─────────────────────────────────── */}
           <div className="ap-page-header">
             <div>
-              <h4 className="ap-page-title">Product Catalogue</h4>
+              <h4 className="ap-page-title">Product Types</h4>
               <p className="ap-page-sub">
-                Manage the product types vendors can list on the platform.
+                Manage reusable master product types for vendor listings.
               </p>
             </div>
             <button className="ap-add-btn" onClick={openAdd}>
               <span className="material-symbols-outlined">add</span>
-              Add Product
+              Add Product Type
             </button>
           </div>
 
-          {/* ── Stats row ───────────────────────────────────── */}
           <div className="ap-stats-row">
             <div className="ap-stat">
               <div className="ap-stat-val">{products.length}</div>
-              <div className="ap-stat-lbl">Total Products</div>
+              <div className="ap-stat-lbl">Total Product Types</div>
             </div>
             <div className="ap-stat">
-              <div className="ap-stat-val">
-                {products.filter((p) => p.oem_part_number).length}
-              </div>
-              <div className="ap-stat-lbl">With OEM Number</div>
+              <div className="ap-stat-val">{pendingRequests.length}</div>
+              <div className="ap-stat-lbl">Pending Requests</div>
             </div>
             <div className="ap-stat">
-              <div className="ap-stat-val">
-                {products.filter((p) => !p.oem_part_number).length}
-              </div>
-              <div className="ap-stat-lbl">Without OEM</div>
+              <div className="ap-stat-val">{requests.filter((r) => r.status === "approved").length}</div>
+              <div className="ap-stat-lbl">Approved Requests</div>
             </div>
           </div>
 
-          {/* ── Search + Table card ──────────────────────────── */}
-          <div className="ad-card">
+          {pendingRequests.length > 0 && (
+            <div className="ad-card mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h6 className="mb-0">Pending Product Requests</h6>
+                <span className="ap-count">{pendingRequests.length} pending</span>
+              </div>
 
-            {/* Search bar */}
+              <div className="ap-table-wrap">
+                <table className="table table-hover ap-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Requested Product Type</th>
+                      <th>Vendor</th>
+                      <th>Description</th>
+                      <th>Requested At</th>
+                      <th className="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingRequests.map((r) => (
+                      <tr key={r._id}>
+                        <td>{r.name}</td>
+                        <td>
+                          {r.vendor_id?.full_name || "Vendor"}<br />
+                          <span className="text-muted small">{r.vendor_id?.email || ""}</span>
+                        </td>
+                        <td>{r.description || <span className="text-muted small">—</span>}</td>
+                        <td className="text-muted small">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="text-end">
+                          <button
+                            className="btn btn-sm btn-success me-2"
+                            onClick={() => handleApprove(r._id)}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleReject(r._id)}
+                          >
+                            Reject
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div className="ad-card">
             <div className="ap-search-row">
               <div className="ap-search-wrap">
                 <span className="material-symbols-outlined ap-search-icon">search</span>
                 <input
                   type="text"
                   className="ap-search-input"
-                  placeholder="Search by product name or OEM number…"
+                  placeholder="Search by product type name or description…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -191,11 +258,10 @@ const AdminProducts = () => {
               </span>
             </div>
 
-            {/* Table */}
             {loading ? (
               <div className="ap-center">
                 <div className="spinner-border text-success" />
-                <p className="mt-3 text-muted small">Loading products…</p>
+                <p className="mt-3 text-muted small">Loading product types…</p>
               </div>
             ) : filtered.length === 0 ? (
               <div className="ap-center">
@@ -203,7 +269,9 @@ const AdminProducts = () => {
                   inventory_2
                 </span>
                 <p className="text-muted small mt-2">
-                  {search ? `No results for "${search}"` : "No products yet. Add one to get started."}
+                  {search
+                    ? `No results for "${search}"`
+                    : "No product types yet. Add one to get started."}
                 </p>
               </div>
             ) : (
@@ -212,8 +280,7 @@ const AdminProducts = () => {
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Product Name</th>
-                      <th>OEM Part Number</th>
+                      <th>Product Type Name</th>
                       <th>Description</th>
                       <th>Added</th>
                       <th className="text-end">Actions</th>
@@ -225,12 +292,6 @@ const AdminProducts = () => {
                         <td className="ap-td-num">{i + 1}</td>
                         <td>
                           <div className="ap-product-name">{p.name}</div>
-                        </td>
-                        <td>
-                          {p.oem_part_number
-                            ? <code className="ap-oem">{p.oem_part_number}</code>
-                            : <span className="text-muted small">—</span>
-                          }
                         </td>
                         <td>
                           <span className="ap-desc-text">
@@ -266,17 +327,15 @@ const AdminProducts = () => {
         </main>
       </div>
 
-      {/* ── Add / Edit Modal ─────────────────────────────────── */}
       {showModal && (
         <div className="ap-modal-backdrop" onClick={closeModal}>
           <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
-
             <div className="ap-modal-header">
               <h6 className="ap-modal-title">
                 <span className="material-symbols-outlined">
                   {editItem ? "edit" : "add_circle"}
                 </span>
-                {editItem ? "Edit Product" : "Add New Product"}
+                {editItem ? "Edit Product Type" : "Add New Product Type"}
               </h6>
               <button className="ap-modal-close" onClick={closeModal}>
                 <span className="material-symbols-outlined">close</span>
@@ -290,7 +349,7 @@ const AdminProducts = () => {
 
               <div className="mb-3">
                 <label className="form-label ap-label">
-                  Product Name <span className="text-danger">*</span>
+                  Product Type Name <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -301,20 +360,6 @@ const AdminProducts = () => {
                   required
                   autoFocus
                 />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label ap-label">OEM Part Number</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="e.g. 04465-0K060"
-                  value={form.oem_part_number}
-                  onChange={(e) => setForm((p) => ({ ...p, oem_part_number: e.target.value }))}
-                />
-                <div className="form-text">
-                  Vendors and customers can search by this number.
-                </div>
               </div>
 
               <div className="mb-4">
@@ -329,14 +374,25 @@ const AdminProducts = () => {
               </div>
 
               <div className="ap-modal-footer">
-                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={closeModal}>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={closeModal}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="ap-save-btn" disabled={saving}>
-                  {saving
-                    ? <><span className="spinner-border spinner-border-sm me-2" />Saving…</>
-                    : <><span className="material-symbols-outlined">save</span>{editItem ? "Save Changes" : "Add Product"}</>
-                  }
+                  {saving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      Saving…
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined">save</span>
+                      {editItem ? "Save Changes" : "Add Product Type"}
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -344,30 +400,48 @@ const AdminProducts = () => {
         </div>
       )}
 
-      {/* ── Delete Confirm Modal ─────────────────────────────── */}
       {deleteId && (
         <div className="ap-modal-backdrop" onClick={() => setDeleteId(null)}>
           <div className="ap-modal ap-modal-sm" onClick={(e) => e.stopPropagation()}>
             <div className="ap-modal-header">
               <h6 className="ap-modal-title">
-                <span className="material-symbols-outlined" style={{ color: "#be123c" }}>warning</span>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: "#be123c" }}
+                >
+                  warning
+                </span>
                 Confirm Delete
               </h6>
             </div>
             <div className="ap-modal-body">
               <p className="text-muted small mb-4">
-                This product will be permanently deleted. Existing vendor listings linked
-                to it will not be affected, but the product will no longer appear in searches.
+                This product type will be permanently deleted. Existing vendor listings that already
+                reference it may lose their master product link.
               </p>
               <div className="ap-modal-footer">
-                <button className="btn btn-outline-secondary btn-sm" onClick={() => setDeleteId(null)}>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setDeleteId(null)}
+                >
                   Cancel
                 </button>
-                <button className="ap-delete-confirm-btn" onClick={handleDelete} disabled={deleting}>
-                  {deleting
-                    ? <><span className="spinner-border spinner-border-sm me-2" />Deleting…</>
-                    : <><span className="material-symbols-outlined">delete</span>Delete</>
-                  }
+                <button
+                  className="ap-delete-confirm-btn"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      Deleting…
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined">delete</span>
+                      Delete
+                    </>
+                  )}
                 </button>
               </div>
             </div>

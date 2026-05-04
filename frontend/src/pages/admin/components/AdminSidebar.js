@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 
 const menuItems = [
   { key: "dashboard", icon: "dashboard",        label: "Dashboard",           path: "/admin/dashboard" },
-  { key: "vendors",   icon: "store",             label: "Vendor Management",  path: "/admin/vendors" },
   { key: "ads",       icon: "campaign",          label: "Advertisements",     path: "/admin/ads" },
+  { key: "inquiries", icon: "mail", label: "User Inquiries", path: "/admin/inquiries" },
+  { key: "vendors",   icon: "store",             label: "Vendor Management",  path: "/admin/vendors" },
   { key: "listings",  icon: "inventory_2",       label: "Listings",           path: "/admin/listings" },
   { key: "users",     icon: "group",             label: "Users",              path: "/admin/users" },
   { key: "products",  icon: "inventory",         label: "products",           path: "/admin/products" },
+  { key: "Requests",  icon: "Pending_Actions",         label: "Product Requests",           path: "/admin/product-requests" },
   { key: "Subscription Plans",      icon: "subscriptions",     label: "Subscription Plans",        path: "/admin/subscriptions" },
-  { key: "settings",  icon: "settings",          label: "Settings",           path: null },
+  { key: "settings", icon: "settings", label: "Settings", path: "/admin/settings" },
 ];
 
 const AdminSidebar = ({ activeItem }) => {

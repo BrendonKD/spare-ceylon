@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./LoginPage.css";
 
 const LoginPage = () => {
-  const [selectedRole, setSelectedRole] = useState("customer"); // 'customer' | 'vendor'
+  const [selectedRole, setSelectedRole] = useState("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
@@ -23,9 +23,8 @@ const LoginPage = () => {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: selectedRole })
+        body: JSON.stringify({ email, password, role: selectedRole }),
       });
-
 
       const data = await res.json();
 
@@ -33,11 +32,9 @@ const LoginPage = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Save token, user
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", selectedRole);
 
-      // Redirect based on role
       if (selectedRole === "customer") {
         window.location.href = "/customer/dashboard";
       } else {
@@ -51,18 +48,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="auth-page container-fluid">
-      <div className="row justify-content-center py-5">
+    <div className="auth-page auth-layout-page container-fluid">
+      <div className="row justify-content-center py-2">
         {/* LEFT: account type selection */}
         <div className="col-12 col-lg-5 mb-4 mb-lg-0">
           <div className="account-type-card">
             <div className="account-type-bg" />
             <div className="account-type-overlay">
-              <h5 className="ac-header mb-4 text-center text-white">
-                Choose Account Type
-              </h5>
+              <h5 className="mb-4 text-center text-white">Choose Account Type</h5>
 
-              <div className="row g-3 select_card">
+              <div className="row g-3">
                 <div className="col-6">
                   <button
                     type="button"
@@ -70,11 +65,14 @@ const LoginPage = () => {
                       }`}
                     onClick={() => handleRoleClick("customer")}
                   >
-                    {selectedRole === "customer" && <div className="tick-mark">✓</div>}
+                    {selectedRole === "customer" && (
+                      <div className="tick-mark">✓</div>
+                    )}
                     <div className="type-icon customer-icon" />
                     <div className="mt-2 fw-semibold">Customer</div>
                   </button>
                 </div>
+
                 <div className="col-6">
                   <button
                     type="button"
@@ -82,11 +80,19 @@ const LoginPage = () => {
                       }`}
                     onClick={() => handleRoleClick("vendor")}
                   >
-                    {selectedRole === "vendor" && <div className="tick-mark">✓</div>}
+                    {selectedRole === "vendor" && (
+                      <div className="tick-mark">✓</div>
+                    )}
                     <div className="type-icon vendor-icon" />
                     <div className="mt-2 fw-semibold">Vendor</div>
                   </button>
                 </div>
+              </div>
+
+              <div className="selected-indicator">
+                {selectedRole === "customer"
+                  ? "Customer login selected"
+                  : "Vendor login selected"}
               </div>
             </div>
           </div>
@@ -94,17 +100,18 @@ const LoginPage = () => {
 
         {/* RIGHT: sign-in form */}
         <div className="col-12 col-lg-5">
-          <div className="auth-card">
-            <div className="auth-card-header text-center mb-4">
+          <div className="auth-card auth-main-card">
+            <div className="auth-card-header text-center mb-3">
               <h5 className="mb-1">Welcome Back!</h5>
               <p className="mb-0 text-muted small">
                 Sign in to your account or create a new one
               </p>
             </div>
 
-            {/* Toggle Sign In / Register */}
-            <div className="auth-toggle mb-4">
-              <button className="toggle-btn active">Sign In</button>
+            <div className="auth-toggle mb-3">
+              <button className="toggle-btn active" type="button">
+                Sign In
+              </button>
               <button
                 className="toggle-btn"
                 type="button"
@@ -146,7 +153,7 @@ const LoginPage = () => {
                 />
               </div>
 
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex justify-content-between align-items-center mb-3 auth-meta-row">
                 <div className="form-check">
                   <input
                     className="form-check-input"
@@ -162,9 +169,11 @@ const LoginPage = () => {
                     Remember me
                   </label>
                 </div>
+
                 <button
                   type="button"
-                  className="btn btn-link p-0 small text-danger"
+                  className="btn btn-link p-0 small forgot-link text-decoration-none"
+                  onClick={() => (window.location.href = "/forgot-password")}
                 >
                   Forgot Password ?
                 </button>

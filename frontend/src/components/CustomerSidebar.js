@@ -7,6 +7,7 @@ const menuItems = [
   { key: "garage",    icon: "directions_car", label: "My Garage",      path: "/customer/garage" },
   { key: "orders",    icon: "shopping_bag",   label: "Orders",         path: "/customer/orders" },
   { key: "messages",  icon: "mail",           label: "Message Center", path: "/customer/messages" },
+  { key: "inquire",  icon: "message",       label: "Inquire Admin",       path: "/customer/inquire" },
   { key: "settings",  icon: "settings",       label: "Settings",       path: "/customer/settings" },
 ];
 

@@ -158,34 +158,35 @@ const Vendors = () => {
 
       <main className="container-fluid px-4 py-4">
         {/* Search Bar Section */}
-        <section className="mb-4">
-          <div className="bg-dark text-light p-4 rounded-3 shadow">
-            <form onSubmit={handleSearch}>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control form-control-lg"
-                  style={{ fontSize: '1rem' }}
-                  placeholder="Search by vendor name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {hasSearched && (
-                  <button
-                    type="button"
-                    className="btn btn-outline-light"
-                    onClick={handleClearSearch}
-                  >
-                    Clear
-                  </button>
-                )}
-                <button className="btn btn-success px-4" type="submit">
-                  Search
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
+        <section className="vendors-search-box mb-4">
+  <p className="vendors-search-label mb-2">Find Vendors</p>
+
+  <form onSubmit={handleSearch}>
+    <div className="vendors-search-row">
+      <input
+        type="text"
+        className="vendors-search-input"
+        placeholder="Search by vendor name..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
+      {hasSearched && (
+        <button
+          type="button"
+          className="vendors-clear-simple"
+          onClick={handleClearSearch}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      )}
+
+      <button className="vendors-search-btn" type="submit">
+        Search
+      </button>
+    </div>
+  </form>
+</section>
 
         <div className="row g-4">
           {/* Sidebar Filters */}

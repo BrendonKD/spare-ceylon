@@ -121,6 +121,9 @@ const projectStage = {
     createdAt: 1,
     average_rating: 1,
     review_count: 1,
+    oem_part_number: 1,
+    compatibility: 1,
+
     vendor: {
       _id: "$vendorInfo._id",
       userId: "$vendorInfo.vendor_id",
@@ -134,7 +137,6 @@ const projectStage = {
       name: "$productInfo.name",
       brand: "$productInfo.brand",
       oem_part_number: "$productInfo.oem_part_number",
-      compatibility: "$productInfo.compatibility"
     }
   }
 };
@@ -255,14 +257,33 @@ router.get("/listings", async (req, res) => {
       quantity_available: { $gt: 0 }
     };
 
+    // 1. Text Search across Title, OEM, and Compatibility
     if (req.query.q) {
       const q = req.query.q.trim();
+      const qSlug = q.toLowerCase().trim();
       baseMatch.$or = [
         { title: { $regex: q, $options: "i" } },
-        { searchKeywords: { $regex: q, $options: "i" } }
+        { oem_part_number: { $regex: q, $options: "i" } },
+        { "compatibility.make": { $regex: q, $options: "i" } },
+        { "compatibility.model": { $regex: q, $options: "i" } },
+        { "compatibility.make_slug": { $regex: qSlug, $options: "i" } },
+        { "compatibility.model_slug": { $regex: qSlug, $options: "i" } }
       ];
     }
 
+    // 2. Exact Filters for Compatibility
+    if (req.query.make) {
+      baseMatch["compatibility.make_slug"] = req.query.make.toLowerCase().trim();
+    }
+    if (req.query.model) {
+      baseMatch["compatibility.model_slug"] = req.query.model.toLowerCase().trim();
+    }
+    if (req.query.year) {
+      const year = Number(req.query.year);
+      if (!Number.isNaN(year)) baseMatch["compatibility.year"] = year;
+    }
+
+    // 3. Existing Standard Filters
     if (req.query.condition) {
       const cond = req.query.condition.split(",").filter(Boolean);
       if (cond.length) baseMatch.condition = { $in: cond };

@@ -3,21 +3,31 @@ const router = express.Router();
 const Product = require("../models/Product");
 const auth = require("../middleware/authMiddleware");
 
-// ── GET /api/products   — public, supports ?q= search ─────────────────────
+const isAdmin = (req, res, next) => {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ message: "Admin only" });
+  }
+  next();
+};
+
+// GET /api/products?q=&limit=
 router.get("/", async (req, res) => {
   try {
-    const { q, limit = 20 } = req.query;
-    const query = q ? {
-      $or: [
-        { name: { $regex: q, $options: "i" } },
-        { oem_part_number: { $regex: q, $options: "i" } }
-      ]
-    } : {};
+    const q = (req.query.q || "").trim();
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 200);
 
-    const products = await Product.find(query)
-      .limit(Number(limit))
-      .select("name oem_part_number description createdAt")
-      .sort({ createdAt: -1 });
+    let filter = { is_active: true };
+
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    const products = await Product.find(filter)
+      .sort({ name: 1 })
+      .limit(limit);
 
     res.json(products);
   } catch (err) {
@@ -25,50 +35,103 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ── POST /api/products   — admin only ─────────────────────────────────────
-router.post("/", auth, async (req, res) => {
+// GET /api/products/:id
+router.get("/:id", async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admins only" });
-    }
-    const { name, description, oem_part_number } = req.body;
-    if (!name?.trim()) {
-      return res.status(400).json({ message: "Product name is required" });
-    }
-    const product = await Product.create({ name, description, oem_part_number });
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    const product = await Product.findById(req.params.id);
 
-// ── PUT /api/products/:id   — admin only ──────────────────────────────────
-router.put("/:id", auth, async (req, res) => {
-  try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admins only" });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
-    if (!product) return res.status(404).json({ message: "Product not found" });
+
     res.json(product);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// ── DELETE /api/products/:id   — admin only ───────────────────────────────
-router.delete("/:id", auth, async (req, res) => {
+// POST /api/products
+router.post("/", auth, isAdmin, async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admins only" });
+    const { name, description } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ message: "Product name is required" });
     }
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
-    res.json({ message: "Product deleted" });
+
+    const existing = await Product.findOne({
+      name: { $regex: `^${name.trim()}$`, $options: "i" }
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "Product already exists" });
+    }
+
+    const product = new Product({
+      name: name.trim(),
+      description: description?.trim() || ""
+    });
+
+    await product.save();
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/products/:id
+router.put("/:id", auth, isAdmin, async (req, res) => {
+  try {
+    const { name, description, is_active } = req.body;
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return res.status(400).json({ message: "Product name is required" });
+      }
+
+      const duplicate = await Product.findOne({
+        _id: { $ne: product._id },
+        name: { $regex: `^${name.trim()}$`, $options: "i" }
+      });
+
+      if (duplicate) {
+        return res.status(400).json({ message: "Another product with this name already exists" });
+      }
+
+      product.name = name.trim();
+    }
+
+    if (description !== undefined) {
+      product.description = description.trim();
+    }
+
+    if (typeof is_active === "boolean") {
+      product.is_active = is_active;
+    }
+
+    await product.save();
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/products/:id
+router.delete("/:id", auth, isAdmin, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    await product.deleteOne();
+    res.json({ message: "Product deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

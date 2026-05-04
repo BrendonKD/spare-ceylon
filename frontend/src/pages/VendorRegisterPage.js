@@ -5,11 +5,8 @@ const VendorRegisterPage = () => {
   const [contactFirstName, setContactFirstName] = useState("");
   const [contactLastName, setContactLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [businessRegNo, setBusinessRegNo] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,17 +29,15 @@ const VendorRegisterPage = () => {
         body: JSON.stringify({
           contactFirstName,
           contactLastName,
+          businessName,
           email,
           phone,
-          businessName,
-          businessRegNo,
-          address,
-          description,
-          password
-        })
+          password,
+        }),
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         throw new Error(data.message || "Vendor registration failed");
       }
@@ -60,16 +55,14 @@ const VendorRegisterPage = () => {
   };
 
   return (
-    <div className="auth-page container-fluid">
-      <div className="row justify-content-center py-5">
-        {/* LEFT: account type selector (vendor fixed) */}
+    <div className="auth-page register-page container-fluid">
+      <div className="row justify-content-center py-2">
+        {/* LEFT */}
         <div className="col-12 col-lg-5 mb-4 mb-lg-0">
           <div className="account-type-card">
             <div className="account-type-bg" />
             <div className="account-type-overlay">
-              <h5 className="mb-4 text-center text-white">
-                Choose Account Type
-              </h5>
+              <h5 className="mb-4 text-center text-white">Choose Account Type</h5>
 
               <div className="row g-3">
                 <div className="col-6">
@@ -82,8 +75,10 @@ const VendorRegisterPage = () => {
                     <div className="mt-2 fw-semibold">Customer</div>
                   </button>
                 </div>
+
                 <div className="col-6">
                   <div className="account-type-option active">
+                    <div className="tick-mark">✓</div>
                     <div className="type-icon vendor-icon" />
                     <div className="mt-2 fw-semibold">Vendor</div>
                   </div>
@@ -97,18 +92,18 @@ const VendorRegisterPage = () => {
           </div>
         </div>
 
-        {/* RIGHT: registration form */}
+        {/* RIGHT */}
         <div className="col-12 col-lg-5">
-          <div className="auth-card">
-            <div className="auth-card-header text-center mb-4">
+          <div className="auth-card register-auth-card">
+            <div className="auth-card-header text-center mb-3">
               <h5 className="mb-1">Welcome !</h5>
-              <p className="mb-0 text-muted small">
-                Create a new vendor account
+              <p className="mb-1 text-muted small">Create your vendor account</p>
+              <p className="mb-0 small register-helper-text">
+                You can complete business details later in your dashboard profile.
               </p>
             </div>
 
-            {/* Toggle Sign In / Register */}
-            <div className="auth-toggle mb-4">
+            <div className="auth-toggle mb-3">
               <button
                 className="toggle-btn"
                 type="button"
@@ -122,9 +117,9 @@ const VendorRegisterPage = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="row g-3">
+              <div className="row g-2">
                 <div className="col-12 col-md-6">
-                  <label className="form-label small">Contact First Name</label>
+                  <label className="form-label small">First Name</label>
                   <input
                     type="text"
                     className="form-control auth-input"
@@ -133,8 +128,9 @@ const VendorRegisterPage = () => {
                     required
                   />
                 </div>
+
                 <div className="col-12 col-md-6">
-                  <label className="form-label small">Contact Last Name</label>
+                  <label className="form-label small">Last Name</label>
                   <input
                     type="text"
                     className="form-control auth-input"
@@ -145,32 +141,30 @@ const VendorRegisterPage = () => {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label small">Company Name</label>
+                  <label className="form-label small">Business Name</label>
                   <input
                     type="text"
                     className="form-control auth-input"
-                    placeholder="AutoParts.com"
+                    placeholder="Auto Parts Lanka"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     required
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
-                  <label className="form-label small">
-                    Business Registration No.
-                  </label>
+                <div className="col-12">
+                  <label className="form-label small">Email Address</label>
                   <input
-                    type="text"
+                    type="email"
                     className="form-control auth-input"
-                    placeholder="B101000"
-                    value={businessRegNo}
-                    onChange={(e) => setBusinessRegNo(e.target.value)}
+                    placeholder="vendor@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
 
-                <div className="col-12 col-md-6">
+                <div className="col-12">
                   <label className="form-label small">Contact Number</label>
                   <input
                     type="tel"
@@ -183,48 +177,11 @@ const VendorRegisterPage = () => {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label small">Email Address</label>
-                  <input
-                    type="email"
-                    className="form-control auth-input"
-                    placeholder="example1@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label small">Location / Address</label>
-                  <input
-                    type="text"
-                    className="form-control auth-input"
-                    placeholder="Colombo"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label small">
-                    Short Business Description
-                  </label>
-                  <textarea
-                    className="form-control"
-                    rows="2"
-                    style={{ borderRadius: "16px" }}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
-
-                <div className="col-12">
                   <label className="form-label small">Password</label>
                   <input
                     type="password"
                     className="form-control auth-input"
-                    placeholder="Enter Your Password"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -240,10 +197,7 @@ const VendorRegisterPage = () => {
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
                 />
-                <label
-                  className="form-check-label small"
-                  htmlFor="agreeVendorTerms"
-                >
+                <label className="form-check-label small" htmlFor="agreeVendorTerms">
                   Agree <span className="text-danger">Terms And Conditions</span>
                 </label>
               </div>
@@ -257,7 +211,7 @@ const VendorRegisterPage = () => {
                 className="auth-submit-btn w-100 mt-2"
                 disabled={loading}
               >
-                {loading ? "Creating vendor..." : "Register"}
+                {loading ? "Creating vendor..." : "Create Vendor Account"}
               </button>
             </form>
           </div>

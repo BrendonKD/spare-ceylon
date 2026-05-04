@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 const menuItems = [
   { key: "dashboard",     icon: "dashboard",    label: "Dashboard",       path: "/vendor/dashboard" },
-  { key: "list-products", icon: "add_box",      label: "List Products",   path: "/vendor/list-products" },
+  { key: "list-products", icon: "add_box",      label: "Manage Listings",   path: "/vendor/list-products" },
   { key: "manage-orders", icon: "inventory_2",  label: "Manage Orders",   path: "/vendor/orders" },
   { key: "messages",      icon: "mail",         label: "Message Center",  path: "/vendor/messages" },
   { key: "ads",           icon: "campaign",     label: "Advertisements",  path: "/vendor/advertise" },
   { key: "payments",      icon: "payments",     label: "Payments",        path: "/vendor/payments" },
-  { key: "Subscription Plans",      icon: "subscriptions",     label: "Subscription Plans",        path: "/vendor/Subscriptions" },
-  { key: "settings",      icon: "settings",     label: "Settings",        path: "/vendor/profile-settings" },
+  { key: "Subscription-plan",      icon: "subscriptions",     label: "Subscription Plans",        path: "/vendor/Subscriptions" },
+  { key: "settings",      icon: "settings",     label: "Profile Settings",        path: "/vendor/profile-settings" },
   
 ];
 

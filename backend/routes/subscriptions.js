@@ -314,6 +314,71 @@ router.get('/admin/all', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// ADMIN subscription dashboard stats
+router.get('/admin/stats', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const plans = await SubscriptionPlan.find();
+    const subscriptions = await VendorSubscription.find({ status: 'active' }).populate('plan_id');
+
+    const stats = {
+      totalActiveSubscribedVendors: subscriptions.length,
+      totalSubscriptionEarnings: 0,
+      planBreakdown: {
+        basic: { vendors: 0, earnings: 0 },
+        pro: { vendors: 0, earnings: 0 },
+        premium: { vendors: 0, earnings: 0 },
+      },
+    };
+
+    subscriptions.forEach((sub) => {
+      const slug = sub.plan_id?.slug?.toLowerCase();
+      const paid = Number(sub.price_paid || 0);
+
+      stats.totalSubscriptionEarnings += paid;
+
+      if (slug && stats.planBreakdown[slug]) {
+        stats.planBreakdown[slug].vendors += 1;
+        stats.planBreakdown[slug].earnings += paid;
+      }
+    });
+
+    res.json(stats);
+  } catch (err) {
+    console.error('Fetch admin subscription stats error:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.patch('/admin/vendor/:vendorId/deactivate', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const activeSub = await VendorSubscription.findOne({
+      vendor_id: req.params.vendorId,
+      status: 'active',
+    });
+
+    if (!activeSub) {
+      return res.status(404).json({ message: 'No active subscription found for this vendor' });
+    }
+
+    activeSub.status = 'cancelled';
+    activeSub.activated_by_admin = true;
+    activeSub.notes = activeSub.notes
+      ? `${activeSub.notes} | Deactivated by admin`
+      : 'Deactivated by admin';
+
+    await activeSub.save();
+
+    res.json({
+      success: true,
+      message: 'Vendor subscription deactivated successfully',
+      subscription: activeSub,
+    });
+  } catch (err) {
+    console.error('Deactivate vendor subscription error:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ADMIN manually assign a plan to a vendor
 router.post('/admin/assign', requireAuth, requireAdmin, async (req, res) => {
   try {
