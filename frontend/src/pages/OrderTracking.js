@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
 import CustomerSidebar from "../components/CustomerSidebar";
-import "./OrderTracking.css";
+import "./styles/OrderTracking.css";
 
 const API = "http://localhost:5000";
 

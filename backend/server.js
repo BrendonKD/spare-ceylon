@@ -17,6 +17,8 @@ const vendorDocumentRoutes = require("./routes/vendorDocumentRoute"); //used for
 const adminRoutes = require('./routes/admin');
 const adminInquiryRoutes = require("./routes/adminInquiries");
 const communityForum = require("./routes/communityForum");
+const adminListings = require("./routes/adminListings")
+const customerDashboardRoutes = require("./routes/customerDashboard");
 
 const stripeWebhookRoutes = require('./routes/stripeWebhook');
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
@@ -38,6 +40,7 @@ app.use("/api/public", publicVendor);
 app.use("/api/messages", messageRoute);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use("/api/community-forum", communityForum);
+app.use("/api/customer-dashboard", customerDashboardRoutes);
 
 
 
@@ -56,6 +59,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/vendor-documents", vendorDocumentRoutes);
 app.use("/api/admin", adminRoutes); 
 app.use("/api/inquiries", adminInquiryRoutes);
+app.use("/api/admin/listings", require("./routes/adminListings"));
 
 app.use('/api/stripe', stripeWebhookRoutes);
 

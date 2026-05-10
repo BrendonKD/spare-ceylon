@@ -10,11 +10,41 @@
       rgba(23, 35, 45, 0.7),
       rgba(23, 35, 45, 0.85)
     ),
-    url("../assets/searchbar.png");
+    url("../../assets/searchbar.png");
   background-size: cover;
   background-position: center;
   color: #fff;
   padding: 4rem 0 3rem;
+}
+
+.hero-video-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  width: auto;
+  height: 85%;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  width: auto;
+  height: 92.5%;
+  z-index: 0;
+  background: linear-gradient(
+    rgba(23, 35, 45, 0.7),
+    rgba(23, 35, 45, 0.85)
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
@@ -200,6 +230,18 @@
 
 /* Part cards */
 
+.btn-teal-outline {
+  color: #0f766e;
+  border-color: #0f766e;
+  transition: all 0.3s ease;
+}
+
+.btn-teal-outline:hover {
+  background-color: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+}
+
 .part-card {
   border-radius: 12px;
   border: none;
@@ -211,7 +253,7 @@
   background-size: cover;
   background-position: center;
   height: 130px;
-  border-radius: 12px 12px 0 0;
+  border-radius: 6px 6px 0 0;
 }
 
 .price-tag {
@@ -255,12 +297,6 @@
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
-/* Footer */
-
-.footer-section {
-  background-color: #00443b;
-  padding: 1.2rem 0;
-}
 
 /* Responsive tweaks */
 

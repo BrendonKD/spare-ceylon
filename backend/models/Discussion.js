@@ -19,6 +19,34 @@ const replySchema = new mongoose.Schema(
       trim: true,
       maxlength: 1000,
     },
+
+    //for admin use - filer & moderate
+    status: {
+      type: String,
+      enum: ["visible", "hidden", "deleted", "flagged"],
+      default: "visible",
+    },
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+    moderationReason: {
+      type: String,
+      default: "",
+    },
+    moderatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      default: null,
+    },
+    moderatedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -52,6 +80,34 @@ const discussionSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+
+    //for admin use - to filter
+    status: {
+      type: String,
+      enum: ["visible", "pending", "flagged", "hidden", "deleted", "locked"],
+      default: "visible",
+    },
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+    moderationReason: {
+      type: String,
+      default: "",
+    },
+    moderatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      default: null,
+    },
+    moderatedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

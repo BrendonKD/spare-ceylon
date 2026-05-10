@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
 import CustomerSidebar from "../components/CustomerSidebar";
-import "./CustomerOrders.css";
+import "./styles/CustomerOrders.css";
 
 const API = "http://localhost:5000";
 
 const CustomerOrders = () => {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState({ full_name: "Loading...", email: "..." });
+  const [user, setUser] = useState({ full_name: "Loading...", email: "...", profile_image: "" });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +36,10 @@ const CustomerOrders = () => {
 
         setUser({
           full_name: userRes.data.full_name,
-          email: userRes.data.email
+          email: userRes.data.email,
+          profile_image: userRes.data.profile_image
+          ? `${API}/${userRes.data.profile_image.replace(/^\/+/, "")}`
+          : ""
         });
 
         setOrders(ordersRes.data);

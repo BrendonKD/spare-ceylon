@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./AdminManageAds.css";
+import "./styles/AdminManageAds.css";
 
 import AdminHeader from "../admin/components/AdminHeader";
 import AdminSidebar from "../admin/components/AdminSidebar";

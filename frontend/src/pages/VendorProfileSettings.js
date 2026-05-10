@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./VendorProfileSettings.css";
+import "./styles/VendorProfileSettings.css";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
 import { useNavigate } from "react-router-dom";
@@ -34,11 +34,7 @@ const VendorProfileSettings = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
 
-    const [vendor, setVendor] = useState({
-        full_name: "Loading...",
-        email: "...",
-        business_name: "",
-    });
+    const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "", logo_url: "" });
 
     const [vendorForm, setVendorForm] = useState(initialVendorForm);
     const [originalVendorForm, setOriginalVendorForm] = useState(initialVendorForm);
@@ -79,6 +75,9 @@ const VendorProfileSettings = () => {
                     full_name: profileRes.data.full_name,
                     email: profileRes.data.email,
                     business_name: profileRes.data.business_name || "",
+                    logo_url: profileRes.data.logo_url
+                        ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+                        : ""
                 });
 
                 setSecurityForm((prev) => ({

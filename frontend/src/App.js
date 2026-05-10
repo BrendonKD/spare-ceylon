@@ -35,6 +35,8 @@ import AdminManageUser from './pages/admin/AdminManageUser';
 import AdminProductRequests from "./pages/admin/AdminProductRequests";
 import AdminInquireReq from "./pages/admin/AdminInquireReq";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminProductListings from "./pages/admin/AdminProductListings";
+import AdminCommunityManage from "./pages/admin/AdminCommunityManage";
 
 //vendor pages
 import VendorDashboard from "./pages/VendorDashboard";
@@ -78,6 +80,7 @@ function App() {
         <Route path="/customer/settings" element={<CustomerProfileSettings />} />
         <Route path="/customer/inquire" element={<InquireAdmin />} />
         <Route path="/community" element={<CommunityForum />} />
+        <Route path="/community/:id" element={<CommunityForum />} />
 
         {/* Vendor Routes */}
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />
@@ -102,6 +105,8 @@ function App() {
         <Route path="/admin/product-requests" element={<AdminProductRequests />} />
         <Route path="/admin/inquiries" element={<AdminInquireReq />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/products/:productId/listings" element={<AdminProductListings />} />
+        <Route path="/admin/community" element={<AdminCommunityManage />} />
       </Routes>
 
     </Router>

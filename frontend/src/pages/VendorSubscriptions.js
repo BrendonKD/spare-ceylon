@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
-import "./VendorSubscriptions.css";
+import "./styles/VendorSubscriptions.css";
 
 const API = "http://localhost:5000";
 
 const VendorSubscriptions = () => {
-  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "" });
+  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "", logo_url: "" });
 
   const [plans, setPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState("basic");
@@ -47,10 +47,10 @@ const VendorSubscriptions = () => {
         setVendor({
           full_name: profileRes.data.full_name || "",
           email: profileRes.data.email || "",
-          business_name:
-            profileRes.data.business_name ||
-            profileRes.data.full_name ||
-            "Vendor"
+          business_name:profileRes.data.business_name || "",
+          logo_url: profileRes.data.logo_url
+          ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+          : ""
         });
       } catch (err) {
         console.error("Failed to load subscription data", err);

@@ -1,80 +1,132 @@
-import React from 'react';
-import './AboutUs.css';
+import React from "react";
+import "./styles/AboutUs.css";
+import Header from "../components/header";
+import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
+
+import { FaStore, FaShieldAlt } from "react-icons/fa";
+import { MdVerified, MdBuild } from "react-icons/md";
 
 const AboutUs = () => {
-  const brandFeatures = [
+  const navigate = useNavigate();
+
+  const features = [
     {
-      title: "Best Price Guarantee",
-      text: "Compare offers from multiple verified vendors in one place to get the best deal.",
-      icon: "payments",
-      color: "#FCBE30",
-      label: "Affordability"
+      icon: <FaStore />,
+      title: "Trusted Marketplace",
+      text: "Spare Ceylon connects customers and vendors in one reliable platform for automotive spare parts.",
     },
     {
-      title: "Trusted Community",
-      text: "Peer reviews and ratings ensure only the highest-rated vendors thrive in our network.",
-      icon: "groups",
-      color: "#EB7623",
-      label: "Network"
+      icon: <MdBuild />,
+      title: "Easy Part Discovery",
+      text: "We make it easier to search, explore, and find the right vehicle parts with less effort.",
     },
     {
-      title: "Verified Quality",
-      text: "Every part undergoes a digital verification process against OEM standards for your safety.",
-      icon: "verified_user",
-      color: "#0E544F",
-      label: "Security"
-    }
+      icon: <FaShieldAlt />,
+      title: "Confidence & Trust",
+      text: "Our goal is to create a better buying experience with clear information and secure interactions.",
+    },
   ];
 
-  return (
-    <div className="about-container">
-      {/* Hero Header */}
-      <section className="about-hero text-center">
-        <div className="container">
-          <h1 className="fw-bold mb-3">Why Choose <span className="text-teal">Spare Ceylon?</span></h1>
-          <p className="lead text-muted mx-auto" style={{maxWidth: '700px'}}>
-            Sri Lanka’s trusted marketplace for genuine and verified auto parts, 
-            connecting you with reliability and quality.
-          </p>
-        </div>
-      </section>
+  const handleContactClick = () => {
+    const token = localStorage.getItem("token");
 
-      {/* Horizontal Feature Cards */}
-      <section className="container my-5">
-        <div className="row g-4">
-          {brandFeatures.map((item, index) => (
-            <div className="col-lg-4" key={index}>
-              <div className="horizontal-feature-card shadow-sm h-100">
-                <div className="card-top-accent" style={{backgroundColor: item.color}}></div>
-                <div className="p-4">
-                  <div className="d-flex align-items-center mb-3">
-                    <span className="material-symbols-outlined" style={{color: item.color, backgroundColor: `${item.color}15`}}>
-                      {item.icon}
-                    </span>
-                    <span className="feature-label ms-auto" style={{color: item.color, borderColor: item.color}}>
-                      {item.label}
-                    </span>
-                  </div>
-                  <h4 className="card-title fw-bold">{item.title}</h4>
-                  <p className="card-text text-muted">{item.text}</p>
-                </div>
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    navigate("/customer/inquire");
+  };
+
+  const handleExploreClick = () => {
+    navigate("/parts");
+  };
+
+  const handleVendorClick = () => {
+    navigate("/register/vendor");
+  };
+
+  return (
+    <>
+      <Header />
+
+      <main className="about-page">
+        <section className="about-hero">
+          <div className="container">
+            <div className="about-hero-content text-center">
+              <h1>About Spare Ceylon</h1>
+
+              <p>
+                Spare Ceylon is a modern automotive e-commerce platform built to
+                connect customers with trusted vendors and make spare parts buying
+                simpler, faster, and more convenient in Sri Lanka.
+              </p>
+
+              <div className="about-actions">
+                <button type="button" className="about-btn-primary" onClick={handleExploreClick}>
+                  Explore Products
+                </button>
+
+                <button type="button" className="about-btn-outline" onClick={handleContactClick}>
+                  Contact Us
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Vision & CTA */}
-      <section className="container mt-5">
-        <div className="cta-banner rounded-4 p-5 text-white text-center">
-          <h2 className="fw-bold mb-4">Join Our Growing Community</h2>
-          <div className="d-flex justify-content-center gap-3">
-            <button className="btn btn-maroon px-4 py-2 fw-bold">Browse Parts</button>
-            <button className="btn btn-outline-light px-4 py-2">Contact Us</button>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        <section className="about-intro">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-lg-8 text-center">
+                <h2>Built for a better spare parts experience</h2>
+                <p>
+                  We aim to improve how people discover and purchase automotive
+                  spare parts by bringing quality listings, trusted sellers, and a
+                  user-friendly marketplace into one digital platform.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-features">
+          <div className="container">
+            <div className="row g-4">
+              {features.map((item, index) => (
+                <div className="col-md-4" key={index}>
+                  <div className="feature-card h-100 text-center">
+                    <div className="feature-icon">{item.icon}</div>
+                    <h4>{item.title}</h4>
+                    <p>{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="about-cta">
+          <div className="container">
+            <div className="cta-box text-center">
+              <MdVerified className="cta-icon" />
+              <h2>Your trusted spare parts marketplace</h2>
+              <p>
+                Spare Ceylon is focused on making automotive part sourcing easier
+                for customers while helping vendors grow through a modern online platform.
+              </p>
+
+              <button type="button" className="about-btn-primary" onClick={handleVendorClick}>
+                Become a Vendor
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 };
 

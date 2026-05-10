@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./VendorDashboard.css";
+import "./styles/VendorDashboard.css";
 import Header from "../components/header";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -46,7 +46,7 @@ const StatCard = ({ icon, label, value, color, delay = 0 }) => {
 // ---------------------------------------------------------------------------
 const VendorDashboard = () => {
   const navigate = useNavigate();
-  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "" });
+  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "...", business_name: "", logo_url: "" });
   const [listings, setListings] = useState({ total: 0, active: 0, inactive: 0 });
   const [loadingListings, setLoadingListings] = useState(true);
   const token = localStorage.getItem("token");
@@ -60,7 +60,14 @@ const VendorDashboard = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data.role !== "vendor") { navigate("/login"); return; }
-        setVendor({ full_name: res.data.full_name, email: res.data.email, business_name: res.data.business_name || "" });
+        setVendor({
+          full_name: res.data.full_name,
+          email: res.data.email,
+          business_name: res.data.business_name || "",
+          logo_url: res.data.logo_url
+            ? `${API}/${res.data.logo_url.replace(/^\/+/, "")}`
+            : ""
+        });
       } catch (err) {
         console.error("Vendor profile error", err.response?.data || err.message);
         navigate("/login");

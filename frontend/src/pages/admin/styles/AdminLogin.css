@@ -86,7 +86,7 @@
 .admin-panel-bg {
   position: absolute;
   inset: 0;
-  background-image: url("../../assets/adminLogin.jpeg");
+  background-image: url("../../../assets/adminLogin.jpeg");
   background-size: cover;
   background-position: center;
 }

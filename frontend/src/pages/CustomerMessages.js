@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
 import CustomerSidebar from "../components/CustomerSidebar";
-import "./CustomerMessages.css";
+import "./styles/CustomerMessages.css";
 
 const API = "http://localhost:5000";
 
@@ -13,7 +13,8 @@ const CustomerMessages = () => {
 
   const [user, setUser] = useState({
     full_name: "Loading...",
-    email: "..."
+    email: "...",
+    profile_image: ""
   });
 
   const [conversations, setConversations] = useState([]);
@@ -110,7 +111,10 @@ const CustomerMessages = () => {
 
         setUser({
           full_name: res.data.full_name,
-          email: res.data.email
+          email: res.data.email,
+          profile_image: res.data.profile_image
+          ? `${API}/${res.data.profile_image.replace(/^\/+/, "")}`
+          : ""
         });
       } catch (err) {
         console.error("Error fetching user profile:", err);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
-import "./VendorAdvertiseForm.css";
+import "./styles/VendorAdvertiseForm.css";
 
 const API = "http://localhost:5000";
 
@@ -20,7 +20,7 @@ const StatusBadge = ({ status }) => {
 
 const VendorAdvertiseForm = () => {
   const token = localStorage.getItem("token");
-  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "" });
+  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "", logo_url: "" });
 
   const [form, setForm] = useState({
     slot: "left",
@@ -65,7 +65,12 @@ const VendorAdvertiseForm = () => {
           axios.get(`${API}/api/auth/profile`, { headers: { Authorization: `Bearer ${token}` } }),
           axios.get(`${API}/api/ads/my`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
-        setVendor(profileRes.data);
+        setVendor({
+        ...profileRes.data,
+        logo_url: profileRes.data.logo_url
+          ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+          : ""
+      });
         setMyAds(adsRes.data);
       } catch (err) {
         console.error("Error loading vendor data:", err);

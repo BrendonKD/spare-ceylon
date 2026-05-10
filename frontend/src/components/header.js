@@ -17,6 +17,7 @@ const Header = () => {
     // 2. Logic to check if user is logged in (to show User Icon)
     const isLoggedIn = localStorage.getItem("token");
     const userRole = localStorage.getItem("role");
+    const isVendor = userRole === "vendor";
 
     // Function to handle icon click
     const handleUserIconClick = () => {
@@ -39,69 +40,88 @@ const Header = () => {
                     </a>
 
                     {/* Hamburger Toggler */}
-                    <button
-                        className="navbar-toggler border-0"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#scMainNavbar"
-                        aria-controls="scMainNavbar"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation"
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
+                    {!isVendor && (
+                        <button
+                            className="navbar-toggler border-0"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#scMainNavbar"
+                            aria-controls="scMainNavbar"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation"
+                        >
+                            <span className="navbar-toggler-icon"></span>
+                        </button>
+                    )}
 
-                    {/* Collapsible Content */}
-                    <div className="collapse navbar-collapse" id="scMainNavbar">
-                        <ul className="navbar-nav mx-auto mb-2 mb-lg-0 sc-nav-links">
-                            <li className="nav-item"><a className="nav-link" href="/">Home</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/parts">Parts</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/vendors">Vendors</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/community">Community</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/about">About</a></li>
-                        </ul>
+                    <div className={`collapse navbar-collapse ${isVendor ? "justify-content-end" : ""}`} id="scMainNavbar">
 
-                        {/* Action Section: This is where the logic combines */}
+                        {/* Hide nav links for vendors */}
+                        {!isVendor && (
+                            <ul className="navbar-nav mx-auto mb-2 mb-lg-0 sc-nav-links">
+                                <li className="nav-item"><a className="nav-link" href="/">Home</a></li>
+                                <li className="nav-item"><a className="nav-link" href="/parts">Parts</a></li>
+                                <li className="nav-item"><a className="nav-link" href="/vendors">Vendors</a></li>
+                                <li className="nav-item"><a className="nav-link" href="/community">Community</a></li>
+                                <li className="nav-item"><a className="nav-link" href="/about">About</a></li>
+                            </ul>
+                        )}
+
                         <div className="d-flex align-items-center gap-2">
                             {isDashboardPage ? (
                                 <button
                                     className="btn sc-home-btn"
-                                    onClick={() => navigate("/")}
+                                    onClick={() =>
+                                        navigate(userRole === "vendor" ? "/vendor/dashboard" : "/customer/dashboard")
+                                    }
                                 >
-                                    Back to Home
+                                    Back to Dashboard
                                 </button>
+
                             ) : (
                                 <>
-                                    {/* user / sign-in */}
-                                    {isLoggedIn ? (
-                                        <button
-                                            className="user-icon-btn"
-                                            onClick={handleUserIconClick}
-                                            title="Go to Dashboard"
-                                        >
-                                            <span className="material-symbols-outlined">account_circle</span>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            className="btn sc-signin-btn"
-                                            onClick={() => navigate("/login")}
-                                        >
-                                            Sign In
-                                        </button>
+                                    {!isVendor && (
+                                        <>
+                                            {isLoggedIn ? (
+                                                <button
+                                                    className="user-icon-btn"
+                                                    onClick={handleUserIconClick}
+                                                    title="Go to Dashboard"
+                                                >
+                                                    <span className="material-symbols-outlined">account_circle</span>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="btn sc-signin-btn"
+                                                    onClick={() => navigate("/login")}
+                                                >
+                                                    Sign In
+                                                </button>
+                                            )}
+
+                                            <button
+                                                className="sc-cart-icon-btn"
+                                                type="button"
+                                                onClick={toggleCart}
+                                                title="View Cart"
+                                            >
+                                                <span className="material-symbols-outlined">shopping_cart</span>
+                                                {totalCount > 0 && (
+                                                    <span className="sc-cart-badge">{totalCount}</span>
+                                                )}
+                                            </button>
+                                        </>
                                     )}
 
-                                    {/* cart icon */}
-                                    <button
-                                        className="sc-cart-icon-btn"
-                                        type="button"
-                                        onClick={toggleCart}
-                                        title="View Cart"
-                                    >
-                                        <span className="material-symbols-outlined">shopping_cart</span>
-                                        {totalCount > 0 && (
-                                            <span className="sc-cart-badge">{totalCount}</span>
-                                        )}
-                                    </button>
+                                    {isVendor && (
+                                        <button
+                                            className="user-icon-btn"
+                                            onClick={() => navigate("/vendor/dashboard")}
+                                            title="Go to Dashboard"
+                                        >
+                                            <span className="material-symbols-outlined">dashboard</span>
+                                        </button>
+                                    )}
                                 </>
                             )}
                         </div>

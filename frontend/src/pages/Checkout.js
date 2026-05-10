@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/header";
-import "./Checkout.css";
+import "./styles/Checkout.css";
 
 const API = "http://localhost:5000";
 
@@ -136,7 +136,7 @@ const Checkout = () => {
       });
       if (res.ok) {
         alert('Order placed successfully!');
-        navigate('/orders');
+        navigate(`/customer/orders`);
       } else {
         const error = await res.json();
         alert(error.message || 'Order failed');
@@ -219,7 +219,9 @@ const Checkout = () => {
                       checked={orderData.paymentMethod === 'card'}
                       onChange={() => handlePaymentChange('card')}
                       className="form-check-input me-3" />
-                    <div className="payment-icon">💳</div>
+                    <div className="payment-icon">
+                      <span className="material-icons-outlined">credit_card</span>
+                    </div>
                     <div>
                       <div className="payment-title">Credit/Debit Card</div>
                       <div className="payment-desc">Secure Stripe payment • Visa, MC, Amex</div>
@@ -230,7 +232,9 @@ const Checkout = () => {
                       checked={orderData.paymentMethod === 'cod'}
                       onChange={() => handlePaymentChange('cod')}
                       className="form-check-input me-3" />
-                    <div className="payment-icon">💰</div>
+                    <div className="payment-icon">
+                      <span className="material-icons-outlined">payments</span>
+                    </div>
                     <div>
                       <div className="payment-title">Cash on Delivery</div>
                       <div className="payment-desc">Pay when delivered</div>

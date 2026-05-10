@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
+import Footer from "../components/Footer";
 import LoadingModal from "../components/LoadingModal";
-import "./Parts.css";
+import "./styles/Parts.css";
 import { useCart } from "../context/CartContext";
 
 const API = "http://localhost:5000";
@@ -128,7 +129,6 @@ const Parts = () => {
         minPrice: "",
         maxPrice: "",
         conditions: [],
-        locations: []
     });
 
     const handleVendorClick = (vendorId) => {
@@ -146,8 +146,6 @@ const Parts = () => {
         if (filters.maxPrice) params.maxPrice = filters.maxPrice;
         if (filters.conditions.length)
             params.condition = filters.conditions.join(",");
-        if (filters.locations.length)
-            params.location = filters.locations.join(",");
         return params;
     };
 
@@ -247,16 +245,6 @@ const Parts = () => {
         });
     };
 
-    const toggleLocation = (value) => {
-        setFilters((prev) => {
-            const exists = prev.locations.includes(value);
-            const next = exists
-                ? prev.locations.filter((c) => c !== value)
-                : [...prev.locations, value];
-            return { ...prev, locations: next };
-        });
-    };
-
     const handlePageChange = (newPage) => {
         if (newPage < 1 || newPage > totalPages) return;
         loadParts(newPage);
@@ -330,9 +318,7 @@ const Parts = () => {
                             <div className="card-body">
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <h6 className="mb-0 fw-bold">Filters</h6>
-                                    <button className="btn btn-link btn-sm text-decoration-none p-0" onClick={() => loadParts(1, searchQuery)}>
-                                        Apply
-                                    </button>
+
                                 </div>
                                 <hr />
 
@@ -371,23 +357,6 @@ const Parts = () => {
                                         </div>
                                     ))}
                                 </div>
-
-                                <div className="mb-3">
-                                    <label className="small fw-semibold mb-2 d-block">Location</label>
-                                    {["Colombo", "Kandy", "Galle", "Kurunegala"].map((loc) => (
-                                        <div className="form-check" key={loc}>
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                id={`l-${loc}`}
-                                                checked={filters.locations.includes(loc)}
-                                                onChange={() => toggleLocation(loc)}
-                                            />
-                                            <label className="form-check-label small" htmlFor={`l-${loc}`}>{loc}</label>
-                                        </div>
-                                    ))}
-                                </div>
-
                                 <button className="btn btn-success btn-sm w-100 mt-2" onClick={() => loadParts(1)}>
                                     Update Results
                                 </button>
@@ -456,6 +425,7 @@ const Parts = () => {
                 status={uploadStatus}
                 message={statusMessage}
             />
+            <Footer />
         </div>
     );
 };

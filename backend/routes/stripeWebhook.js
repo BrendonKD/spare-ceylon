@@ -13,6 +13,8 @@ const VendorSubscription = require('../models/VendorSubscription');
 const PendingSubscriptionCheckout = require('../models/PendingSubscriptionCheckout');
 const PendingAdvertisementCheckout = require('../models/PendingAdvertisementCheckout');
 
+const { sendCardPaymentSuccessEmail } = require('../utils/cardPaymentMail');
+
 const Advertisement = require('../models/Advertisement');
 
 const SHIPPING_PER_VENDOR = 900;
@@ -79,6 +81,11 @@ const groupCartItemsByVendor = (cartItems) => {
 //order checkout
 async function handleOrderCheckoutCompleted(session) {
     const checkoutType = session.metadata?.checkout_type || 'single';
+    
+    // Extract shared data for the email
+    const customerEmail = session.customer_details?.email;
+    const totalAmount = session.amount_total / 100; // Stripe amounts are in cents
+    const currency = session.currency;
 
     if (checkoutType === 'cart') {
         const checkoutRef = session.metadata?.checkout_ref;
@@ -88,13 +95,7 @@ async function handleOrderCheckoutCompleted(session) {
             checkout_ref: checkoutRef,
         });
 
-        if (!pendingCheckout) {
-            throw new Error(`Pending cart checkout not found for ref: ${checkoutRef}`);
-        }
-
-        if (pendingCheckout.status === 'completed') {
-            return;
-        }
+        if (!pendingCheckout || pendingCheckout.status === 'completed') return;
 
         const existingOrders = await Order.find({ stripe_session_id: session.id });
         if (existingOrders.length > 0) {
@@ -109,33 +110,27 @@ async function handleOrderCheckoutCompleted(session) {
         try {
             const { customer_id, shipping_address, cartItems } = pendingCheckout;
             const grouped = groupCartItemsByVendor(cartItems);
+            const vendorCount = Object.keys(grouped).length;
 
             for (const vendorId of Object.keys(grouped)) {
                 const vendorItems = grouped[vendorId];
 
-                for (let i = 0; i < vendorItems.length; i++) {
-                    const item = vendorItems[i];
-                    const listingId = getListingId(item);
-                    const listing = await VendorListing.findById(listingId);
-
-                    if (!listing) {
-                        throw new Error(`Listing not found: ${listingId}`);
-                    }
-
-                    if (listing.quantity_available < item.qty) {
-                        throw new Error(`Insufficient stock for ${listing.title}`);
+                // Validate stock first
+                for (const item of vendorItems) {
+                    const listing = await VendorListing.findById(getListingId(item));
+                    if (!listing || listing.quantity_available < item.qty) {
+                        throw new Error(`Insufficient stock for ${listing?.title || 'item'}`);
                     }
                 }
 
+                // Create orders
                 for (let i = 0; i < vendorItems.length; i++) {
                     const item = vendorItems[i];
-                    const listingId = getListingId(item);
-                    const listing = await VendorListing.findById(listingId);
+                    const listing = await VendorListing.findById(getListingId(item));
 
                     const subtotal = listing.price * item.qty;
                     const shipping_fee = i === 0 ? SHIPPING_PER_VENDOR : 0;
-                    const total = subtotal + shipping_fee;
-
+                    
                     const order = new Order({
                         customer_id,
                         vendor_listing_id: listing._id,
@@ -144,14 +139,13 @@ async function handleOrderCheckoutCompleted(session) {
                         payment_method: 'card',
                         subtotal,
                         shipping_fee,
-                        total,
-                        status: 'confirmed',
+                        total: subtotal + shipping_fee,
+                        status: 'pending',
                         stripe_session_id: session.id,
                         stripe_payment_intent_id: session.payment_intent || null,
                     });
 
                     await order.save();
-
                     listing.quantity_available -= item.qty;
                     await listing.save();
                 }
@@ -159,6 +153,17 @@ async function handleOrderCheckoutCompleted(session) {
 
             pendingCheckout.status = 'completed';
             await pendingCheckout.save();
+
+            // --- TRIGGER EMAIL FOR CART ---
+            if (customerEmail) {
+                await sendCardPaymentSuccessEmail({
+                    to: customerEmail,
+                    amount: totalAmount,
+                    currency: currency,
+                    orderCount: vendorCount
+                }).catch(err => console.error("Cart Email Error:", err));
+            }
+
             return;
         } catch (err) {
             pendingCheckout.status = 'failed';
@@ -171,39 +176,42 @@ async function handleOrderCheckoutCompleted(session) {
         const existingOrder = await Order.findOne({ stripe_session_id: session.id });
         if (existingOrder) return;
 
-        const listingId = session.metadata.vendor_listing_id;
-        const quantity = parseInt(session.metadata.quantity, 10);
+        const { vendor_listing_id, quantity, customer_id } = session.metadata;
         const shipping_address = JSON.parse(session.metadata.shipping_address);
-        const customer_id = session.metadata.customer_id;
 
-        const listing = await VendorListing.findById(listingId);
-        if (!listing) throw new Error('Listing not found');
-        if (listing.quantity_available < quantity) {
-            throw new Error('Insufficient stock');
+        const listing = await VendorListing.findById(vendor_listing_id);
+        if (!listing || listing.quantity_available < parseInt(quantity)) {
+            throw new Error('Insufficient stock or listing not found');
         }
 
-        const subtotal = listing.price * quantity;
-        const shipping_fee = SHIPPING_PER_VENDOR;
-        const total = subtotal + shipping_fee;
-
+        const subtotal = listing.price * parseInt(quantity);
         const order = new Order({
             customer_id,
-            vendor_listing_id: listingId,
-            quantity,
+            vendor_listing_id,
+            quantity: parseInt(quantity),
             shipping_address,
             payment_method: 'card',
             subtotal,
-            shipping_fee,
-            total,
-            status: 'confirmed',
+            shipping_fee: SHIPPING_PER_VENDOR,
+            total: subtotal + SHIPPING_PER_VENDOR,
+            status: 'pending',
             stripe_session_id: session.id,
             stripe_payment_intent_id: session.payment_intent || null,
         });
 
         await order.save();
-
-        listing.quantity_available -= quantity;
+        listing.quantity_available -= parseInt(quantity);
         await listing.save();
+
+        // --- TRIGGER EMAIL FOR SINGLE ITEM ---
+        if (customerEmail) {
+            await sendCardPaymentSuccessEmail({
+                to: customerEmail,
+                amount: totalAmount,
+                currency: currency,
+                orderCount: 1
+            }).catch(err => console.error("Single Order Email Error:", err));
+        }
     }
 }
 

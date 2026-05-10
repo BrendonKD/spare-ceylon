@@ -6,7 +6,7 @@ const orderSchema = new mongoose.Schema({
     ref: 'User', 
     required: true 
   },
-  vendor_listing_id: {  // ← Changed to VendorListing (not Product)
+  vendor_listing_id: {  
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'VendorListing', 
     required: true 

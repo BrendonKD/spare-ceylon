@@ -261,7 +261,7 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-//retrive the user data
+//retrive the customer & vendor data
 router.get("/profile", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
@@ -273,11 +273,13 @@ router.get("/profile", auth, async (req, res) => {
     }
 
     let business_name = null;
+    let logo_url = "";
 
     if (user.role === "vendor") {
-      const vendorProfile = await Vendor.findOne({ vendor_id: user._id }).select("business_name");
+      const vendorProfile = await Vendor.findOne({ vendor_id: user._id }).select("business_name logo_url");
       if (vendorProfile) {
         business_name = vendorProfile.business_name;
+        logo_url = vendorProfile.logo_url || "";
       }
     }
 
@@ -289,6 +291,7 @@ router.get("/profile", auth, async (req, res) => {
       profile_image: user.profile_image || "",
       role: user.role,
       business_name,
+      logo_url,
     });
   } catch (err) {
     console.error("Profile error:", err);
@@ -325,7 +328,7 @@ router.put("/profile", auth, uploadProfileImage.single("profile_image"), async (
     }
 
     if (req.file) {
-      user.profile_image = `/uploads/profile-images/${req.file.filename}`;
+      user.profile_image = `uploads/profile-images/${req.file.filename}`;
     }
 
     await user.save();

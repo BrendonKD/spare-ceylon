@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
-import "./Messages.css";
+import "./styles/Messages.css";
 
 const API = "http://localhost:5000";
 

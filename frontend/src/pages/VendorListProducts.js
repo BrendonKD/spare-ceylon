@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
-import "./VendorListProducts.css";
+import "./styles/VendorListProducts.css";
 
 const API = "http://localhost:5000";
 
@@ -46,7 +46,7 @@ const VendorListProducts = () => {
   const [requestMessage, setRequestMessage] = useState("");
 
   const token = localStorage.getItem("token");
-  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "" });
+  const [vendor, setVendor] = useState({ full_name: "Loading...", email: "", logo_url:"" });
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,7 +57,12 @@ const VendorListProducts = () => {
 
         if (profileRes.ok) {
           const profileData = await profileRes.json();
-          setVendor(profileData);
+          setVendor({
+    ...profileData,
+    logo_url: profileData.logo_url
+      ? `${API}/${profileData.logo_url.replace(/^\/+/, "")}`
+      : ""
+  });
         }
 
         await Promise.all([fetchListings(), fetchProducts(""), fetchMyRequests()]);

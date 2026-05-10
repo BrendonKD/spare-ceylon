@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ForgotPasswordPage.css";
+import "./styles/ForgotPasswordPage.css";
 import logoSC from "../assets/logoSC.png";
 
 const ForgotPasswordPage = () => {

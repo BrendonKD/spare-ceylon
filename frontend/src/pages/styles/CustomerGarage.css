@@ -1,0 +1,298 @@
+.customer-garage-page {
+  background: #f3f4f6;
+  min-height: 100vh;
+}
+
+.customer-garage-main {
+  padding: 24px 24px 40px;
+}
+
+.garage-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.garage-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.garage-subtitle {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.garage-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.garage-count-badge {
+  background: #e6f5f2;
+  color: #0f766e;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.garage-toolbar {
+  margin-bottom: 18px;
+}
+
+.garage-search {
+  max-width: 420px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+}
+
+.add-vehicle-btn {
+  background-color: #0f766e;
+  color: #fff;
+  border-radius: 999px;
+  border: none;
+  height: 42px;
+  padding: 0 18px;
+  font-weight: 600;
+}
+
+.add-vehicle-btn:hover {
+  background-color: #0b5f57;
+  color: #fff;
+}
+
+.garage-form-card,
+.garage-vehicle-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.garage-form-card {
+  padding: 20px;
+}
+
+.garage-section-header {
+  margin-bottom: 16px;
+}
+
+.vehicle-card-top {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 18px;
+  padding: 16px;
+}
+
+.vehicle-image-wrapper {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #eef2f7;
+}
+
+.vehicle-image-tag {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-main-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vehicle-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.vehicle-title {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.vehicle-no-badge {
+  display: inline-block;
+  background: #eef6f5;
+  color: #0f766e;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.primary-badge {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vehicle-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.spec-item {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.spec-label {
+  display: block;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.spec-value {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.vehicle-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.service-form-box {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #fcfcfd;
+}
+
+.service-box-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+.service-history-box {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.service-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.service-record-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.service-record-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.service-record-top h6 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.service-record-top span {
+  color: #6b7280;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.service-record-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #6b7280;
+  font-size: 0.84rem;
+  margin-bottom: 8px;
+}
+
+.service-record-notes {
+  margin: 0;
+  color: #374151;
+  font-size: 0.92rem;
+}
+
+.empty-history-text,
+.garage-empty-state {
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  padding: 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.alert {
+  border-radius: 12px;
+}
+
+input.is-invalid,
+select.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+@media (max-width: 991.98px) {
+  .vehicle-card-top {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-image-wrapper {
+    height: 220px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .customer-garage-main {
+    padding: 18px 14px 32px;
+  }
+
+  .garage-title {
+    font-size: 1.5rem;
+  }
+
+  .vehicle-spec-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-record-top {
+    flex-direction: column;
+  }
+
+  .garage-search {
+    max-width: 100%;
+  }
+}

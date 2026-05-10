@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../components/header";
-import "./PaymentSuccess.css";
+import "./styles/PaymentSuccess.css";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -15,7 +15,11 @@ const PaymentSuccess = () => {
 
       <div className="success-container">
         <div className="success-card">
-          <div className="success-icon">✅</div>
+          <div className="success-icon">
+            <span className="material-symbols-outlined">
+              check_circle
+            </span>
+          </div>
           <h1>Payment Successful</h1>
           <p className="success-message">
             Your payment was successfully made via {method}.
@@ -26,9 +30,9 @@ const PaymentSuccess = () => {
 
           <button
             className="browse-btn"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/customer/orders")}
           >
-            Browse More Products
+            Track The Order
           </button>
         </div>
       </div>

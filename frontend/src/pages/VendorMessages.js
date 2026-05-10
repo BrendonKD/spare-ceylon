@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
-import "./VendorMessages.css";
+import "./styles/VendorMessages.css";
 
 const API = "http://localhost:5000";
 
@@ -14,7 +14,8 @@ const VendorMessages = () => {
   const [vendor, setVendor] = useState({
     full_name: "Loading...",
     email: "...",
-    business_name: ""
+    business_name: "",
+    logo_url: ""
   });
 
   const [conversations, setConversations] = useState([]);
@@ -58,7 +59,10 @@ const VendorMessages = () => {
         setVendor({
           full_name: res.data.full_name,
           email: res.data.email,
-          business_name: res.data.business_name || ""
+          business_name: res.data.business_name || "",
+          logo_url: res.data.logo_url
+          ? `${API}/${res.data.logo_url.replace(/^\/+/, "")}`
+          : ""
         });
       } catch (err) {
         console.error("Vendor profile error:", err.response?.data || err.message);

@@ -2,18 +2,15 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/header";
-import "./Vendors.css";
+import Footer from "../components/Footer";
+import "./styles/Vendors.css";
 
-// The base URL for your backend server
 const API = "http://localhost:5000";
 
-/**
- * Sub-component for individual Vendor cards
- */
+//Sub-component for individual Vendor cards
 const VendorCard = ({ vendor, onViewVendor }) => {
   const [imgError, setImgError] = useState(false);
 
-  // Construct the image URL. Ensure no double slashes.
   const imgSrc =
     vendor.logo_url && !imgError
       ? `${API}/${vendor.logo_url.replace(/^\//, "")}`
@@ -81,9 +78,9 @@ const VendorCard = ({ vendor, onViewVendor }) => {
   );
 };
 
-/**
- * Main Vendors List Component
- */
+
+ // Main Vendors List Component
+
 const Vendors = () => {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
@@ -111,7 +108,6 @@ const Vendors = () => {
       const res = await axios.get(`${API}/api/public/vendors/all`, {
         params: buildParams(override)
       });
-      // Handle different API response structures (items arrays)
       setVendors(res.data.items || res.data || []);
     } catch (err) {
       console.error("Error loading vendors:", err);
@@ -121,7 +117,7 @@ const Vendors = () => {
     }
   };
 
-  // Initial fetch on mount
+  // Initial fetch
   useEffect(() => {
     loadVendors();
   }, []);
@@ -159,39 +155,39 @@ const Vendors = () => {
       <main className="container-fluid px-4 py-4">
         {/* Search Bar Section */}
         <section className="vendors-search-box mb-4">
-  <p className="vendors-search-label mb-2">Find Vendors</p>
+          <p className="vendors-search-label mb-2">Find Vendors</p>
 
-  <form onSubmit={handleSearch}>
-    <div className="vendors-search-row">
-      <input
-        type="text"
-        className="vendors-search-input"
-        placeholder="Search by vendor name..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+          <form onSubmit={handleSearch}>
+            <div className="vendors-search-row">
+              <input
+                type="text"
+                className="vendors-search-input"
+                placeholder="Search by vendor name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
 
-      {hasSearched && (
-        <button
-          type="button"
-          className="vendors-clear-simple"
-          onClick={handleClearSearch}
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-      )}
+              {hasSearched && (
+                <button
+                  type="button"
+                  className="vendors-clear-simple"
+                  onClick={handleClearSearch}
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              )}
 
-      <button className="vendors-search-btn" type="submit">
-        Search
-      </button>
-    </div>
-  </form>
-</section>
+              <button className="vendors-search-btn" type="submit">
+                Search
+              </button>
+            </div>
+          </form>
+        </section>
 
         <div className="row g-4">
           {/* Sidebar Filters */}
           <aside className="col-lg-3 col-xl-2">
-            <div className="card shadow-sm border-0 sticky-top" style={{ top: "20px" }}>
+            <div className="card shadow-sm border-0" style={{ top: "20px" }}>
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="mb-0 fw-bold">Filters</h6>
@@ -263,6 +259,7 @@ const Vendors = () => {
           </section>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

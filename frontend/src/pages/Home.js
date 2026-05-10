@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Home.css";
+import axios from "axios";
+import "./styles/Home.css";
 import Header from "../components/header.js";
+import Footer from "../components/Footer";
 import LoadingModal from "../components/LoadingModal";
 
 const API = "http://localhost:5000";
@@ -161,8 +163,7 @@ const PartCard = ({ item, onVendorClick, onViewDetails }) => {
           <p className="card-text small mb-1 text-muted">
             {conditionLabel} •{" "}
             <span
-              className="text-primary"
-              style={{ cursor: "pointer", textDecoration: "underline" }}
+              style={{ cursor: "pointer", textDecoration: "underline", color: "#0f766e" }}
               onClick={(e) => {
                 e.stopPropagation();
                 onVendorClick(vendorProfileId);
@@ -181,7 +182,7 @@ const PartCard = ({ item, onVendorClick, onViewDetails }) => {
           <div className="d-flex justify-content-between align-items-center">
             <span className="price-tag">LKR {item.price?.toLocaleString()}</span>
             <button
-              className="btn btn-sm btn-outline-primary"
+              className="btn btn-sm" style={{ color: "#0f766e", borderColor: "#0f766e", backgroundColor: "transparent" }}
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(item._id);
@@ -254,7 +255,7 @@ const VendorCard = ({ vendor, onClick }) => {
             Verified
           </p>
           <button
-            className="btn btn-sm btn-outline-primary w-100"
+            className="btn btn-sm w-100" style={{ color: "#0f766e", borderColor: "#0f766e", backgroundColor: "transparent" }}
             onClick={(e) => {
               e.stopPropagation();
               onClick(vendorId);
@@ -278,6 +279,9 @@ const Home = () => {
   const [verifiedVendors, setVerifiedVendors] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [loadingVendors, setLoadingVendors] = useState(true);
+  // highlights sections
+  const [communityHighlights, setCommunityHighlights] = useState([]);
+  const [loadingHighlights, setLoadingHighlights] = useState(true);
 
   // Active ads — { left: adOrNull, right: adOrNull }
   const [activeAds, setActiveAds] = useState({ left: null, right: null });
@@ -290,15 +294,15 @@ const Home = () => {
 
   const searchResultsRef = useRef(null);
 
-const handleAdShopNow = (ad) => {
-  const vendorId = ad?.vendor_profile_id;
+  const handleAdShopNow = (ad) => {
+    const vendorId = ad?.vendor_profile_id;
 
-  if (vendorId) {
-    navigate(`/vendors/${vendorId}`);
-  } else {
-    console.warn("No vendor profile id found for ad:", ad);
-  }
-};
+    if (vendorId) {
+      navigate(`/vendors/${vendorId}`);
+    } else {
+      console.warn("No vendor profile id found for ad:", ad);
+    }
+  };
 
   // ── Fetch trending listings ───────────────────────────────────────────────
   useEffect(() => {
@@ -341,6 +345,22 @@ const handleAdShopNow = (ad) => {
       .then((slots) => setActiveAds(slots))
       .catch((err) => console.error("Ads fetch error:", err));
   }, []);
+
+  //fetch communtity forum chats
+  useEffect(() => {
+  const fetchCommunityHighlights = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/community-forum/highlights/latest");
+      setCommunityHighlights(res.data);
+    } catch (error) {
+      console.error("Error fetching community highlights:", error);
+    } finally {
+      setLoadingHighlights(false);
+    }
+  };
+
+  fetchCommunityHighlights();
+}, []);
 
   // ── Search handler ────────────────────────────────────────────────────────
   const handleSearch = async (e) => {
@@ -478,103 +498,119 @@ const handleAdShopNow = (ad) => {
 
       {/* ── Hero / Search section ─────────────────────────────────────── */}
       <section className="hero-section">
-        <div className="container">
-          <div className="row justify-content-center text-center">
-            <div className="col-lg-10">
-              <h1 className="hero-title">Find the Perfect Auto Parts</h1>
-              <p className="hero-subtitle">
-                Search from verified Sri Lankan vendors by part name, vehicle or image.
-              </p>
+  {/* Video Background */}
+  <video 
+    autoPlay 
+    muted 
+    loop 
+    playsInline 
+    className="hero-video-bg"
+  >
+    <source src="/intro.mp4" type="video/mp4" />
+    {/* Fallback image if video fails to load */}
+    <img src="../assets/searchbar.png" alt="Background Fallback" />
+  </video>
 
-              <div className="hero-search-wrapper">
-                <form onSubmit={handleSearch}>
-                  <div className="hero-search-bar">
-                    <label className="hero-upload-btn" title="Upload image">
-                      {identifying ? (
-                        <span className="spinner-border spinner-border-sm" />
-                      ) : (
-                        <>
-                          <span
-                            className="material-symbols-outlined"
-                            style={{ fontSize: 18 }}
-                          >
-                            image_search
-                          </span>
-                          <span className="upload-text">Upload Image</span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleImageUpload}
-                      />
-                    </label>
+  {/* Dark Gradient Overlay */}
+  <div className="hero-overlay"></div>
 
-                    <input
-                      type="text"
-                      className="hero-search-input"
-                      placeholder="Search by part name or vehicle model"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+  <div className="container hero-content">
+    <div className="row justify-content-center text-center">
+      <div className="col-lg-10">
+        <h1 className="hero-title">Find the Perfect Auto Parts</h1>
+        <p className="hero-subtitle">
+          Search from verified Sri Lankan vendors by part name, vehicle or image.
+        </p>
 
-                    {hasSearched && (
-                      <button
-                        type="button"
-                        className="hero-clear-btn"
-                        onClick={handleClearSearch}
-                        title="Clear search"
-                      >
-                        <span
-                          className="material-symbols-outlined"
-                          style={{ fontSize: "20px" }}
-                        >
-                          close
-                        </span>
-                      </button>
-                    )}
-
-                    <button
-                      className="hero-search-btn"
-                      type="submit"
-                      disabled={searchLoading}
+        <div className="hero-search-wrapper">
+          <form onSubmit={handleSearch}>
+            <div className="hero-search-bar">
+              <label className="hero-upload-btn" title="Upload image">
+                {identifying ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  <>
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: 18 }}
                     >
-                      {searchLoading ? (
-                        <span className="spinner-border spinner-border-sm" />
-                      ) : (
-                        "Search"
-                      )}
-                    </button>
-                  </div>
-                </form>
+                      image_search
+                    </span>
+                    <span className="upload-text">Upload Image</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageUpload}
+                />
+              </label>
 
-                <div className="hero-filters mt-3 d-flex flex-wrap justify-content-center">
-                  {["Engine", "Suspension", "Electrical", "Body Parts"].map((chip) => (
-                    <button
-                      key={chip}
-                      className="btn btn-sm btn-outline-light me-2 mb-2"
-                      onClick={() => handleChipSearch(chip)}
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <input
+                type="text"
+                className="hero-search-input"
+                placeholder="Search by part name or vehicle model"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+
+              {hasSearched && (
+                <button
+                  type="button"
+                  className="hero-clear-btn"
+                  onClick={handleClearSearch}
+                  title="Clear search"
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "20px" }}
+                  >
+                    close
+                  </span>
+                </button>
+              )}
+
+              <button
+                className="hero-search-btn"
+                type="submit"
+                disabled={searchLoading}
+              >
+                {searchLoading ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  "Search"
+                )}
+              </button>
             </div>
-          </div>
+          </form>
 
-          {/* ── Promo Cards — live ads or fallback ─────────────────────── */}
-<div className="row mt-4 g-3">
-  <div className="col-md-6">
-    <PromoSlider ads={activeAds} side="left" onShopNow={handleAdShopNow} />
-  </div>
-  <div className="col-md-6">
-    <PromoSlider ads={activeAds} side="right" onShopNow={handleAdShopNow} />
-  </div>
-</div>
+          <div className="hero-filters mt-3 d-flex flex-wrap justify-content-center">
+            {["Engine", "Suspension", "Electrical", "Body Parts"].map((chip) => (
+              <button
+                key={chip}
+                className="btn btn-sm btn-outline-light me-2 mb-2"
+                onClick={() => handleChipSearch(chip)}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
+    </div>
+
+    {/* Promo Cards */}
+    <div className="row mt-4 g-3">
+      <div className="col-md-6">
+        <PromoSlider ads={activeAds} side="left" onShopNow={handleAdShopNow} />
+      </div>
+      <div className="col-md-6">
+        <PromoSlider ads={activeAds} side="right" onShopNow={handleAdShopNow} />
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* ── Search Results ────────────────────────────────────────────── */}
       {hasSearched && (
@@ -688,37 +724,67 @@ const handleAdShopNow = (ad) => {
       </section>
 
       {/* ── Community Highlights ─────────────────────────────────────── */}
-      <section className="section-padding">
-        <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-            <h2 className="section-title mb-2">Community Highlights</h2>
-            <button className="btn p-0">Visit Forum</button>
-          </div>
-          <div className="row g-3">
-            {[1, 2, 3].map((post) => (
-              <div className="col-12 col-lg-4" key={post}>
-                <div className="card forum-card h-100">
-                  <div className="card-body">
-                    <h6 className="card-title mb-1">
-                      Tips for maintaining hybrid vehicles
-                    </h6>
-                    <p className="small mb-1 text-muted">
-                      Posted by K.D. Brendon • 2h ago
-                    </p>
-                    <p className="small mb-2">
-                      Discussion on common issues and recommended spare parts for
-                      city driving conditions.
-                    </p>
-                    <button className="btn btn-sm btn-outline-primary">
-                      View Discussion
-                    </button>
-                  </div>
+<section className="section-padding">
+  <div className="container">
+    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+      <h2 className="section-title mb-2">Community Highlights</h2>
+      <button
+        className="btn p-0"
+        onClick={() => navigate("/community")}
+      >
+        Visit Forum
+      </button>
+    </div>
+
+    <div className="row g-3">
+      {loadingHighlights ? (
+        <div className="col-12">
+          <p className="text-muted mb-0">Loading discussions...</p>
+        </div>
+      ) : communityHighlights.length > 0 ? (
+        communityHighlights.map((post) => (
+          <div className="col-12 col-lg-4" key={post._id}>
+            <div className="card forum-card h-100">
+              <div className="card-body d-flex flex-column">
+                <h6 className="card-title mb-1">
+                  {post.title?.trim() ? post.title : "Untitled discussion"}
+                </h6>
+
+                <p className="small mb-1 text-muted">
+                  Posted by {post.name} •{" "}
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </p>
+
+                <p className="small mb-3">
+                  {post.content.length > 120
+                    ? `${post.content.substring(0, 120)}...`
+                    : post.content}
+                </p>
+
+                <div className="d-flex justify-content-between align-items-center mt-auto">
+                  <span className="small text-muted">
+                    {post.replies?.length || 0} replies
+                  </span>
+
+                  <button
+                    className="btn btn-sm btn-outline-success"
+                    onClick={() => navigate(`/community/${post._id}`)}
+                  >
+                    View Discussion
+                  </button>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
+        ))
+      ) : (
+        <div className="col-12">
+          <p className="text-muted mb-0">No discussions available yet.</p>
         </div>
-      </section>
+      )}
+    </div>
+  </div>
+</section>
 
       {/* ── Why Choose ───────────────────────────────────────────────── */}
       <section className="section-padding why-section">
@@ -755,20 +821,9 @@ const handleAdShopNow = (ad) => {
           </div>
         </div>
       </section>
+      
+      <Footer />
 
-      {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="footer-section">
-        <div className="container text-center">
-          <p className="small" style={{ color: "white" }}>
-            <span style={{ cursor: "pointer" }} onClick={() => navigate("/admin/login")}>
-              Admin
-            </span>
-          </p>
-          <p className="mb-0 small text-light">
-            © {new Date().getFullYear()} Spare Ceylon. All rights reserved.
-          </p>
-        </div>
-      </footer>
       <LoadingModal
         isOpen={identifying}
         status={uploadStatus}

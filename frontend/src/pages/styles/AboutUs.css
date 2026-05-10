@@ -1,0 +1,175 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+.about-page {
+  font-family: "Inter", sans-serif;
+  background-color: #f8f9fb;
+  color: #1f2937;
+}
+
+.about-hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fb);
+}
+
+.about-hero-content {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.about-hero h1 {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.about-hero p {
+  font-size: 1.05rem;
+  color: #6b7280;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.about-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.about-btn-primary,
+.about-btn-outline {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.about-btn-primary {
+  background-color: #0f766e;
+  color: #fff;
+  border: none;
+}
+
+.about-btn-primary:hover {
+  background-color: #09635b;
+  color: #fff;
+}
+
+.about-btn-outline {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #1f2937;
+}
+
+.about-btn-outline:hover {
+  border-color: #d94841;
+  color: #d94841;
+}
+
+.about-intro {
+  padding: 50px 0 30px;
+}
+
+.about-intro h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.about-intro p {
+  color: #6b7280;
+  line-height: 1.8;
+}
+
+.about-features {
+  padding: 40px 0 70px;
+}
+
+.feature-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 30px 22px;
+  transition: 0.3s ease;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.feature-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #fff3f0;
+  color: #d94841;
+  font-size: 1.4rem;
+}
+
+.feature-card h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  color: #6b7280;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.about-cta {
+  padding: 0 0 80px;
+}
+
+.cta-box {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 40px 24px;
+  max-width: 820px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.cta-icon {
+  font-size: 2.2rem;
+  color: #d94841;
+  margin-bottom: 14px;
+}
+
+.cta-box h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.cta-box p {
+  color: #6b7280;
+  line-height: 1.8;
+  max-width: 680px;
+  margin: 0 auto 22px;
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 65px 0 50px;
+  }
+
+  .about-intro h2,
+  .cta-box h2 {
+    font-size: 1.6rem;
+  }
+
+  .feature-card,
+  .cta-box {
+    padding: 24px 18px;
+  }
+}

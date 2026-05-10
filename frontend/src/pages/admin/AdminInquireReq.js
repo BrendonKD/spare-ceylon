@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebar from "./components/AdminSidebar";
 import AdminHeader from "./components/AdminHeader";
-import "./AdminInquireReq.css";
+import "./styles/AdminInquireReq.css";
 
 const API = "http://localhost:5000";
 

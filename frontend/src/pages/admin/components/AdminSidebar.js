@@ -6,11 +6,11 @@ const menuItems = [
   { key: "ads",       icon: "campaign",          label: "Advertisements",     path: "/admin/ads" },
   { key: "inquiries", icon: "mail", label: "User Inquiries", path: "/admin/inquiries" },
   { key: "vendors",   icon: "store",             label: "Vendor Management",  path: "/admin/vendors" },
-  { key: "listings",  icon: "inventory_2",       label: "Listings",           path: "/admin/listings" },
   { key: "users",     icon: "group",             label: "Users",              path: "/admin/users" },
   { key: "products",  icon: "inventory",         label: "products",           path: "/admin/products" },
-  { key: "Requests",  icon: "Pending_Actions",         label: "Product Requests",           path: "/admin/product-requests" },
-  { key: "Subscription Plans",      icon: "subscriptions",     label: "Subscription Plans",        path: "/admin/subscriptions" },
+  { key: "product-requests",  icon: "Pending_Actions",         label: "Product Requests",           path: "/admin/product-requests" },
+  { key: "subscriptions",      icon: "subscriptions",     label: "Subscription Plans",        path: "/admin/subscriptions" },
+  { key: "community", icon: "forum", label: "Manage Community", path: "/admin/community" },
   { key: "settings", icon: "settings", label: "Settings", path: "/admin/settings" },
 ];
 

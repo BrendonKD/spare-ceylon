@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const VendorListing = require("../models/VendorListing"); // to get sum of total listings
 const auth = require("../middleware/authMiddleware");
 
 const isAdmin = (req, res, next) => {
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
     const q = (req.query.q || "").trim();
     const limit = Math.min(parseInt(req.query.limit, 10) || 100, 200);
 
-    let filter = { is_active: true };
+    const filter = { is_active: true };
 
     if (q) {
       filter.$or = [
@@ -27,9 +28,36 @@ router.get("/", async (req, res) => {
 
     const products = await Product.find(filter)
       .sort({ name: 1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    res.json(products);
+    const productIds = products.map((p) => p._id);
+
+    const listingCounts = await VendorListing.aggregate([
+      {
+        $match: {
+          product_id: { $in: productIds }
+        }
+      },
+      {
+        $group: {
+          _id: "$product_id",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const countMap = {};
+    listingCounts.forEach((item) => {
+      countMap[String(item._id)] = item.count;
+    });
+
+    const productsWithCounts = products.map((product) => ({
+      ...product,
+      listingCount: countMap[String(product._id)] || 0
+    }));
+
+    res.json(productsWithCounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

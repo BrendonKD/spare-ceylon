@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./AdminProducts.css";
+import "./styles/AdminProducts.css";
 import AdminHeader from "../admin/components/AdminHeader";
 import AdminSidebar from "../admin/components/AdminSidebar";
 
@@ -282,7 +282,8 @@ const AdminProducts = () => {
                       <th>#</th>
                       <th>Product Type Name</th>
                       <th>Description</th>
-                      <th>Added</th>
+                      <th>Total Listings</th>
+                      <th>Added On</th>
                       <th className="text-end">Actions</th>
                     </tr>
                   </thead>
@@ -298,10 +299,22 @@ const AdminProducts = () => {
                             {p.description || <span className="text-muted small">—</span>}
                           </span>
                         </td>
+                        <td>
+                        <span className="ap-listing-count-badge">
+                          {p.listingCount || 0}
+                        </span>
+                      </td>
                         <td className="text-muted small">
                           {new Date(p.createdAt).toLocaleDateString()}
                         </td>
                         <td className="text-end">
+                          <button
+                            className="ap-action-btn ap-view"
+                            onClick={() => navigate(`/admin/products/${p._id}/listings`)}
+                            title="View Available Listings"
+                          >
+                            <span className="material-symbols-outlined">visibility</span>
+                          </button>
                           <button
                             className="ap-action-btn ap-edit"
                             onClick={() => openEdit(p)}

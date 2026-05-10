@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./LoginPage.css";
+import "./styles/LoginPage.css";
 
 const VendorRegisterPage = () => {
   const [contactFirstName, setContactFirstName] = useState("");

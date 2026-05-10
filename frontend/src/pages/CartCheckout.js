@@ -2,24 +2,22 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/header";
 import { useCart } from "../context/CartContext";
-import "./CartCheckout.css";
-
+import "./styles/Checkout.css";
 const API = "http://localhost:5000";
 
 const CartCheckout = () => {
   const navigate = useNavigate();
   const { items, clearCart, getCartSummary } = useCart();
-
   const summary = useMemo(() => getCartSummary(), [items]);
+  
   const [submitting, setSubmitting] = useState(false);
-
+  const [showAddressForm, setShowAddressForm] = useState(false);
   const [shippingAddress, setShippingAddress] = useState({
     fullName: "",
     address: "",
     city: "",
     phone: "",
   });
-
   const [paymentMethod, setPaymentMethod] = useState("cod");
 
   const handleAddressChange = (e) => {
@@ -27,31 +25,15 @@ const CartCheckout = () => {
     setShippingAddress((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateAddress = () => {
-    return (
-      shippingAddress.fullName &&
-      shippingAddress.address &&
-      shippingAddress.city &&
-      shippingAddress.phone
-    );
-  };
-
   const handleCODCheckout = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
+    if (!token) return navigate("/login");
 
     setSubmitting(true);
     try {
       const res = await fetch(`${API}/api/orders/cart`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           cartItems: items,
           shipping_address: shippingAddress,
@@ -59,18 +41,16 @@ const CartCheckout = () => {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Cart order failed");
+      if (res.ok) {
+        clearCart();
+        alert("Orders placed successfully!");
+        navigate("/customer/orders");
+      } else {
+        const data = await res.json();
+        alert(data.message || "Cart order failed");
       }
-
-      clearCart();
-      alert("Orders placed successfully!");
-      navigate("/customer/orders");
     } catch (err) {
-      console.error(err);
-      alert(err.message || "Cart checkout failed");
+      alert("Cart checkout failed");
     } finally {
       setSubmitting(false);
     }
@@ -78,272 +58,185 @@ const CartCheckout = () => {
 
   const handleCardCheckout = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
+    if (!token) return navigate("/login");
 
     setSubmitting(true);
     try {
       const res = await fetch(`${API}/api/orders/create-cart-checkout-session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          cartItems: items,
-          shipping_address: shippingAddress,
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ cartItems: items, shipping_address: shippingAddress }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Payment setup failed");
-      }
-
-      if (!data.url) {
-        throw new Error("Stripe checkout URL not returned");
-      }
-
-      window.location.href = data.url;
+      if (data.url) window.location.href = data.url;
     } catch (err) {
-      console.error(err);
-      alert(err.message || "Card checkout failed");
+      alert("Card checkout failed");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!items.length) {
-      alert("Your cart is empty");
-      return;
-    }
-
-    if (!validateAddress()) {
-      alert("Please fill all shipping address fields");
-      return;
-    }
-
-    if (paymentMethod === "card") {
-      await handleCardCheckout();
-    } else {
-      await handleCODCheckout();
-    }
+    if (paymentMethod === "card") handleCardCheckout();
+    else handleCODCheckout();
   };
 
   if (!items.length) {
     return (
-      <div className="cart-checkout-page">
+      <div className="checkout-page">
         <Header />
-        <div className="container py-5">
-          <div className="alert alert-light border text-center">
-            <h4 className="mb-2">Your cart is empty</h4>
-            <button
-              className="btn btn-success"
-              onClick={() => navigate("/parts")}
-            >
-              Browse Parts
-            </button>
-          </div>
+        <div className="checkout-container text-center py-5">
+          <h3>Your cart is empty</h3>
+          <button className="browse-btn mt-3" onClick={() => navigate("/parts")}>Browse Parts</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="cart-checkout-page">
+    <div className="checkout-page">
       <Header />
-
-      <div className="container py-4">
-        <div className="cart-checkout-header mb-4">
-          <h2 className="mb-1">Cart Checkout</h2>
-          <p className="text-muted mb-0">
-            Review items grouped by vendor. Delivery fee is charged per vendor.
-          </p>
+      <div className="checkout-container">
+        <div className="checkout-header">
+          <h1>Cart Checkout</h1>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="row g-4">
-            <div className="col-lg-8">
-              <div className="card shadow-sm border-0 mb-4">
-                <div className="card-body">
-                  <h5 className="mb-3">Shipping Address</h5>
-                  <div className="row g-3">
-                    <div className="col-12">
-                      <input
-                        name="fullName"
-                        className="form-control"
-                        placeholder="Full Name"
-                        value={shippingAddress.fullName}
-                        onChange={handleAddressChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <input
-                        name="address"
-                        className="form-control"
-                        placeholder="Street Address"
-                        value={shippingAddress.address}
-                        onChange={handleAddressChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <input
-                        name="city"
-                        className="form-control"
-                        placeholder="City"
-                        value={shippingAddress.city}
-                        onChange={handleAddressChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <input
-                        name="phone"
-                        className="form-control"
-                        placeholder="Phone"
-                        value={shippingAddress.phone}
-                        onChange={handleAddressChange}
-                        required
-                      />
+        <form onSubmit={handleSubmit} className="checkout-form">
+          <div className="checkout-grid">
+            <div className="checkout-left">
+              
+              {/* Shipping Section */}
+              <div className="checkout-section">
+                <div className="section-header">
+                  <h3 className="section-title">
+                    <span className="material-icons-outlined">local_shipping</span>
+                    Shipping address
+                  </h3>
+                  <button type="button" className="btn-change" onClick={() => setShowAddressForm(!showAddressForm)}>
+                    {showAddressForm ? 'Cancel' : 'Change'}
+                  </button>
+                </div>
+                {!showAddressForm ? (
+                  <div className="address-display">
+                    <div className="address-name">{shippingAddress.fullName || "Add address"}</div>
+                    <div className="address-details">
+                      {shippingAddress.address} {shippingAddress.city ? `, ${shippingAddress.city}` : ""}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="card shadow-sm border-0 mb-4">
-                <div className="card-body">
-                  <h5 className="mb-3">Payment Method</h5>
-
-                  <label className={`payment-box ${paymentMethod === "cod" ? "active" : ""}`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      checked={paymentMethod === "cod"}
-                      onChange={() => setPaymentMethod("cod")}
-                    />
-                    <span>Cash on Delivery</span>
-                  </label>
-
-                  <label className={`payment-box ${paymentMethod === "card" ? "active" : ""}`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      checked={paymentMethod === "card"}
-                      onChange={() => setPaymentMethod("card")}
-                    />
-                    <span>Credit / Debit Card</span>
-                  </label>
-                </div>
-              </div>
-
-              {summary.grouped.map((group) => (
-                <div className="card shadow-sm border-0 mb-4" key={group.vendorId}>
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                      <h5 className="mb-0">{group.vendorName}</h5>
-                      <span className="badge bg-light text-dark border">
-                        {group.items.length} item(s)
-                      </span>
+                ) : (
+                  <div className="row g-2">
+                    <div className="col-12">
+                      <input name="fullName" placeholder="Full name" className="form-control" value={shippingAddress.fullName} onChange={handleAddressChange} required />
                     </div>
+                    <div className="col-12">
+                      <input name="address" placeholder="Street address" className="form-control" value={shippingAddress.address} onChange={handleAddressChange} required />
+                    </div>
+                    <div className="col-8">
+                      <input name="city" placeholder="City" className="form-control" value={shippingAddress.city} onChange={handleAddressChange} required />
+                    </div>
+                    <div className="col-4">
+                      <input name="phone" placeholder="Phone" className="form-control" value={shippingAddress.phone} onChange={handleAddressChange} required />
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                    {group.items.map((item) => (
-                      <div key={item._id} className="cart-line-item">
-                        <div className="cart-line-image">
-                          <img
-                            src={
-                              item.image_url
-                                ? `${API}/${item.image_url.replace(/^\//, "")}`
-                                : "/placeholder.jpg"
-                            }
-                            alt={item.title}
-                          />
-                        </div>
+              {/* Payment Section */}
+              <div className="checkout-section">
+                <h3 className="section-title">
+                  <span className="material-icons-outlined">payments</span>
+                  Payment method
+                </h3>
+                <div className="payment-methods">
+                  <label className={`payment-item ${paymentMethod === 'card' ? 'active' : ''}`}>
+                    <input type="radio" name="payment" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="form-check-input me-3" />
+                    <div className="payment-icon">
+                      <span className="material-icons-outlined">credit_card</span>
+                    </div>
+                    <div>
+                      <div className="payment-title">Credit/Debit Card</div>
+                      <div className="payment-desc">Secure Stripe payment</div>
+                    </div>
+                  </label>
+                  <label className={`payment-item ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                    <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="form-check-input me-3" />
+                    <div className="payment-icon">
+                      <span className="material-icons-outlined">payments</span>
+                    </div>
+                    <div>
+                      <div className="payment-title">Cash on Delivery</div>
+                      <div className="payment-desc">Pay when delivered</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
 
-                        <div className="cart-line-info">
-                          <div className="fw-semibold">
-                            {item.title || item.product?.name}
+              {/* Items Grouped by Vendor */}
+              {summary.grouped.map((group) => (
+                <div className="checkout-section" key={group.vendorId}>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="mb-0" style={{fontSize: '1rem', fontWeight: '600'}}>{group.vendorName}</h5>
+                    <span className="small text-muted">{group.items.length} items</span>
+                  </div>
+                  
+                  {group.items.map((item) => (
+                    <div className="product-card mb-2" key={item._id}>
+                      <div className="product-img">
+                        <img src={item.image_url ? `${API}/${item.image_url.replace(/^\//, "")}` : '/placeholder.jpg'} alt={item.title} />
+                      </div>
+                      <div className="product-details">
+                        <h6 className="product-title">{item.title || item.product?.name}</h6>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="product-price" style={{fontSize: '0.95rem'}}>
+                            LKR {item.price?.toLocaleString()} <span className="text-muted small">x {item.qty}</span>
                           </div>
-                          <div className="small text-muted">
-                            Qty: {item.qty}
+                          <div className="fw-bold" style={{color: 'var(--primary-green)'}}>
+                            LKR {(item.price * item.qty).toLocaleString()}
                           </div>
-                          <div className="small text-muted">
-                            LKR {item.price?.toLocaleString()} each
-                          </div>
-                        </div>
-
-                        <div className="cart-line-total">
-                          LKR {((item.price || 0) * item.qty).toLocaleString()}
                         </div>
                       </div>
-                    ))}
-
-                    <hr />
-                    <div className="d-flex justify-content-between small mb-2">
-                      <span>Vendor Subtotal</span>
-                      <span>LKR {group.subtotal.toLocaleString()}</span>
                     </div>
-                    <div className="d-flex justify-content-between small mb-2">
-                      <span>Delivery Charge</span>
+                  ))}
+                  
+                  <div className="shipping-info mt-2">
+                    <div className="d-flex justify-content-between">
+                      <span>Vendor Delivery Fee:</span>
                       <span>LKR {group.shippingFee.toLocaleString()}</span>
-                    </div>
-                    <div className="d-flex justify-content-between fw-semibold text-success">
-                      <span>Vendor Total</span>
-                      <span>LKR {group.total.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="col-lg-4">
-              <div className="card shadow-sm border-0 cart-summary-sticky">
-                <div className="card-body">
-                  <h5 className="mb-3">Order Summary</h5>
-
-                  <div className="d-flex justify-content-between mb-2">
-                    <span>Items Subtotal</span>
-                    <span>LKR {summary.subtotal.toLocaleString()}</span>
-                  </div>
-
-                  <div className="d-flex justify-content-between mb-2">
-                    <span>Vendor Delivery Fees</span>
-                    <span>LKR {summary.shipping.toLocaleString()}</span>
-                  </div>
-
-                  <div className="d-flex justify-content-between mb-2">
-                    <span>Vendors</span>
-                    <span>{summary.vendorCount}</span>
-                  </div>
-
-                  <hr />
-
-                  <div className="d-flex justify-content-between fw-bold fs-5 text-success mb-3">
-                    <span>Total</span>
-                    <span>LKR {summary.total.toLocaleString()}</span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="btn btn-success w-100"
-                    disabled={submitting}
-                  >
-                    {submitting
-                      ? "Processing..."
-                      : paymentMethod === "card"
-                        ? "Pay with Card"
-                        : "Place COD Orders"}
-                  </button>
-                </div>
+            {/* Right Summary Sidebar */}
+            <div className="checkout-right">
+              <h3 className="section-title mb-3">
+                <span className="material-icons-outlined">receipt_long</span>
+                Order Summary
+              </h3>
+              <div className="summary-item">
+                <span>Items Subtotal</span>
+                <span>LKR {summary.subtotal.toLocaleString()}</span>
               </div>
+              <div className="summary-item">
+                <span>Total Delivery Fee</span>
+                <span>LKR {summary.shipping.toLocaleString()}</span>
+              </div>
+              <div className="summary-item">
+                <span>Total Vendors</span>
+                <span>{summary.vendorCount}</span>
+              </div>
+              <hr className="my-2" />
+              <div className="summary-item summary-total">
+                <strong>Total Amount</strong>
+                <strong>LKR {summary.total.toLocaleString()}</strong>
+              </div>
+              
+              <button type="submit" className="btn-place-order" disabled={submitting || !shippingAddress.fullName}>
+                {submitting ? "Processing..." : paymentMethod === 'card' ? 'Pay with Card' : 'Place COD Orders'}
+              </button>
+              <p className="legal-text">Secure transaction • Terms apply</p>
             </div>
           </div>
         </form>

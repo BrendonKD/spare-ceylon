@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import AdminSidebar from "../admin/components/AdminSidebar";
 import AdminHeader from "../admin/components/AdminHeader";
-import "./AdminManageUser.css";
+import "./styles/AdminManageUser.css";
 
 const API = "http://localhost:5000";
 

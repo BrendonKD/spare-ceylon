@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "./CustomerDashboard.css";
+import "./styles/CustomerDashboard.css";
 import Header from "../components/header.js";
 import CustomerSidebar from "../components/CustomerSidebar.js";
 import { useNavigate } from "react-router-dom";
@@ -38,65 +38,35 @@ const StatCard = ({ icon, label, value, color, delay = 0 }) => {
   );
 };
 
-const OrderRow = ({
-  id,
-  status,
-  orderDate,
-  storeName,
-  productImage,
-  title,
-  variant,
-  qty,
-  total,
-  onViewDetail
-}) => (
+const OrderRow = ({ id, status, orderDate, storeName, productImage, title, variant, qty, total, onViewDetail }) => (
   <div className="cd-order-card">
-    {/* Top header row */}
     <div className="cd-order-card-header">
       <span className="cd-order-status-text">{status}</span>
       <div className="cd-order-meta">
-        <span className="cd-order-meta-item">
-          Order date: {orderDate}
-        </span>
-        <span className="cd-order-meta-item">
-          Order ID: {id.slice(-6).toUpperCase()}
-        </span>
+        <span className="cd-order-meta-item">Order date: {orderDate}</span>
+        <span className="cd-order-meta-item">Order ID: {id.slice(-6).toUpperCase()}</span>
       </div>
     </div>
-
-    {/* Main row: image + details + total */}
     <div className="cd-order-card-body">
       <div className="cd-order-product-left">
         <div className="cd-order-store">
           <span className="cd-order-store-name">{storeName}</span>
         </div>
-
         <div className="cd-order-product-row">
           <div className="cd-order-product-image">
-            <img
-              src={productImage}
-              alt={title}
-            />
+            <img src={productImage} alt={title} />
           </div>
           <div className="cd-order-product-info">
             <div className="cd-order-title">{title}</div>
-            {variant && (
-              <div className="cd-order-variant">{variant}</div>
-            )}
+            {variant && <div className="cd-order-variant">{variant}</div>}
             <div className="cd-order-qty">Qty: {qty}</div>
           </div>
         </div>
       </div>
-
       <div className="cd-order-total-right">
         <div className="cd-order-total-label">Total:</div>
-        <div className="cd-order-total-value">
-          Rs. {total}
-        </div>
-        <button
-          className="btn btn-outline-success btn-sm mt-2 d-flex align-items-center gap-1"
-          onClick={onViewDetail}
-        >
+        <div className="cd-order-total-value">Rs. {total}</div>
+        <button className="btn btn-outline-success btn-sm mt-2 d-flex align-items-center gap-1" onClick={onViewDetail}>
           View detail
         </button>
       </div>
@@ -106,7 +76,17 @@ const OrderRow = ({
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ full_name: "Loading...", email: "..." });
+  const [user, setUser] = useState({ full_name: "Loading...", email: "...", profile_image: "" });
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  
+  // Real stats fetched from backend
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    unreadMessages: 0,
+    myVehicles: 0,
+    myInquiries: 0
+  });
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
@@ -114,64 +94,44 @@ const CustomerDashboard = () => {
     navigate("/");
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) { navigate("/login"); return; }
-        const response = await axios.get(`${API}/api/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUser({ full_name: response.data.full_name, email: response.data.email });
-      } catch (error) {
-        console.error("Error fetching user data", error);
-        if (error.response?.status === 401) handleLogout();
-      }
-    };
-    fetchUserData();
-  }, [navigate, handleLogout]);
-
-  const firstName = user.full_name !== "Loading..." ? user.full_name.split(" ")[0] : "";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-
+  // Load everything the dashboard needs
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/login");
-          return;
-        }
+        if (!token) { navigate("/login"); return; }
+        
+        const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        const [userRes, ordersRes] = await Promise.all([
-          axios.get(`${API}/api/auth/profile`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`${API}/api/orders/my-recent`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+        const [userRes, ordersRes, statsRes] = await Promise.all([
+          axios.get(`${API}/api/auth/profile`, config),
+          axios.get(`${API}/api/orders/my-recent`, config),
+          axios.get(`${API}/api/customer-dashboard/stats`, config)
         ]);
 
         setUser({
           full_name: userRes.data.full_name,
-          email: userRes.data.email
+          email: userRes.data.email,
+          profile_image: userRes.data.profile_image
+            ? `${API}/${userRes.data.profile_image.replace(/^\/+/, "")}`
+            : ""
         });
-
         setOrders(ordersRes.data);
+        setStats(statsRes.data);
       } catch (error) {
-        console.error("Error fetching dashboard data", error);
+        console.error("Error loading dashboard data:", error);
         if (error.response?.status === 401) handleLogout();
       } finally {
         setOrdersLoading(false);
       }
     };
-
     fetchDashboardData();
   }, [navigate, handleLogout]);
+
+  // greeting personal
+  const firstName = user.full_name !== "Loading..." ? user.full_name.split(" ")[0] : "";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
   return (
     <div className="customer-dashboard">
@@ -179,12 +139,11 @@ const CustomerDashboard = () => {
       <div className="cd-layout">
         <CustomerSidebar user={user} handleLogout={handleLogout} activeItem="dashboard" />
         <main className="cd-main">
-          {/* Welcome Banner */}
           <div className="cd-banner">
             <div className="cd-banner-content">
               <p className="cd-banner-greeting">{greeting},</p>
               <h2 className="cd-banner-name">{firstName || "there"}! 👋</h2>
-              <p className="cd-banner-sub">Here's a summary of your activities today.</p>
+              <p className="cd-banner-sub">Here is a quick summary of your activities.</p>
             </div>
             <div className="cd-banner-decoration">
               <div className="cd-banner-circle cd-bc-1" />
@@ -194,15 +153,13 @@ const CustomerDashboard = () => {
             </div>
           </div>
 
-          {/* Stat Cards */}
           <div className="cd-stats-grid">
-            <StatCard icon="local_shipping" label="Total Orders" value={10} color="linear-gradient(135deg,#0f766e,#0d9488)" delay={0} />
-            <StatCard icon="favorite" label="Wishlist Items" value={5} color="linear-gradient(135deg,#be123c,#f43f5e)" delay={80} />
-            <StatCard icon="storefront" label="Saved Vendors" value={5} color="linear-gradient(135deg,#1d4ed8,#3b82f6)" delay={160} />
-            <StatCard icon="directions_car" label="My Vehicles" value={2} color="linear-gradient(135deg,#b45309,#f59e0b)" delay={240} />
+            <StatCard icon="local_shipping" label="Total Orders" value={stats.totalOrders} color="linear-gradient(135deg,#0f766e,#0d9488)" delay={0} />
+            <StatCard icon="mail" label="Unread Messages" value={stats.unreadMessages} color="linear-gradient(135deg,#7c3aed,#a855f7)" delay={80} />
+            <StatCard icon="directions_car" label="My Vehicles" value={stats.myVehicles} color="linear-gradient(135deg,#b45309,#f59e0b)" delay={160} />
+            <StatCard icon="support_agent" label="My Inquiries" value={stats.myInquiries} color="linear-gradient(135deg,#dc2626,#f97316)" delay={240} />
           </div>
 
-          {/* Orders + Promo */}
           <div className="cd-two-col">
             <div className="cd-card">
               <div className="cd-card-header">
@@ -220,10 +177,7 @@ const CustomerDashboard = () => {
                 ) : (
                   orders.map((o) => {
                     const listing = o.vendor_listing_id || {};
-                    const imageUrl = listing.image_url
-                      ? `${API}/${listing.image_url}`
-                      : "/placeholder.jpg";
-
+                    const imageUrl = listing.image_url ? `${API}/${listing.image_url}` : "/placeholder.jpg";
                     return (
                       <OrderRow
                         key={o._id}
@@ -235,10 +189,7 @@ const CustomerDashboard = () => {
                         title={listing.title || "Order item"}
                         variant={listing.condition}
                         qty={o.quantity}
-                        total={o.total.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        })}
+                        total={o.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         onViewDetail={() => navigate(`/customer/orders/${o._id}`)}
                       />
                     );

@@ -363,7 +363,7 @@ router.post('/create-cart-checkout-session', requireAuth, async (req, res) => {
   }
 });
 
-// retrieve orders to customer Dashboard
+// retrieve recent orders to customer Dashboard
 router.get('/my-recent', requireAuth, async (req, res) => {
   try {
     const orders = await Order.find({ customer_id: req.user._id })

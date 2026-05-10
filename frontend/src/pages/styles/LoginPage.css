@@ -24,7 +24,7 @@
 .account-type-bg {
   position: absolute;
   inset: 0;
-  background-image: url("../assets/logins.png");
+  background-image: url("../../assets/logins.png");
   background-size: cover;
   background-position: center;
 }
@@ -93,14 +93,14 @@
 }
 
 .customer-icon {
-  background-image: url("../assets/buyer.png");
+  background-image: url("../../assets/buyer.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
 }
 
 .vendor-icon {
-  background-image: url("../assets/vendor.png");
+  background-image: url("../../assets/vendor.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

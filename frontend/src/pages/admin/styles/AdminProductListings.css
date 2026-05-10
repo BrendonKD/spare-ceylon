@@ -1,0 +1,28 @@
+@import "./AdminProducts.css";
+
+.apl-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.24rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.apl-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.apl-inactive {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.apl-pending {
+  background: #fef3c7;
+  color: #92400e;
+}

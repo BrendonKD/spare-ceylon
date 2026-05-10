@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Header from "../components/header";
 import VendorSidebar from "../components/VendorSidebar";
-import "./VendorPayments.css";
+import "./styles/VendorPayments.css";
 
 const API = "http://localhost:5000";
 
@@ -11,6 +11,7 @@ const VendorPayments = () => {
     full_name: "Loading...",
     email: "...",
     business_name: "",
+    logo_url: ""
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,9 @@ const VendorPayments = () => {
           full_name: profileRes.data.full_name,
           email: profileRes.data.email,
           business_name: profileRes.data.business_name || "",
+          logo_url: profileRes.data.logo_url
+          ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+          : ""
         });
 
         setOrders(ordersRes.data || []);

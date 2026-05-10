@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import "./ListingDetail.css";
+import "./styles/ListingDetail.css";
 import Header from "../components/header.js";
 import { useCart } from "../context/CartContext";
 
