@@ -19,11 +19,11 @@
 
 .hero-video-bg {
   position: absolute;
-  top: 50%;
+  top: 47%;
   left: 50%;
   min-width: 100%;
   width: auto;
-  height: 85%;
+  height: 76%;
   z-index: 0;
   transform: translate(-50%, -50%);
   object-fit: cover;
@@ -34,7 +34,7 @@
   left: 0;
   min-width: 100%;
   width: auto;
-  height: 92.5%;
+  height: 85.4%;
   z-index: 0;
   background: linear-gradient(
     rgba(23, 35, 45, 0.7),
