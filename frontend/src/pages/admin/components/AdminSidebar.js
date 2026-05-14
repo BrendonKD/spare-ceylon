@@ -18,7 +18,7 @@ const AdminSidebar = ({ activeItem }) => {
   const navigate = useNavigate();
 
   return (
-    <aside className="ad-sidebar">
+    <aside className="ad-sidebar position: sticky">
       {/* Label */}
       <div className="ad-sidebar-label">Control Panel</div>
 

@@ -1,4 +1,6 @@
 .vd-sidebar {
+  position: sticky !important;
+  top: 60px;
   width: 240px;
   background-color: #f9fafb;
   border-radius: 0 16px 16px 0;

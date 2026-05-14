@@ -155,7 +155,7 @@
   box-shadow: none;
   background: transparent;
   padding: 0;
-  color: var(--forum-text);
+  color: #fff;
 }
 
 .forum-search-wrap .form-control::placeholder {

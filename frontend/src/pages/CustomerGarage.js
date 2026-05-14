@@ -85,7 +85,7 @@ const CustomerGarage = () => {
           full_name: profileRes.data.full_name,
           email: profileRes.data.email,
           profile_image: profileRes.data.profile_image
-          ? `${API}/${profileRes.data.profile_image}`
+          ? `${API}/${profileRes.data.profile_image.replace(/^\/+/, "")}`
           : ""
         });
 
@@ -585,13 +585,6 @@ const CustomerGarage = () => {
                                   Set Primary
                                 </button>
                               )}
-
-                              <button
-                                className="btn btn-success btn-sm"
-                                onClick={() => handleFindParts(v)}
-                              >
-                                Find Parts
-                              </button>
 
                               <button
                                 className="btn btn-outline-secondary btn-sm"

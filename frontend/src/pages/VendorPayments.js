@@ -6,13 +6,16 @@ import "./styles/VendorPayments.css";
 
 const API = "http://localhost:5000";
 
+const VALID_REVENUE_STATUSES = ["pending", "confirmed", "shipped", "delivered"];
+
 const VendorPayments = () => {
   const [vendor, setVendor] = useState({
     full_name: "Loading...",
     email: "...",
     business_name: "",
-    logo_url: ""
+    logo_url: "",
   });
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +27,7 @@ const VendorPayments = () => {
     const fetchPaymentsPage = async () => {
       try {
         const token = localStorage.getItem("token");
+
         if (!token) {
           window.location.href = "/login";
           return;
@@ -48,11 +52,11 @@ const VendorPayments = () => {
           email: profileRes.data.email,
           business_name: profileRes.data.business_name || "",
           logo_url: profileRes.data.logo_url
-          ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
-          : ""
+            ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+            : "",
         });
 
-        setOrders(ordersRes.data || []);
+        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
       } catch (err) {
         console.error("Error loading vendor payments page", err);
       } finally {
@@ -67,20 +71,22 @@ const VendorPayments = () => {
     let filtered = [...orders];
 
     if (methodFilter !== "all") {
-      filtered = filtered.filter((o) => o.payment_method === methodFilter);
+      filtered = filtered.filter((order) => order.payment_method === methodFilter);
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((o) => o.status === statusFilter);
+      filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
-      filtered = filtered.filter((o) => {
-        const listing = o.vendor_listing_id || {};
-        const customer = o.customer_id || {};
+
+      filtered = filtered.filter((order) => {
+        const listing = order.vendor_listing_id || {};
+        const customer = order.customer_id || {};
+
         return (
-          o._id?.toLowerCase().includes(q) ||
+          order._id?.toLowerCase().includes(q) ||
           listing.title?.toLowerCase().includes(q) ||
           customer.full_name?.toLowerCase().includes(q) ||
           customer.email?.toLowerCase().includes(q)
@@ -91,17 +97,43 @@ const VendorPayments = () => {
     return filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [orders, methodFilter, statusFilter, searchTerm]);
 
-  const cardPayments = filteredOrders.filter((o) => o.payment_method === "card");
-  const codPayments = filteredOrders.filter((o) => o.payment_method === "cod");
+  const revenueOrders = useMemo(() => {
+    return orders.filter((order) => VALID_REVENUE_STATUSES.includes(order.status));
+  }, [orders]);
 
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const cardRevenue = orders
-    .filter((o) => o.payment_method === "card")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
-  const codRevenue = orders
-    .filter((o) => o.payment_method === "cod")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
-  const paidOrdersCount = orders.filter((o) => o.payment_method === "card").length;
+  const stats = useMemo(() => {
+    const totalRevenue = revenueOrders.reduce(
+      (sum, order) => sum + Number(order.total || 0),
+      0
+    );
+
+    const cardRevenue = revenueOrders
+      .filter((order) => order.payment_method === "card")
+      .reduce((sum, order) => sum + Number(order.total || 0), 0);
+
+    const codRevenue = revenueOrders
+      .filter((order) => order.payment_method === "cod")
+      .reduce((sum, order) => sum + Number(order.total || 0), 0);
+
+    const paidOrdersCount = revenueOrders.filter(
+      (order) => order.payment_method === "card"
+    ).length;
+
+    return {
+      totalRevenue,
+      cardRevenue,
+      codRevenue,
+      paidOrdersCount,
+    };
+  }, [revenueOrders]);
+
+  const cardPayments = useMemo(() => {
+    return filteredOrders.filter((order) => order.payment_method === "card");
+  }, [filteredOrders]);
+
+  const codPayments = useMemo(() => {
+    return filteredOrders.filter((order) => order.payment_method === "cod");
+  }, [filteredOrders]);
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -131,9 +163,7 @@ const VendorPayments = () => {
               <span>Order ID: {order._id.slice(-6).toUpperCase()}</span>
               <span>{new Date(order.createdAt).toLocaleDateString()}</span>
             </div>
-            <span className={getStatusClass(order.status)}>
-              {order.status}
-            </span>
+            <span className={getStatusClass(order.status)}>{order.status}</span>
           </div>
 
           <div className="vp-payment-title">
@@ -143,13 +173,17 @@ const VendorPayments = () => {
           <div className="vp-payment-details">
             <span>Customer: {customer.full_name || "Unknown"}</span>
             <span>Qty: {order.quantity}</span>
-            <span>Method: {order.payment_method === "card" ? "Card" : "COD"}</span>
+            <span>
+              Method: {order.payment_method === "card" ? "Card" : "COD"}
+            </span>
           </div>
         </div>
 
         <div className="vp-payment-side">
           <div className="vp-amount-label">Order Total</div>
-          <div className="vp-amount">Rs. {Number(order.total || 0).toLocaleString()}</div>
+          <div className="vp-amount">
+            Rs. {Number(order.total || 0).toLocaleString()}
+          </div>
         </div>
       </div>
     );
@@ -166,26 +200,38 @@ const VendorPayments = () => {
           <div className="vp-page-header">
             <h4 className="vp-page-title">Payments</h4>
             <p className="vp-page-subtitle">
-              Review your order payments, monitor card transactions, and track cash on delivery orders.
+              Review your order payments, monitor card transactions, and track
+              cash on delivery orders.
             </p>
           </div>
 
           <div className="vp-stats-grid">
             <div className="vp-stat-card">
               <div className="vp-stat-label">Total Revenue</div>
-              <div className="vp-stat-value">Rs. {totalRevenue.toLocaleString()}</div>
+              <div className="vp-stat-value">
+                Rs. {stats.totalRevenue.toLocaleString()}
+              </div>
             </div>
+
             <div className="vp-stat-card">
               <div className="vp-stat-label">Card Payments</div>
-              <div className="vp-stat-value text-success">Rs. {cardRevenue.toLocaleString()}</div>
+              <div className="vp-stat-value text-success">
+                Rs. {stats.cardRevenue.toLocaleString()}
+              </div>
             </div>
+
             <div className="vp-stat-card">
               <div className="vp-stat-label">COD Payments</div>
-              <div className="vp-stat-value text-warning">Rs. {codRevenue.toLocaleString()}</div>
+              <div className="vp-stat-value text-warning">
+                Rs. {stats.codRevenue.toLocaleString()}
+              </div>
             </div>
+
             <div className="vp-stat-card">
               <div className="vp-stat-label">Paid Orders</div>
-              <div className="vp-stat-value text-info">{paidOrdersCount}</div>
+              <div className="vp-stat-value text-info">
+                {stats.paidOrdersCount}
+              </div>
             </div>
           </div>
 
@@ -194,18 +240,23 @@ const VendorPayments = () => {
               <button
                 className={`vp-chip ${methodFilter === "all" ? "active" : ""}`}
                 onClick={() => setMethodFilter("all")}
+                type="button"
               >
                 All
               </button>
+
               <button
                 className={`vp-chip ${methodFilter === "card" ? "active" : ""}`}
                 onClick={() => setMethodFilter("card")}
+                type="button"
               >
                 Card Payments
               </button>
+
               <button
                 className={`vp-chip ${methodFilter === "cod" ? "active" : ""}`}
                 onClick={() => setMethodFilter("cod")}
+                type="button"
               >
                 COD Payments
               </button>

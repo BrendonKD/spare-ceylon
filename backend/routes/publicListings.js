@@ -153,7 +153,11 @@ const buildSearchPipeline = (baseMatch, searchTerm, limit) => [
       $or: [
         { title: { $regex: searchTerm, $options: "i" } },
         { "productInfo.name": { $regex: searchTerm, $options: "i" } },
-        { "productInfo.oem_part_number": { $regex: searchTerm, $options: "i" } }
+        { "productInfo.oem_part_number": { $regex: searchTerm, $options: "i" } },
+        { "compatibility.make": { $regex: searchTerm, $options: "i" } },
+        { "compatibility.model": { $regex: searchTerm, $options: "i" } },
+        { "compatibility.make_slug": { $regex: searchTerm.toLowerCase().trim(), $options: "i" } },
+        { "compatibility.model_slug": { $regex: searchTerm.toLowerCase().trim(), $options: "i" } }
       ]
     }
   },
@@ -208,7 +212,7 @@ router.get("/latest", async (req, res) => {
 });
 
 
-// GET /trending
+// GET /trending parts to home page
 router.get("/trending", async (req, res) => {
   try {
     const baseMatch = { status: "active", quantity_available: { $gt: 0 } };
@@ -230,7 +234,7 @@ router.get("/trending", async (req, res) => {
 });
 
 
-// GET /vendors/verified
+// GET /vendors/verified to home page
 router.get("/vendors/verified", async (req, res) => {
   try {
     const vendors = await Vendor.find({ verification_status: "verified" })
@@ -246,7 +250,7 @@ router.get("/vendors/verified", async (req, res) => {
   }
 });
 
-// GET /api/public/listings
+// GET /api/public/listings to parts page 30 per page
 router.get("/listings", async (req, res) => {
   try {
     const PAGE_SIZE = 30;

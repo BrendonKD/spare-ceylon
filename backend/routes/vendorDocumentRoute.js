@@ -14,6 +14,52 @@ const adminOnly = (req, res, next) => {
     next();
 };
 
+
+//show the certificate to the vendor in settings page
+router.get("/me/verification-document", auth, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated." });
+    }
+
+    if (req.user.role !== "vendor") {
+      return res.status(403).json({ message: "Access denied. Vendor only." });
+    }
+
+    const userId = req.user._id || req.user.id;
+    const vendor = await Vendor.findOne({ vendor_id: userId });
+
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor profile not found." });
+    }
+
+    if (
+      vendor.verification_status !== "verified" ||
+      !vendor.verification_document_visible ||
+      vendor.verification_document_status !== "active" ||
+      !vendor.verification_document_url
+    ) {
+      return res.status(403).json({
+        message: "Verification certificate is not available.",
+      });
+    }
+
+    const cleanRelativePath = vendor.verification_document_url.replace(/^\/+/, "");
+    const filePath = path.join(__dirname, "..", cleanRelativePath);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: "Certificate file not found." });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    return res.sendFile(filePath);
+  } catch (error) {
+    console.error("Vendor certificate access error:", error);
+    return res.status(500).json({ message: "Failed to access certificate." });
+  }
+});
+
+
 //this is for hide the document by public accessible by others from url
 router.get("/:vendorId/verification-document", auth, adminOnly, async (req, res) => {
     try {

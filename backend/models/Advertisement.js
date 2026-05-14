@@ -48,7 +48,7 @@ const advertisementSchema = new mongoose.Schema(
     },
     payment_status: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "paid", "refunded"],
       default: "pending"
     },
     stripe_session_id: {
@@ -58,6 +58,19 @@ const advertisementSchema = new mongoose.Schema(
     stripe_payment_intent_id: {
       type: String,
       default: null
+    },
+
+    stripe_refund_id: {
+      type: String,
+      default: null,
+    },
+    refund_amount: {
+      type: Number,
+      default: 0,
+    },
+    refunded_at: {
+      type: Date,
+      default: null,
     },
 
     start_date: {

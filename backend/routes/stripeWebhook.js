@@ -81,7 +81,7 @@ const groupCartItemsByVendor = (cartItems) => {
 //order checkout
 async function handleOrderCheckoutCompleted(session) {
     const checkoutType = session.metadata?.checkout_type || 'single';
-    
+
     // Extract shared data for the email
     const customerEmail = session.customer_details?.email;
     const totalAmount = session.amount_total / 100; // Stripe amounts are in cents
@@ -130,7 +130,7 @@ async function handleOrderCheckoutCompleted(session) {
 
                     const subtotal = listing.price * item.qty;
                     const shipping_fee = i === 0 ? SHIPPING_PER_VENDOR : 0;
-                    
+
                     const order = new Order({
                         customer_id,
                         vendor_listing_id: listing._id,
@@ -342,6 +342,36 @@ async function handleAdvertisementCheckoutCompleted(session) {
     }
 }
 
+// admin refund ADS cash wen reject ads
+async function handleAdvertisementRefund(chargeOrRefund) {
+    const paymentIntentId = chargeOrRefund.payment_intent || null;
+
+    if (!paymentIntentId) return;
+
+    const ad = await Advertisement.findOne({
+        stripe_payment_intent_id: paymentIntentId,
+    });
+
+    if (!ad) {
+        console.log("No ad found for refunded payment intent:", paymentIntentId);
+        return;
+    }
+
+    ad.payment_status = "refunded";
+    ad.refund_amount = (chargeOrRefund.amount_refunded || ad.payment_amount * 100) / 100;
+    ad.refunded_at = new Date();
+
+    if (chargeOrRefund.id) {
+        ad.stripe_refund_id = chargeOrRefund.id;
+    }
+
+    if (ad.status !== "rejected") {
+        ad.status = "rejected";
+    }
+
+    await ad.save();
+}
+
 router.post('/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
@@ -360,22 +390,21 @@ router.post('/webhook', async (req, res) => {
     try {
         console.log('Stripe event received:', event.type);
 
-        if (event.type === 'checkout.session.completed') {
+        if (event.type === "checkout.session.completed") {
             const session = event.data.object;
             const checkoutType = session.metadata?.checkout_type;
 
-            console.log('Checkout type:', checkoutType);
-            console.log('Session metadata:', session.metadata);
-
-            if (checkoutType === 'cart' || checkoutType === 'single') {
+            if (checkoutType === "cart" || checkoutType === "single") {
                 await handleOrderCheckoutCompleted(session);
-            } else if (checkoutType === 'vendor_subscription_payment') {
+            } else if (checkoutType === "vendor_subscription_payment") {
                 await handleSubscriptionCheckoutCompleted(session);
-            } else if (checkoutType === 'advertisement_payment') {
+            } else if (checkoutType === "advertisement_payment") {
                 await handleAdvertisementCheckoutCompleted(session);
-            } else {
-                console.log('Unhandled checkout_type:', checkoutType);
             }
+        }
+
+        if (event.type === "charge.refunded") {
+            await handleAdvertisementRefund(event.data.object);
         }
 
         return res.json({ received: true });

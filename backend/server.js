@@ -19,6 +19,8 @@ const adminInquiryRoutes = require("./routes/adminInquiries");
 const communityForum = require("./routes/communityForum");
 const adminListings = require("./routes/adminListings")
 const customerDashboardRoutes = require("./routes/customerDashboard");
+const vendorDashboard = require('./routes/VendorDashboard')
+
 
 const stripeWebhookRoutes = require('./routes/stripeWebhook');
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
@@ -51,6 +53,7 @@ app.use("/api/public/listings", require("./routes/publicListings"));
 app.use("/api/products", require("./routes/product"));
 app.use("/api/product-requests", require("./routes/productRequests")); //product req by vendors
 app.use("/api/vendors", vendorRoutes);
+app.use("/api/vendor-dashboard", require("./routes/vendorDashboard"));
 const path = require("path");
 
 //admin

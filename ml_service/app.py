@@ -25,7 +25,7 @@ class_names = {v: k for k, v in class_indices.items()}
 BLUR_THRESHOLD = 80.0
 CONFIDENCE_MINIMUM = 0.55
 MARGIN_MINIMUM = 0.15
-ENTROPY_THRESHOLD = 2.40
+ENTROPY_THRESHOLD = 2.40 
 
 # Helpers
 def check_blur(pil_image):

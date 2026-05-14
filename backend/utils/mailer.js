@@ -62,7 +62,7 @@ const sendOrderStatusEmail = async ({
             subject: `Order #${orderId} has been cancelled`,
             heading: 'Your order has been cancelled',
             message:
-                'Your order has been cancelled. If you have any questions, please contact our support team.',
+                'Your order has been cancelled & refunded. If you have any questions, please contact our support team.',
             color: '#dc2626',
         },
     };
@@ -74,9 +74,7 @@ const sendOrderStatusEmail = async ({
         color: '#0f7b65',
     };
 
-    const orderUrl = process.env.FRONTEND_URL
-        ? `${process.env.FRONTEND_URL}/customer/orders`
-        : 'http://localhost:3000/customer/orders';
+    const orderUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/customer/orders`;
 
     const text = `
 Hello ${customerName || 'Customer'},

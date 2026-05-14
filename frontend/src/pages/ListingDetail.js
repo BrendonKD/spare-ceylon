@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./styles/ListingDetail.css";
 import Header from "../components/header.js";
+import Footer from "../components/Footer.js"
 import { useCart } from "../context/CartContext";
 
 const API = "http://localhost:5000";
@@ -610,43 +611,8 @@ const ListingDetail = () => {
           </div>
         )}
       </div>
-
-      <footer className="ld-footer">
-        <div className="container">
-          <div className="row py-4 g-4">
-            <div className="col-md-4">
-              <h6 className="fw-bold mb-2">About Spare Ceylon</h6>
-              <p className="small text-muted mb-0">
-                Your trusted marketplace for quality vehicle spare parts in Sri Lanka.
-              </p>
-            </div>
-
-            <div className="col-md-4">
-              <h6 className="fw-bold mb-2">Customer Service</h6>
-              <div className="ld-footer-links">
-                <span>Help Center</span>
-                <span>Returns &amp; Refunds</span>
-                <span>Shipping Info</span>
-              </div>
-            </div>
-
-            <div className="col-md-4">
-              <h6 className="fw-bold mb-2">Contact</h6>
-              <p className="small text-muted mb-0">Phone: +94 74 3013 073</p>
-              <p className="small text-muted mb-0">
-                Email: SpareCeylon@gmail.com
-              </p>
-            </div>
-          </div>
-
-          <div className="border-top pt-3 text-center">
-            <p className="small text-muted mb-0">
-              © {new Date().getFullYear()} Spare Ceylon. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+        <Footer />
+      </div>
   );
 };
 

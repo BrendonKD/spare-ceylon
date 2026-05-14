@@ -235,6 +235,36 @@ router.patch("/:id/reject", auth, async (req, res) => {
       return res.status(404).json({ message: "Ad not found" });
     }
 
+    if (ad.status === "rejected") {
+      return res.status(400).json({ message: "Ad is already rejected" });
+    }
+
+    let refund = null;
+
+    const alreadyRefunded =
+      ad.payment_status === "refunded" || Boolean(ad.stripe_refund_id);
+
+    if (
+      ad.payment_status === "paid" &&
+      ad.stripe_payment_intent_id &&
+      !alreadyRefunded
+    ) {
+      refund = await stripe.refunds.create({
+        payment_intent: ad.stripe_payment_intent_id,
+        reason: "requested_by_customer",
+        metadata: {
+          advertisement_id: ad._id.toString(),
+          rejected_by_admin: req.user._id.toString(),
+          type: "advertisement_rejection_refund",
+        },
+      });
+
+      ad.payment_status = "refunded";
+      ad.refund_amount = ad.payment_amount || 0;
+      ad.refunded_at = new Date();
+      ad.stripe_refund_id = refund.id;
+    }
+
     ad.status = "rejected";
     ad.admin_note = req.body.admin_note || "";
     await ad.save();
@@ -243,17 +273,28 @@ router.patch("/:id/reject", auth, async (req, res) => {
       action: "advertisement_rejected",
       entity_type: "advertisement",
       entity_id: ad._id,
-      message: `Advertisement rejected: ${ad.title}.`,
+      message: refund
+        ? `Advertisement rejected and refunded: ${ad.title}.`
+        : `Advertisement rejected: ${ad.title}.`,
       performed_by: req.user._id,
       performed_by_role: req.user.role,
       meta: {
         title: ad.title,
         admin_note: ad.admin_note,
+        refund_id: refund?.id || null,
+        refund_amount: ad.refund_amount || 0,
       },
     });
 
-    res.json({ message: "Ad rejected", ad });
+    res.json({
+      message: refund
+        ? "Ad rejected and payment refunded successfully"
+        : "Ad rejected successfully",
+      ad,
+      refund,
+    });
   } catch (err) {
+    console.error("Reject/refund error:", err);
     res.status(500).json({ message: err.message });
   }
 });

@@ -60,8 +60,8 @@ const VendorOrders = () => {
                     email: profileRes.data.email,
                     business_name: profileRes.data.business_name || "",
                     logo_url: profileRes.data.logo_url
-                    ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
-                    : ""
+                        ? `${API}/${profileRes.data.logo_url.replace(/^\/+/, "")}`
+                        : ""
                 });
 
                 setOrders(ordersRes.data);
@@ -320,6 +320,7 @@ const VendorOrders = () => {
                             <div className="vo-orders-list">
                                 {filteredOrders.map((o) => {
                                     const listing = o.vendor_listing_id || {};
+                                    const isCancelled = o.status === "cancelled";
                                     const customer = o.customer_id || {};
                                     const imageUrl = listing.image_url
                                         ? `${API}/${listing.image_url.replace(/^\/+/, "")}`
@@ -385,6 +386,7 @@ const VendorOrders = () => {
                                                             className="vo-select vo-status-select"
                                                             value={statusValues[o._id] || o.status}
                                                             onChange={(e) => handleStatusSelect(o._id, e.target.value)}
+                                                            disabled={isCancelled}
                                                         >
                                                             {STATUS_OPTIONS.map((status) => (
                                                                 <option key={status} value={status}>
@@ -398,11 +400,16 @@ const VendorOrders = () => {
                                                         className="vo-update-btn small"
                                                         onClick={() => handleStatusUpdate(o._id)}
                                                         disabled={
+                                                            isCancelled ||
                                                             updatingOrderId === o._id ||
                                                             (statusValues[o._id] || o.status) === o.status
                                                         }
                                                     >
-                                                        {updatingOrderId === o._id ? "Updating..." : "Update Status"}
+                                                        {isCancelled
+                                                            ? "Cancelled"
+                                                            : updatingOrderId === o._id
+                                                                ? "Updating..."
+                                                                : "Update Status"}
                                                     </button>
                                                 </div>
                                             </div>

@@ -1,4 +1,3 @@
-// src/pages/CustomerOrders.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,6 +13,13 @@ const CustomerOrders = () => {
   const [user, setUser] = useState({ full_name: "Loading...", email: "...", profile_image: "" });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    navigate("/login", { replace: true });
+  };
 
   // fetch profile + all orders
   useEffect(() => {

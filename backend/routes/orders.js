@@ -448,7 +448,7 @@ router.patch('/vendor/:orderId/status', requireAuth, async (req, res) => {
     const listingIds = vendorListings.map((listing) => listing._id.toString());
 
     const order = await Order.findById(orderId)
-      .populate('vendor_listing_id', 'title price')
+      .populate('vendor_listing_id', 'title price quantity_available')
       .populate('customer_id', 'full_name email');
 
     if (!order) {
@@ -460,6 +460,50 @@ router.patch('/vendor/:orderId/status', requireAuth, async (req, res) => {
     }
 
     const oldStatus = order.status;
+    let refund = null;
+
+    if (status === 'cancelled') {
+      if (oldStatus === 'delivered') {
+        return res.status(400).json({ message: 'Delivered orders cannot be cancelled' });
+      }
+
+      if (oldStatus === 'cancelled') {
+        return res.status(400).json({ message: 'Order is already cancelled' });
+      }
+
+      if (order.payment_method === 'card') {
+        if (!order.stripe_payment_intent_id) {
+          return res.status(400).json({ message: 'No Stripe payment intent found for this order' });
+        }
+
+        if (order.refund_status === 'refunded' || order.stripe_refund_id) {
+          return res.status(400).json({ message: 'This order has already been refunded' });
+        }
+
+        refund = await stripe.refunds.create({
+          payment_intent: order.stripe_payment_intent_id,
+          amount: Math.round(order.total * 100),
+          reason: 'requested_by_customer',
+          metadata: {
+            order_id: order._id.toString(),
+            cancelled_by_vendor: req.user._id.toString(),
+            type: 'vendor_order_cancellation_refund'
+          }
+        });
+
+        order.refund_status = 'refunded';
+        order.refund_amount = order.total;
+        order.refunded_at = new Date();
+        order.stripe_refund_id = refund.id;
+      }
+
+      const listing = await VendorListing.findById(order.vendor_listing_id._id);
+      if (listing) {
+        listing.quantity_available += order.quantity;
+        await listing.save();
+      }
+    }
+
     order.status = status;
     await order.save();
 
@@ -484,8 +528,12 @@ router.patch('/vendor/:orderId/status', requireAuth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Order status updated successfully',
+      message:
+        refund
+          ? 'Order cancelled and customer refunded successfully'
+          : 'Order status updated successfully',
       order: updatedOrder,
+      refund
     });
   } catch (err) {
     console.error('Update vendor order status error:', err);

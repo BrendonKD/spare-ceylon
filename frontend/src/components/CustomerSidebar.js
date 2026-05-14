@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CustomerSidebar.css";
 
@@ -11,9 +11,17 @@ const menuItems = [
   { key: "settings", icon: "settings", label: "Settings", path: "/customer/settings" },
 ];
 
-const CustomerSidebar = ({ user, handleLogout, activeItem = "dashboard" }) => {
+const CustomerSidebar = ({
+  user = { full_name: "Loading...", email: "...", profile_image: "" },
+  handleLogout,
+  activeItem = "dashboard"
+}) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [user?.profile_image]);
 
   const initials = (user?.full_name || "U")
     .split(" ")
@@ -22,7 +30,16 @@ const CustomerSidebar = ({ user, handleLogout, activeItem = "dashboard" }) => {
     .join("")
     .toUpperCase();
 
-  const showProfileImage = user?.profile_image && !imageError;
+  const showProfileImage = Boolean(user?.profile_image) && !imageError;
+
+  const defaultLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    navigate("/login", { replace: true });
+  };
+
+  const onLogout = handleLogout || defaultLogout;
 
   return (
     <aside className="cd-sidebar">
@@ -46,27 +63,26 @@ const CustomerSidebar = ({ user, handleLogout, activeItem = "dashboard" }) => {
         {menuItems.map(({ key, icon, label, path }) => (
           <button
             key={key}
+            type="button"
             className={`cd-sidebar-item ${activeItem === key ? "active" : ""}`}
-            onClick={() => path && navigate(path)}
+            onClick={() => navigate(path)}
           >
             <span className="material-symbols-outlined">{icon}</span>
             {label}
           </button>
         ))}
 
-        <button className="cd-sidebar-item cd-sidebar-logout" onClick={handleLogout}>
+        <button
+          type="button"
+          className="cd-sidebar-item cd-sidebar-logout"
+          onClick={onLogout}
+        >
           <span className="material-symbols-outlined">logout</span>
           Log Out
         </button>
       </nav>
     </aside>
   );
-};
-
-CustomerSidebar.defaultProps = {
-  user: { full_name: "Loading...", email: "...", profile_image: "" },
-  handleLogout: () => {},
-  activeItem: "dashboard"
 };
 
 export default CustomerSidebar;

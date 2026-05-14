@@ -35,7 +35,25 @@ const orderSchema = new mongoose.Schema({
 stripe_payment_intent_id: {
   type: String,
   default: null
-}
+},
+
+refund_status: {
+    type: String,
+    enum: ['not_refunded', 'refunded'],
+    default: 'not_refunded'
+  },
+  refund_amount: {
+    type: Number,
+    default: 0
+  },
+  refunded_at: {
+    type: Date,
+    default: null
+  },
+  stripe_refund_id: {
+    type: String,
+    default: null
+  }
 
 }, { timestamps: true });
 

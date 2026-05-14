@@ -409,4 +409,64 @@ router.put("/:id/deactivate", async (req, res) => {
   }
 });
 
+//vendor can view number of listings added per day in metrics
+router.get("/activity/weekly", async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res.status(403).json({ message: "Vendor only" });
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    const start = new Date();
+    start.setDate(start.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+
+    const result = await VendorListing.aggregate([
+      {
+        $match: {
+          vendor_id: req.user._id,
+          createdAt: { $gte: start, $lte: today }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt"
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+
+      const key = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString("en-US", { weekday: "short" });
+
+      const found = result.find((item) => item._id === key);
+
+      days.push({
+        date: key,
+        label,
+        count: found ? found.count : 0
+      });
+    }
+
+    res.json(days);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

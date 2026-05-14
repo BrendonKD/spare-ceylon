@@ -21,6 +21,9 @@ const initialVendorForm = {
     latitude: "",
     longitude: "",
     verification_status: "pending",
+    verification_document_url: "",
+    verification_document_visible: false,
+    verification_document_status: "hidden",
 };
 
 const initialSecurityForm = {
@@ -105,6 +108,9 @@ const VendorProfileSettings = () => {
                     latitude: v.latitude ?? "",
                     longitude: v.longitude ?? "",
                     verification_status: v.verification_status || "pending",
+                    verification_document_url: v.verification_document_url || "",
+                    verification_document_visible: v.verification_document_visible || false,
+                    verification_document_status: v.verification_document_status || "hidden",
                 };
 
                 setVendorForm(normalized);
@@ -269,6 +275,27 @@ const VendorProfileSettings = () => {
         }));
         setMessage({ type: "secondary", text: "Changes discarded." });
     };
+    //view the verification certificate
+    const handleOpenCertificate = async () => {
+        try {
+            const res = await axios.get(
+                `${API}/api/vendor-documents/me/verification-document`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    responseType: "blob",
+                }
+            );
+
+            const file = new Blob([res.data], { type: "application/pdf" });
+            const fileURL = window.URL.createObjectURL(file);
+            window.open(fileURL, "_blank");
+        } catch (error) {
+            setMessage({
+                type: "danger",
+                text: error?.response?.data?.message || "Failed to open certificate.",
+            });
+        }
+    };
 
     const handleDeleteAccount = async () => {
         const confirmed = window.confirm("This will permanently delete your account. Continue?");
@@ -318,8 +345,25 @@ const VendorProfileSettings = () => {
                                 <h2>Profile & Security</h2>
                                 <span>Manage business details, documents, location and login settings.</span>
                             </div>
-                            <div className={`vps-badge ${vendorForm.verification_status}`}>
-                                {vendorForm.verification_status}
+                            <div className="vps-head-actions">
+                                <div className={`vps-badge ${vendorForm.verification_status}`}>
+                                    {vendorForm.verification_status}
+                                </div>
+
+                                {vendorForm.verification_status === "verified" &&
+                                    vendorForm.verification_document_visible &&
+                                    vendorForm.verification_document_status === "active" &&
+                                    vendorForm.verification_document_url && (
+                                        <button
+                                            type="button"
+                                            className="vps-cert-btn"
+                                            onClick={handleOpenCertificate}
+                                            title="View verification certificate"
+                                        >
+                                            <span className="material-symbols-outlined">workspace_premium</span>
+                                            <span>View Certificate</span>
+                                        </button>
+                                    )}
                             </div>
                         </div>
 
