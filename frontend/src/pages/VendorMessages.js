@@ -84,7 +84,7 @@ const VendorMessages = () => {
       setConversations(res.data || []);
       return res.data || [];
     } catch (err) {
-      console.error("Error loading conversations:", err);
+      console.error("Error loading conversations:", err.response?.data || err.message);
       return [];
     } finally {
       setLoadingList(false);
@@ -101,7 +101,7 @@ const VendorMessages = () => {
         );
         setMessages(res.data || []);
       } catch (err) {
-        console.error("Error loading messages:", err);
+        console.error("Error loading messages:", err.response?.data || err.message);
       } finally {
         setLoadingChat(false);
       }
@@ -141,7 +141,9 @@ const VendorMessages = () => {
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
     };
   }, [previewUrl]);
 
@@ -149,16 +151,27 @@ const VendorMessages = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file.");
+      return;
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
     setImage(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
   const removeSelectedImage = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
     setImage(null);
     setPreviewUrl("");
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -166,13 +179,17 @@ const VendorMessages = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if ((!text.trim() && !image) || !selectedConversation || sending) return;
+
+    if ((!text.trim() && !image) || !selectedConversation || sending) {
+      return;
+    }
 
     try {
       setSending(true);
 
       const formData = new FormData();
-      formData.append("text", text);
+      formData.append("text", text.trim());
+
       if (image) {
         formData.append("image", image);
       }
@@ -182,8 +199,7 @@ const VendorMessages = () => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -193,7 +209,8 @@ const VendorMessages = () => {
       removeSelectedImage();
       await loadConversations();
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("Error sending message:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Failed to send message");
     } finally {
       setSending(false);
     }
@@ -300,7 +317,9 @@ const VendorMessages = () => {
                                 />
                               )}
 
-                              {msg.text && <div className="vm-message-text">{msg.text}</div>}
+                              {msg.text && (
+                                <div className="vm-message-text">{msg.text}</div>
+                              )}
 
                               <div className="vm-message-time">
                                 {new Date(msg.createdAt).toLocaleTimeString([], {
@@ -334,7 +353,15 @@ const VendorMessages = () => {
                     )}
 
                     <div className="vm-composer-row">
-                      <label className="btn btn-outline-secondary mb-0">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Write your reply..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                      />
+
+                      <label className="btn-outline-secondary mb-0">
                         Image
                         <input
                           ref={fileInputRef}
@@ -345,15 +372,11 @@ const VendorMessages = () => {
                         />
                       </label>
 
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Write your reply..."
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                      />
-
-                      <button className="btn btn-success" type="submit" disabled={sending}>
+                      <button
+                        className="btn btn-success"
+                        type="submit"
+                        disabled={sending}
+                      >
                         {sending ? "Sending..." : "Send"}
                       </button>
                     </div>
