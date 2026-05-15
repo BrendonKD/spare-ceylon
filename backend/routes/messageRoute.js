@@ -9,7 +9,6 @@ const Message = require("../models/Message");
 const Vendor = require("../models/Vendor");
 const protect = require("../middleware/authMiddleware");
 
-//image upload
 const uploadDir = path.join(__dirname, "../uploads/messages");
 
 if (!fs.existsSync(uploadDir)) {
@@ -39,7 +38,6 @@ const upload = multer({
   }
 });
 
-// START or GET existing conversation with vendor
 router.post("/conversations/start", protect, async (req, res) => {
   try {
     const customerId = req.user.id;
@@ -79,7 +77,6 @@ router.post("/conversations/start", protect, async (req, res) => {
   }
 });
 
-// GET all conversations for logged-in user
 router.get("/conversations", protect, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -114,7 +111,6 @@ router.get("/conversations", protect, async (req, res) => {
   }
 });
 
-// GET one conversation's messages
 router.get("/conversations/:conversationId", protect, async (req, res) => {
   try {
     const { conversationId } = req.params;
@@ -151,11 +147,18 @@ router.get("/conversations/:conversationId", protect, async (req, res) => {
   }
 });
 
-// SEND message to conversation
 router.post(
   "/conversations/:conversationId",
   protect,
-  upload.single("image"),
+  (req, res, next) => {
+    upload.single("image")(req, res, function (err) {
+      if (err) {
+        console.error("multer error:", err);
+        return res.status(400).json({ message: err.message || "Upload failed" });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
       const { conversationId } = req.params;
@@ -182,9 +185,12 @@ router.post(
         isAuthorized = conversation.customer_id.toString() === userId;
       } else if (userRole === "vendor") {
         const vendorProfile = await Vendor.findOne({ vendor_id: userId });
-        if (vendorProfile) {
-          isAuthorized = conversation.vendor_id.toString() === vendorProfile._id.toString();
+
+        if (!vendorProfile) {
+          return res.status(404).json({ message: "Vendor profile not found" });
         }
+
+        isAuthorized = conversation.vendor_id.toString() === vendorProfile._id.toString();
       }
 
       if (!isAuthorized) {
@@ -200,17 +206,14 @@ router.post(
         read_by: [userId]
       });
 
-      conversation.last_message = trimmedText
-        ? trimmedText
-        : "Image";
+      conversation.last_message = trimmedText || "Image";
       conversation.last_message_at = new Date();
-
       await conversation.save();
 
       res.status(201).json(message);
     } catch (error) {
       console.error("send message error:", error);
-      res.status(500).json({ message: "Failed to send message" });
+      res.status(500).json({ message: error.message || "Failed to send message" });
     }
   }
 );
