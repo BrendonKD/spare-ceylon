@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
@@ -10,6 +10,7 @@ const API = "http://localhost:5000";
 const VendorMessages = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
+  const fileInputRef = useRef(null);
 
   const [vendor, setVendor] = useState({
     full_name: "Loading...",
@@ -22,8 +23,11 @@ const VendorMessages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const [image, setImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
   const [loadingList, setLoadingList] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -61,8 +65,8 @@ const VendorMessages = () => {
           email: res.data.email,
           business_name: res.data.business_name || "",
           logo_url: res.data.logo_url
-          ? `${API}/${res.data.logo_url.replace(/^\/+/, "")}`
-          : ""
+            ? `${API}/${res.data.logo_url.replace(/^\/+/, "")}`
+            : ""
         });
       } catch (err) {
         console.error("Vendor profile error:", err.response?.data || err.message);
@@ -135,22 +139,63 @@ const VendorMessages = () => {
     }
   }, [customerId, token, loadConversations, loadMessages]);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+    setImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const removeSelectedImage = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setImage(null);
+    setPreviewUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!text.trim() || !selectedConversation) return;
+    if ((!text.trim() && !image) || !selectedConversation || sending) return;
 
     try {
+      setSending(true);
+
+      const formData = new FormData();
+      formData.append("text", text);
+      if (image) {
+        formData.append("image", image);
+      }
+
       const res = await axios.post(
         `${API}/api/messages/conversations/${selectedConversation._id}`,
-        { text },
-        authHeaders
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
 
       setMessages((prev) => [...prev, res.data]);
       setText("");
+      removeSelectedImage();
       await loadConversations();
     } catch (err) {
       console.error("Error sending message:", err);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -246,7 +291,24 @@ const VendorMessages = () => {
                             key={msg._id}
                             className={`vm-message-row ${mine ? "mine" : "theirs"}`}
                           >
-                            <div className="vm-message-bubble">{msg.text}</div>
+                            <div className="vm-message-bubble">
+                              {msg.image_url && (
+                                <img
+                                  src={`${API}${msg.image_url}`}
+                                  alt="Chat attachment"
+                                  className="vm-chat-image"
+                                />
+                              )}
+
+                              {msg.text && <div className="vm-message-text">{msg.text}</div>}
+
+                              <div className="vm-message-time">
+                                {new Date(msg.createdAt).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit"
+                                })}
+                              </div>
+                            </div>
                           </div>
                         );
                       })
@@ -254,16 +316,47 @@ const VendorMessages = () => {
                   </div>
 
                   <form className="vm-composer" onSubmit={handleSend}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Write your reply..."
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                    />
-                    <button className="btn btn-success" type="submit">
-                      Send
-                    </button>
+                    {previewUrl && (
+                      <div className="vm-preview-wrap">
+                        <img
+                          src={previewUrl}
+                          alt="Selected preview"
+                          className="vm-preview-image"
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={removeSelectedImage}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="vm-composer-row">
+                      <label className="btn btn-outline-secondary mb-0">
+                        Image
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={handleImageChange}
+                        />
+                      </label>
+
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Write your reply..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                      />
+
+                      <button className="btn btn-success" type="submit" disabled={sending}>
+                        {sending ? "Sending..." : "Send"}
+                      </button>
+                    </div>
                   </form>
                 </>
               ) : (
